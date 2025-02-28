@@ -1,0 +1,70 @@
+# Ignore .NET build artifacts
+backend/bin/
+backend/obj/
+backend/.vs/
+backend/*.user
+backend/*.suo
+backend/*.userprefs
+backend/*.csproj.user
+backend/*.njsproj
+backend/*.sln
+backend/*.sw?
+backend/*.cache
+backend/*.dotCover
+backend/*.pidb
+backend/*.log
+backend/*.pyc
+backend/*.pyo
+backend/*.pdb
+backend/*.db
+backend/*.opendb
+backend/*.db-shm
+backend/*.db-wal
+
+# Ignore Angular build artifacts
+frontend/dist/
+frontend/node_modules/
+frontend/.angular/cache
+frontend/.browserslistrc
+frontend/.editorconfig
+frontend/.gitignore
+frontend/.vscode/
+frontend/.idea/
+frontend/.DS_Store
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+frontend/bun.lockb
+frontend/package-lock.json
+frontend/yarn.lock
+frontend/coverage/
+frontend/logs/
+frontend/tmp/
+frontend/out-tsc/
+
+# Ignore appsettings files (except for development)
+backend/appsettings.json
+!backend/appsettings.Development.json
+
+# Ignore IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# Ignore OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore logs and databases
+*.log
+*.sqlite

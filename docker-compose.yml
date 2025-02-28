@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  sql_server_container:
+    image: mcr.microsoft.com/mssql/server
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Password_123#
+    ports:
+      - "1433:1433"
+
+  backend:
+    build: ./backend
+    environment:
+      - SqlConnection=Server=sql_server_container,1433;Database=BiUrSite;User Id=sa;Password=Password_123#;TrustServerCertificate=True
+    ports:
+      - "5000:8080"
+    depends_on:
+      - sql_server_container
+
+  frontend:
+    build: ./frontend
+    environment:
+      - API_URL=http://backend:8080
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
