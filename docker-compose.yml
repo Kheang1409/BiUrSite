@@ -5,14 +5,23 @@ services:
     image: mcr.microsoft.com/mssql/server
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=Password_123#
+      - SA_PASSWORD=XXXX XXXX XXXX XXXX
     ports:
       - "1433:1433"
 
   backend:
     build: ./backend
     environment:
-      - SqlConnection=Server=sql_server_container,1433;Database=BiUrSite;User Id=sa;Password=Password_123#;TrustServerCertificate=True
+      - SqlConnection=Server=sql_server_container,1433;Database=BiUrSiteDB;User Id=sa;Password=XXXX XXXX XXXX XXXX;TrustServerCertificate=True
+      - JwtSettings__SecretKey=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      - JwtSettings__Issuer=BiUrSiteApp
+      - JwtSettings__Audience=BiUrSiteApp
+      - JwtSettings__ExpiryMinutes=60
+      - Limit=10
+      - EmailSettings__SmtpServer=smtp.gmail.com
+      - EmailSettings__Port=465
+      - EmailSettings__SenderEmail=example.email@gmail.com 
+      - EmailSettings__SenderPassword=XXXX XXXX XXXX XXXX
     ports:
       - "5000:8080"
     depends_on:
