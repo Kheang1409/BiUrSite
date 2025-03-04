@@ -1,4 +1,5 @@
 using Backend.Enums;
+using Backend.Models;
 using System.Text.Json.Serialization;
 
 namespace Backend.DTOs

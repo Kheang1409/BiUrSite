@@ -7,6 +7,7 @@ namespace Backend.Models
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Post> Posts { get; set; }
 
         [Obsolete]
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -37,10 +38,12 @@ namespace Backend.Models
                 if (entity.State == EntityState.Added)
                 {
                     ((User)entity.Entity).createdDate = DateTime.UtcNow;
+                    ((Post)entity.Entity).createdDate = DateTime.UtcNow;
                 }
                 else if (entity.State == EntityState.Modified)
                 {
                     ((User)entity.Entity).modifiedDate = DateTime.UtcNow;
+                    ((Post)entity.Entity).modifiedDate = DateTime.UtcNow;
                 }
             }
 

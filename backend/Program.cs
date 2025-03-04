@@ -12,12 +12,15 @@ builder.Services.AddSingleton<IJwtService, JwtService>();
 
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddAutoMapper(typeof(UserProfile));
+builder.Services.AddAutoMapper(typeof(PostProfile));
 
 // Configure authentication
 var authenticationService = builder.Services.BuildServiceProvider().GetRequiredService<IAuthenticationService>();

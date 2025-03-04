@@ -22,6 +22,35 @@ namespace backend.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Backend.Models.Post", b =>
+                {
+                    b.Property<int>("postId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("postId"));
+
+                    b.Property<DateTime>("createdDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasMaxLength(3000)
+                        .HasColumnType("nvarchar(3000)");
+
+                    b.Property<DateTime?>("modifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("userId")
+                        .HasColumnType("int");
+
+                    b.HasKey("postId");
+
+                    b.HasIndex("userId");
+
+                    b.ToTable("Posts");
+                });
+
             modelBuilder.Entity("Backend.Models.User", b =>
                 {
                     b.Property<int>("userId")
@@ -51,8 +80,8 @@ namespace backend.Migrations
 
                     b.Property<string>("password")
                         .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("role")
                         .IsRequired()
@@ -64,8 +93,8 @@ namespace backend.Migrations
 
                     b.Property<string>("username")
                         .IsRequired()
-                        .HasMaxLength(15)
-                        .HasColumnType("nvarchar(15)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("verificationToken")
                         .HasColumnType("nvarchar(max)");
@@ -81,6 +110,22 @@ namespace backend.Migrations
 
                             t.HasCheckConstraint("CK_User_Status", "status IN ('Unverified', 'Verified', 'Banned')");
                         });
+                });
+
+            modelBuilder.Entity("Backend.Models.Post", b =>
+                {
+                    b.HasOne("Backend.Models.User", "user")
+                        .WithMany("Posts")
+                        .HasForeignKey("userId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("user");
+                });
+
+            modelBuilder.Entity("Backend.Models.User", b =>
+                {
+                    b.Navigation("Posts");
                 });
 #pragma warning restore 612, 618
         }

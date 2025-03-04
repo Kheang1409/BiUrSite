@@ -26,14 +26,14 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Users([FromQuery] int ? pageNumber=1, [FromQuery] string? username = null){
-            IActionResult response = Ok(new {message = "User data retrieved."});
+        public async Task<IActionResult> GetUsers([FromQuery] int ? pageNumber=1, [FromQuery] string? username = null){
+            IActionResult response = Ok(new {message = "User data retrieved.", data = new List<object>() });
             if(pageNumber < 1)
                 response = BadRequest(new { message = "Page number must be start from 1!"});
             if(response is OkObjectResult){
                 int _pageNumber = (pageNumber ?? 1) - 1;
                 var users = await _userService.GetUsersAsync(_pageNumber, username);
-                response = Ok(users);
+                response = Ok(new {message = "User data retrieved.", data = users});
             }
             return response;
         }
@@ -189,6 +189,7 @@ namespace Backend.Controllers
             user.password = HashPassword(user.password);
             user.verificationToken = GenerateVerfiedToken();
             user.verificationTokenExpiry = DateTime.UtcNow.AddHours(24);
+            Console.WriteLine("password: " + user.password);
             return user;
         }
     }
