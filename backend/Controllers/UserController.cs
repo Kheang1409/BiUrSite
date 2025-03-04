@@ -1,3 +1,4 @@
+using AutoMapper;
 using Backend.DTOs;
 using Backend.Models;
 using Backend.Services;
@@ -15,11 +16,13 @@ namespace Backend.Controllers
         private readonly IUserService _userService;
         private readonly IJwtService _jwtService;
         private readonly INotificationService _notificationService;
-        public UserController(IUserService userService, IJwtService jwtService, INotificationService notificationService)
+        private readonly IMapper _mapper;
+        public UserController(IUserService userService, IJwtService jwtService, INotificationService notificationService, IMapper mapper)
         {
             _userService = userService;
             _jwtService = jwtService;
             _notificationService = notificationService;
+            _mapper= mapper;
         }
 
         [HttpGet]
@@ -36,7 +39,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterDto dto)
+        public async Task<IActionResult> Register(RegisterDto registerDto)
         {
             IActionResult response = Ok(new { message = "Account created successfully. Please check your email to verify your account."});
             if (!ModelState.IsValid)
@@ -45,23 +48,16 @@ namespace Backend.Controllers
                                        .Select(e => e.ErrorMessage).ToList();
                 response = BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors});
             }
-            if (await _userService.GetUserByEmailAsync(dto.email) != null)
+            var existUser = await _userService.GetUserByEmailAsync(registerDto.email);
+            if (existUser != null)
             {
                 response = BadRequest(new { message = "This email is already registered. Please use a different email or log in.", statusCode = 400 });
             }
             if(response is OkObjectResult)
             {
-                var user = new User
-                {
-                    username = dto.username,
-                    email = dto.email,
-                    password = HashPassword(dto.password),
-                    verificationToken = GenerateVerfiedToken(),
-                    verificationTokenExpiry = DateTime.UtcNow.AddHours(24)
-                };
+                var user = createUserObject(_mapper.Map<User>(registerDto));
                 var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
                 var verificationLink = $"{baseUrl}/api/users/verify-user?verificationToken={user.verificationToken}";
-                Console.WriteLine($"Verification Link: {verificationLink}");
                 await _userService.AddUserAsync(user);
                 await _notificationService.SendConfirmationEmail(user.email, verificationLink);
             }
@@ -76,7 +72,7 @@ namespace Backend.Controllers
             {
                 response = BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
             }
-            bool isVerified = await _userService.UserVerified(verificationToken);
+            var isVerified = await _userService.UserVerified(verificationToken);
             if (!isVerified)
             {
                 response = BadRequest(new { message = "The verification token is either invalid or has expired. Please request a new verification email.", statusCode = 400 });
@@ -97,8 +93,8 @@ namespace Backend.Controllers
             }
             var email = forgetPasswordDto.Email;
             var opt = GenerateOtp();
-            var user = await _userService.GetUserByEmailAsync(email);
-            if (user == null){
+            var existUser = await _userService.GetUserByEmailAsync(email);
+            if (existUser == null){
                 response = BadRequest(new { message = "No account found with this email address. Please check the email or register a new account."});
             }
             else {
@@ -108,7 +104,7 @@ namespace Backend.Controllers
                 }
             }
             if(response is OkObjectResult){
-                await _notificationService.SendOtpEmail(user.email, opt);
+                await _notificationService.SendOtpEmail(existUser.email, opt);
             }
             return response;
         }
@@ -126,7 +122,6 @@ namespace Backend.Controllers
             var isReset = await _userService.UserResetPassword(dto.Otp, hashPassword);
             if (!isReset)
                 response = BadRequest(new { message = "The OTP is either invalid or has expired. Please request a new OTP.", statusCode = 400 });
-            
             return response;
         }
 
@@ -188,6 +183,13 @@ namespace Backend.Controllers
             using var sha256 = SHA256.Create();
             var hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(password)));
             return hash == passwordHash;
+        }
+
+        private static User createUserObject(User user){
+            user.password = HashPassword(user.password);
+            user.verificationToken = GenerateVerfiedToken();
+            user.verificationTokenExpiry = DateTime.UtcNow.AddHours(24);
+            return user;
         }
     }
 }
