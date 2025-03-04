@@ -1,6 +1,5 @@
 using Backend.DTOs;
 using Backend.Models;
-using Backend.Repositories;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -25,32 +24,30 @@ namespace Backend.Controllers
 
         [HttpGet]
         public async Task<IActionResult> Users([FromQuery] int ? pageNumber=1, [FromQuery] string? username = null){
-            IActionResult response = Ok(new {message = "really?"});
+            IActionResult response = Ok(new {message = "User data retrieved."});
             if(pageNumber < 1)
-                response = BadRequest(new { message = "Page number cannot negative!"});
+                response = BadRequest(new { message = "Page number must be start from 1!"});
             if(response is OkObjectResult){
                 int _pageNumber = (pageNumber ?? 1) - 1;
                 var users = await _userService.GetUsersAsync(_pageNumber, username);
                 response = Ok(users);
             }
-            
             return response;
         }
 
         [HttpPost]
         public async Task<IActionResult> Register(RegisterDto dto)
         {
-            IActionResult response = Ok(new { message = "Your account has been created! Please check your email to verify your account." });
-            
+            IActionResult response = Ok(new { message = "Account created successfully. Please check your email to verify your account."});
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors)
                                        .Select(e => e.ErrorMessage).ToList();
-                response = BadRequest(new { message = "Invalid input", errors});
+                response = BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors});
             }
             if (await _userService.GetUserByEmailAsync(dto.email) != null)
             {
-                response = BadRequest(new { message = "Email is already registered!", statusCode = 400 });
+                response = BadRequest(new { message = "This email is already registered. Please use a different email or log in.", statusCode = 400 });
             }
             if(response is OkObjectResult)
             {
@@ -74,21 +71,15 @@ namespace Backend.Controllers
         [HttpGet("verify-user")]
         public async Task<IActionResult> VerifyUser([FromQuery] string verificationToken)
         {
-            IActionResult response = Ok(new { message = "Verified successfully." });
+            IActionResult response = Ok(new { message = "Account verified successfully." });
             if (!ModelState.IsValid)
             {
-                response = BadRequest(new { message = "Invalid input", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
+                response = BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
             }
-
-            var user = await _userService.GetUserByVerificationTokenAsync(verificationToken);
-            if (user == null)
-                response = BadRequest(new { message = "Invalid or expired verification Token.", statusCode = 400 });
-
-            if(response is OkObjectResult){
-                user.verificationToken = string.Empty;
-                user.verificationTokenExpiry = null;
-                user.status = "Verified";
-                await _userService.UpdateUserAsync(user);
+            bool isVerified = await _userService.UserVerified(verificationToken);
+            if (!isVerified)
+            {
+                response = BadRequest(new { message = "The verification token is either invalid or has expired. Please request a new verification email.", statusCode = 400 });
             }
             return response;
         }
@@ -97,23 +88,27 @@ namespace Backend.Controllers
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgetPasswordDto forgetPasswordDto)
         {
-            IActionResult response = Ok(new { message = "OTP has been sent to your email." });
+            IActionResult response = Ok(new { message = "A One-Time Password (OTP) has been sent to your email." });
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors)
                                        .Select(e => e.ErrorMessage).ToList();
-                response = BadRequest(new { message = "Invalid input", errors});
+                response = BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors});
             }
-
             var email = forgetPasswordDto.Email;
+            var opt = GenerateOtp();
             var user = await _userService.GetUserByEmailAsync(email);
-            if (user == null)
-                response = BadRequest("Email not registered.");
+            if (user == null){
+                response = BadRequest(new { message = "No account found with this email address. Please check the email or register a new account."});
+            }
+            else {
+                var IsValid = await _userService.UserForgetPassword(email, opt);
+                if (!IsValid){
+                    response = BadRequest(new { message = "An error occurred while processing your request. Please try again later."});
+                }
+            }
             if(response is OkObjectResult){
-                user.opt = GenerateOtp();
-                user.optExpiry = DateTime.UtcNow.AddMinutes(3);
-                await _userService.UpdateUserAsync(user);
-                await _notificationService.SendOtpEmail(user.email, user.opt);
+                await _notificationService.SendOtpEmail(user.email, opt);
             }
             return response;
         }
@@ -122,24 +117,16 @@ namespace Backend.Controllers
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {
-            IActionResult response = Ok(new { message = "Password reset successfully." });
+            IActionResult response = Ok(new { message = "Password has been reset successfully." });
             if (!ModelState.IsValid)
             {
-                response = BadRequest(new { message = "Invalid input", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
+                response = BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
             }
-
-            var user = await _userService.GetUserByOPTAsync(dto.Otp);
-            if (user == null)
-                response = BadRequest(new { message = "Invalid or expired OTP.", statusCode = 400 });
-
-            if(response is OkObjectResult){
-                user.password = HashPassword(dto.NewPassword);
-                user.opt = string.Empty;
-                user.optExpiry = null;
-                await _userService.UpdateUserAsync(user);
-            }
+            var hashPassword = HashPassword(dto.NewPassword);
+            var isReset = await _userService.UserResetPassword(dto.Otp, hashPassword);
+            if (!isReset)
+                response = BadRequest(new { message = "The OTP is either invalid or has expired. Please request a new OTP.", statusCode = 400 });
             
-
             return response;
         }
 
@@ -149,9 +136,8 @@ namespace Backend.Controllers
             IActionResult response = Ok(new {});
             if (!ModelState.IsValid)
             {
-                response = BadRequest(new { message = "Invalid input", });
+                response = BadRequest(new { message = "Invalid input. Please check the provided details and try again.", });
             }
-
             var user = await _userService.GetUserByEmailAsync(dto.Email);
             if (user == null || !VerifyPassword(dto.Password, user.password))
             {
@@ -167,14 +153,14 @@ namespace Backend.Controllers
         [Authorize(Roles = "Admin")]
         [HttpPost("{userId}/ban")]
         public async Task<IActionResult> Ban(int userId){
-            IActionResult response = Ok(new { message = $"user with an Id: {userId} is banned!" });
+            IActionResult response = Ok(new { message = $"User with ID {userId} has been banned successfully." });
             var user = await _userService.GetUserByIdAsync(userId);
             if(user == null){
-                response = BadRequest(new { message = "ban user unsuccessfully!"});
+                response = BadRequest(new { message = "Unable to ban user. User not found."});
             }
-            if(response is OkObjectResult){
-                user.status = "Banned";
-                await _userService.UpdateUserAsync(user);
+            var isBanned = await _userService.BanUserAsync(userId);
+            if(!isBanned){
+                response = BadRequest(new { message = "An error occurred while attempting to ban the user."});
             }
             return response;
         }

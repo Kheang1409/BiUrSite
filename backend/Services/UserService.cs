@@ -2,6 +2,7 @@ using AutoMapper;
 using Backend.DTOs;
 using Backend.Models;
 using Backend.Repositories;
+using Newtonsoft.Json;
 
 namespace Backend.Services
 {
@@ -32,17 +33,24 @@ namespace Backend.Services
             return await _userRepository.GetUserByEmailAsync(email);
         }
 
-        public async Task<User> GetUserByOPTAsync(string opt){
-            return await _userRepository.GetUserByOPTAsync(opt);
-        }
-
-        public async Task<User> GetUserByVerificationTokenAsync(string verifiedToken){
-            return await _userRepository.GetUserByVerificationTokenAsync(verifiedToken);
-        }
-
         public async Task AddUserAsync(User User)
         {
             await _userRepository.AddUserAsync(User);
+        }
+
+        public async Task<bool> UserVerified(string verifiedToken){
+            return await _userRepository.UserVerified(verifiedToken);
+        }
+
+        public async Task<bool> UserForgetPassword(string email, string opt){
+            return await _userRepository.UserForgetPassword(email, opt);
+        }
+        public async Task<bool> UserResetPassword(string opt, string hashPassword){
+            return await _userRepository.UserResetPassword(opt, hashPassword);
+        }
+
+        public async Task<bool> BanUserAsync(int userId){
+            return await _userRepository.BanUserAsync(userId);
         }
 
         public async Task UpdateUserAsync(User User)

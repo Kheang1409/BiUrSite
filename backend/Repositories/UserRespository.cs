@@ -1,3 +1,4 @@
+using Backend.Enums;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +22,7 @@ namespace Backend.Repositories
             .Skip(_limitItem*pageNumber)
             .Take(_limitItem);
             if(username != null)
-                users  = users.Where(u => u.username.ToLower().Contains(username.ToLower()));
+                users  = users.Where(user=> user.username.ToLower().Contains(username.ToLower()));
             var userList = await users.ToListAsync();
             return userList;
         }
@@ -31,16 +32,35 @@ namespace Backend.Repositories
 
         public async Task<User> GetUserByEmailAsync(string email) =>
             await _context.Users.AsNoTracking()
-            .FirstOrDefaultAsync(u => u.email == email && u.status == "Verified");
-        public async Task<User?> GetUserByOPTAsync(string opt) =>
-            await _context.Users.AsNoTracking()
-            .FirstOrDefaultAsync(u => u.opt == opt && u.optExpiry > DateTime.UtcNow);
+            .FirstOrDefaultAsync(user => user.email == email && user.status == Status.Verified);
+        
 
-        public async Task<User?> GetUserByVerificationTokenAsync(string verificationToken) =>
-            await _context.Users.AsNoTracking()
-            .FirstOrDefaultAsync(u => u.verificationToken == verificationToken && u.verificationTokenExpiry > DateTime.UtcNow && u.status == "Unverified");
+        public async Task<bool> UserVerified(string verificationToken){
+            int affectdRow = await _context.Users.Where(user => user.verificationToken.Equals(verificationToken) && user.status == Status.Unverified)
+            .ExecuteUpdateAsync(user => user
+                .SetProperty(user => user.status, Status.Verified)
+                .SetProperty(user => user.verificationToken, string.Empty)
+                .SetProperty(user => user.verificationTokenExpiry, (DateTime?)null));
+            return affectdRow == 1; 
+        }
+
+        public async Task<bool> UserForgetPassword(string email, string opt){
+            int affectdRow = await _context.Users.Where(user => user.email.Equals(email) && user.status == Status.Verified)
+            .ExecuteUpdateAsync(user => user
+                .SetProperty(user => user.opt, opt)
+                .SetProperty(user => user.optExpiry, DateTime.UtcNow.AddMinutes(3)));
+            return affectdRow == 1;
+        }
+        public async Task<bool>  UserResetPassword(string opt, string hashPassword){
+            int affectdRow = await _context.Users.Where(user => user.opt.Equals(opt) && user.status == Status.Verified)
+            .ExecuteUpdateAsync(user => user
+                .SetProperty(user => user.password, hashPassword)
+                .SetProperty(user => user.opt, string.Empty)
+                .SetProperty(user => user.optExpiry, (DateTime?)null));
+            return affectdRow == 1;
+        }
         public async Task AddUserAsync(User user) {
-            _context.Users.AddAsync(user);
+            await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
         }
 
@@ -49,8 +69,15 @@ namespace Backend.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<bool> BanUserAsync(int userId){
+            int affectdRow = await _context.Users.Where(user => user.userId == userId)
+            .ExecuteUpdateAsync(user => user
+                .SetProperty(user => user.status, Status.Banned));
+            return affectdRow == 1;
+        }
+
         public async Task DeleteUserAsync(int userId)=>
-           await _context.Users.Where(u => u.userId == userId)
+           await _context.Users.Where(user=> user.userId == userId)
            .ExecuteDeleteAsync();
     }
 }

@@ -6,6 +6,6 @@ namespace Backend.DTOs
     {
         [Required(ErrorMessage = "Email is required.")]
         [EmailAddress(ErrorMessage = "Invalid email address format.")]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; }
     }
 }

@@ -8,16 +8,22 @@ namespace Backend.Models
 
         public DbSet<User> Users { get; set; }
 
+        [Obsolete]
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-
+            modelBuilder.Entity<User>()
+                .Property(user=> user.role)
+                .HasConversion<string>();
+             modelBuilder.Entity<User>()
+                .Property(user=> user.status)
+                .HasConversion<string>();
             modelBuilder.Entity<User>()
                 .HasCheckConstraint("CK_User_Status", 
-                "status IN ('Unverified', 'Verified', 'Banned')");
-                modelBuilder.Entity<User>()
+                    "status IN ('Unverified', 'Verified', 'Banned')");
+            modelBuilder.Entity<User>()
                 .HasCheckConstraint("CK_User_Role", 
-                "role IN ('User', 'Admin')");
+                    "role IN ('User', 'Admin')");
         }
 
         public override int SaveChanges()

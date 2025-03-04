@@ -7,7 +7,7 @@ namespace Backend.DTOs
         [Required(ErrorMessage = "Otp is required.")]
         public required string Otp { get; set; }
         [Required(ErrorMessage = "Password is required.")]
-        [MinLength(6, ErrorMessage = "Password must be at least 6 characters.")]
+        [StringLength(15, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 15 characters long.")]
         public required string NewPassword { get; set; }
     }
 }

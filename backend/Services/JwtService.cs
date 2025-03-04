@@ -1,3 +1,4 @@
+using Backend.Enums;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -14,7 +15,7 @@ namespace Backend.Services
             _configuration = configuration;
         }
 
-        public string GenerateToken(int userId, string email, string username, string role)
+        public string GenerateToken(int userId, string email, string username, Role role)
         {
             if (string.IsNullOrEmpty(email))
                 throw new ArgumentNullException(nameof(email), "Email cannot be null or empty.");
@@ -43,7 +44,7 @@ namespace Backend.Services
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iss, issuer),
                 new Claim(JwtRegisteredClaimNames.Aud, audience),
-                new Claim(ClaimTypes.Role, role) 
+                new Claim(ClaimTypes.Role, role.ToString()) 
             };
 
             var token = new JwtSecurityToken(
