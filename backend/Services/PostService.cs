@@ -7,32 +7,26 @@ namespace Backend.Services
     public class PostService : IPostService
     {
         private readonly IPostRepository _postRepository;
-        private readonly IMapper _mapper;
 
-        public PostService(IPostRepository postRepository, IMapper mapper)
+        public PostService(IPostRepository postRepository)
         {
             _postRepository = postRepository;
-            _mapper = mapper;
         }
 
-        public async Task<List<PostDto>> GetPostsAsync(int pageNumber, string keyword, int ? userId){
-            var posts = await _postRepository.GetPostsAsync(pageNumber, keyword, userId);
-            return _mapper.Map<List<PostDto>>(posts);
+        public async Task<List<Post>> GetPostsAsync(int pageNumber, string keyword, int ? userId)
+            => await _postRepository.GetPostsAsync(pageNumber, keyword, userId);
 
-        }
-
-        public async Task<PostDto> GetPostByIdAsync(int postId){
-             var post = await _postRepository.GetPostByIdAsync(postId);
-             return _mapper.Map<PostDto>(post);
-        }
+        public async Task<Post> GetPostByIdAsync(int postId)
+             => await _postRepository.GetPostByIdAsync(postId);
             
-
-
         public async Task AddPostAsync(Post post)
             => await _postRepository.AddPostAsync(post);
 
         public async Task<bool> UpdateContentAsync(int postId, string description)
             => await _postRepository.UpdateContentAsync(postId, description);
+
+        public async Task<bool> SoftDeletePostAsync(int postId)
+            => await _postRepository.SoftDeletePostAsync(postId);
 
         public async Task<bool> DeletePostAsync(int postId)
             => await _postRepository.DeletePostAsync(postId);

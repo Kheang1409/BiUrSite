@@ -1,14 +1,12 @@
 using Backend.DTOs;
 
 namespace Backend.Models{
-    public class PostDto{
-        public int postId {get; set;}
+    public class CommentDto{
+        public int commentId {get; set;}
         public required string description {get; set;}
         public UserDto? user {get; set;}
-        public bool isDeleted {get; set;}
-        public List<Comment>? comments {get; set;} = new List<Comment>();
+        public int postId {get; set;}
         public DateTime createdDate {get; set;} = DateTime.UtcNow; 
         public DateTime? modifiedDate {get; set;}
-
     }
 }

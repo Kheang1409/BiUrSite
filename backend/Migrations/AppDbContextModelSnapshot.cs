@@ -22,6 +22,39 @@ namespace backend.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Backend.Models.Comment", b =>
+                {
+                    b.Property<int>("commentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("commentId"));
+
+                    b.Property<DateTime>("createdDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("modifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("postId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("userId")
+                        .HasColumnType("int");
+
+                    b.HasKey("commentId");
+
+                    b.HasIndex("postId");
+
+                    b.HasIndex("userId");
+
+                    b.ToTable("Comments");
+                });
+
             modelBuilder.Entity("Backend.Models.Post", b =>
                 {
                     b.Property<int>("postId")
@@ -37,6 +70,9 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasMaxLength(3000)
                         .HasColumnType("nvarchar(3000)");
+
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("modifiedDate")
                         .HasColumnType("datetime2");
@@ -112,10 +148,29 @@ namespace backend.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Backend.Models.Comment", b =>
+                {
+                    b.HasOne("Backend.Models.Post", "post")
+                        .WithMany("comments")
+                        .HasForeignKey("postId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Models.User", "user")
+                        .WithMany("comments")
+                        .HasForeignKey("userId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("post");
+
+                    b.Navigation("user");
+                });
+
             modelBuilder.Entity("Backend.Models.Post", b =>
                 {
                     b.HasOne("Backend.Models.User", "user")
-                        .WithMany("Posts")
+                        .WithMany("posts")
                         .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -123,9 +178,16 @@ namespace backend.Migrations
                     b.Navigation("user");
                 });
 
+            modelBuilder.Entity("Backend.Models.Post", b =>
+                {
+                    b.Navigation("comments");
+                });
+
             modelBuilder.Entity("Backend.Models.User", b =>
                 {
-                    b.Navigation("Posts");
+                    b.Navigation("comments");
+
+                    b.Navigation("posts");
                 });
 #pragma warning restore 612, 618
         }

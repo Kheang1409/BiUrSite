@@ -10,7 +10,6 @@ namespace Backend.AutoMapper
         {
             CreateMap<Post, CreatePostDto>().ReverseMap();
             CreateMap<Post, PostDto>().ReverseMap();
-            
         }
     }
 }

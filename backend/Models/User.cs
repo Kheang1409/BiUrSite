@@ -29,5 +29,6 @@ namespace Backend.Models{
         public DateTime? modifiedDate {get; set;}
         [JsonIgnore]
         public List<Post>? posts {get; set;} = new List<Post>();
+        public List<Comment>? comments {get; set;} = new List<Comment>();
     }
 }

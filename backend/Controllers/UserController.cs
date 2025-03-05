@@ -118,8 +118,8 @@ namespace Backend.Controllers
             {
                 response = BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
             }
-            var hashPassword = HashPassword(dto.NewPassword);
-            var isReset = await _userService.UserResetPassword(dto.Otp, hashPassword);
+            var hashPassword = HashPassword(dto.newPassword);
+            var isReset = await _userService.UserResetPassword(dto.otp, hashPassword);
             if (!isReset)
                 response = BadRequest(new { message = "The OTP is either invalid or has expired. Please request a new OTP.", statusCode = 400 });
             return response;
@@ -133,8 +133,8 @@ namespace Backend.Controllers
             {
                 response = BadRequest(new { message = "Invalid input. Please check the provided details and try again.", });
             }
-            var user = await _userService.GetUserByEmailAsync(dto.Email);
-            if (user == null || !VerifyPassword(dto.Password, user.password))
+            var user = await _userService.GetUserByEmailAsync(dto.email);
+            if (user == null || !VerifyPassword(dto.password, user.password))
             {
                 response = Unauthorized(new { message = "Invalid email or password." });
             }
@@ -155,7 +155,7 @@ namespace Backend.Controllers
             }
             var isBanned = await _userService.BanUserAsync(userId);
             if(!isBanned){
-                response = BadRequest(new { message = "An error occurred while attempting to ban the user."});
+                response = StatusCode(500, new { message = "An error occurred while attempting to ban the user."});
             }
             return response;
         }

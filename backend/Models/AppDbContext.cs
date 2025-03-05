@@ -8,6 +8,7 @@ namespace Backend.Models
 
         public DbSet<User> Users { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<Comment> Comments { get; set; }
 
         [Obsolete]
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -25,6 +26,16 @@ namespace Backend.Models
             modelBuilder.Entity<User>()
                 .HasCheckConstraint("CK_User_Role", 
                     "role IN ('User', 'Admin')");
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.user)
+                .WithMany(u => u.comments)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Comment>()
+                .HasOne(c => c.post)
+                .WithMany(p => p.comments)
+                .OnDelete(DeleteBehavior.Restrict);
         }
 
         public override int SaveChanges()
@@ -39,11 +50,13 @@ namespace Backend.Models
                 {
                     ((User)entity.Entity).createdDate = DateTime.UtcNow;
                     ((Post)entity.Entity).createdDate = DateTime.UtcNow;
+                    ((Comment)entity.Entity).createdDate = DateTime.UtcNow;
                 }
                 else if (entity.State == EntityState.Modified)
                 {
                     ((User)entity.Entity).modifiedDate = DateTime.UtcNow;
                     ((Post)entity.Entity).modifiedDate = DateTime.UtcNow;
+                    ((Comment)entity.Entity).modifiedDate = DateTime.UtcNow;
                 }
             }
 
