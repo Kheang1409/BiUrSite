@@ -1,3 +1,4 @@
+using Backend.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Models
@@ -10,22 +11,37 @@ namespace Backend.Models
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
 
-        [Obsolete]
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            var admin = new User
+            {
+                userId = 1,
+                username = "admin",
+                email = "example@gmail.com",
+                role = Role.Admin,
+                status = Status.Verified,
+                password = "$2a$11$FCyLQBXkPuw44t82Fi8Qf.V8pecKGOPcPh59fGkrbfXEjbsMEc6FK", //// Prehashed password. Don't use User.HashPassword("123456"), <- dynamic value 
+                createdDate = new DateTime(2025, 3, 4)
+            };
+
             modelBuilder.Entity<User>()
-                .Property(user=> user.role)
+                .HasData(admin);
+
+            modelBuilder.Entity<User>()
+                .Property(user => user.role)
                 .HasConversion<string>();
-             modelBuilder.Entity<User>()
-                .Property(user=> user.status)
+
+            modelBuilder.Entity<User>()
+                .Property(user => user.status)
                 .HasConversion<string>();
+
             modelBuilder.Entity<User>()
-                .HasCheckConstraint("CK_User_Status", 
-                    "status IN ('Unverified', 'Verified', 'Banned')");
+                .HasCheckConstraint("CK_User_Status", "status IN ('Unverified', 'Verified', 'Banned')");
+
             modelBuilder.Entity<User>()
-                .HasCheckConstraint("CK_User_Role", 
-                    "role IN ('User', 'Admin')");
+                .HasCheckConstraint("CK_User_Role", "role IN ('User', 'Admin')");
 
             modelBuilder.Entity<Comment>()
                 .HasOne(c => c.user)
@@ -37,7 +53,6 @@ namespace Backend.Models
                 .WithMany(p => p.comments)
                 .OnDelete(DeleteBehavior.Restrict);
         }
-
         public override int SaveChanges()
         {
             var entities = ChangeTracker.Entries()
@@ -59,7 +74,6 @@ namespace Backend.Models
                     ((Comment)entity.Entity).modifiedDate = DateTime.UtcNow;
                 }
             }
-
             return base.SaveChanges();
         }
     }

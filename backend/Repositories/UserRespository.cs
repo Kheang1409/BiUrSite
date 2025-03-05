@@ -38,13 +38,13 @@ namespace Backend.Repositories
                 .AsNoTracking()
                 .Where(user => user.email == email)
                 .FilterUserByStatus(Status.Verified)
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
         
 
-        public async Task<bool> UserVerified(string verificationToken){
+        public async Task<bool> UserVerifiedAsync(string verificationToken){
             int affectdRow = await _context.Users
                 .Where(user => user.verificationToken != null && user.verificationToken.Equals(verificationToken))
-                .Where(user => user.verificationTokenExpiry <= DateTime.UtcNow)
+                .Where(user => user.verificationTokenExpiry >= DateTime.UtcNow)
                 .FilterUserByStatus(Status.Unverified)
                 .ExecuteUpdateAsync(user => user
                     .SetProperty(user => user.status, Status.Verified)
@@ -53,7 +53,7 @@ namespace Backend.Repositories
             return affectdRow == 1; 
         }
 
-        public async Task<bool> UserForgetPassword(string email, string opt){
+        public async Task<bool> UserForgetPasswordAsync(string email, string opt){
             int affectdRow = await _context.Users
                 .Where(user => user.email.Equals(email))
                 .FilterUserByStatus(Status.Verified)
@@ -62,12 +62,14 @@ namespace Backend.Repositories
                     .SetProperty(user => user.optExpiry, DateTime.UtcNow.AddMinutes(3)));
             return affectdRow == 1;
         }
-        public async Task<bool>  UserResetPassword(string opt, string hashPassword){
-            int affectdRow = await _context.Users.Where(user => user.opt.Equals(opt) && user.status == Status.Verified)
-            .ExecuteUpdateAsync(user => user
-                .SetProperty(user => user.password, hashPassword)
-                .SetProperty(user => user.opt, string.Empty)
-                .SetProperty(user => user.optExpiry, (DateTime?)null));
+        public async Task<bool>  UserResetPasswordAsync(string opt, string hashPassword){
+            int affectdRow = await _context.Users
+                .Where(user => user.opt != null && user.opt.Equals(opt))
+                .FilterUserByStatus(Status.Verified)
+                .ExecuteUpdateAsync(user => user
+                    .SetProperty(user => user.password, hashPassword)
+                    .SetProperty(user => user.opt, string.Empty)
+                    .SetProperty(user => user.optExpiry, (DateTime?)null));
             return affectdRow == 1;
         }
         public async Task AddUserAsync(User user) {
@@ -87,8 +89,12 @@ namespace Backend.Repositories
             return affectdRow == 1;
         }
 
-        public async Task DeleteUserAsync(int userId)=>
-           await _context.Users.Where(user=> user.userId == userId)
-           .ExecuteDeleteAsync();
+        public async Task<bool> DeleteUserAsync(int userId)
+        {
+            int affectdRow = await _context.Users
+                .Where(user => user.userId == userId)
+                .ExecuteDeleteAsync();
+            return affectdRow == 1;
+        }
     }
 }

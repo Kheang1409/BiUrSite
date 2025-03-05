@@ -4,8 +4,6 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace Backend.Controllers
 {
@@ -55,7 +53,8 @@ namespace Backend.Controllers
             }
             if(response is OkObjectResult)
             {
-                var user = createUserObject(_mapper.Map<User>(registerDto));
+                var user = _mapper.Map<User>(registerDto).GenerateVerfiedToken();
+                user.password = Models.User.HashPassword(user.password);
                 var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
                 var verificationLink = $"{baseUrl}/api/users/verify-user?verificationToken={user.verificationToken}";
                 await _userService.AddUserAsync(user);
@@ -72,7 +71,7 @@ namespace Backend.Controllers
             {
                 response = BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
             }
-            var isVerified = await _userService.UserVerified(verificationToken);
+            var isVerified = await _userService.UserVerifiedAsync(verificationToken);
             if (!isVerified)
             {
                 response = BadRequest(new { message = "The verification token is either invalid or has expired. Please request a new verification email.", statusCode = 400 });
@@ -92,49 +91,49 @@ namespace Backend.Controllers
                 response = BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors});
             }
             var email = forgetPasswordDto.Email;
-            var opt = GenerateOtp();
             var existUser = await _userService.GetUserByEmailAsync(email);
             if (existUser == null){
                 response = BadRequest(new { message = "No account found with this email address. Please check the email or register a new account."});
             }
             else {
-                var IsValid = await _userService.UserForgetPassword(email, opt);
+                existUser.GenerateOtp();
+                var IsValid = await _userService.UserForgetPasswordAsync(email, existUser.opt);
                 if (!IsValid){
                     response = BadRequest(new { message = "An error occurred while processing your request. Please try again later."});
                 }
             }
             if(response is OkObjectResult){
-                await _notificationService.SendOtpEmail(existUser.email, opt);
+                await _notificationService.SendOtpEmail(existUser.email, existUser.opt);
             }
             return response;
         }
 
 
         [HttpPost("reset-password")]
-        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordRto)
         {
             IActionResult response = Ok(new { message = "Password has been reset successfully." });
             if (!ModelState.IsValid)
             {
                 response = BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
             }
-            var hashPassword = HashPassword(dto.newPassword);
-            var isReset = await _userService.UserResetPassword(dto.otp, hashPassword);
+            var hashPassword = Models.User.HashPassword(resetPasswordRto.newPassword);;
+            var isReset = await _userService.UserResetPasswordAsync(resetPasswordRto.otp, hashPassword);
             if (!isReset)
                 response = BadRequest(new { message = "The OTP is either invalid or has expired. Please request a new OTP.", statusCode = 400 });
             return response;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             IActionResult response = Ok(new {});
             if (!ModelState.IsValid)
             {
                 response = BadRequest(new { message = "Invalid input. Please check the provided details and try again.", });
             }
-            var user = await _userService.GetUserByEmailAsync(dto.email);
-            if (user == null || !VerifyPassword(dto.password, user.password))
+            var user = await _userService.GetUserByEmailAsync(loginDto.email);
+            if (user == null || !user.VerifyPassword(loginDto.password))
             {
                 response = Unauthorized(new { message = "Invalid email or password." });
             }
@@ -158,39 +157,6 @@ namespace Backend.Controllers
                 response = StatusCode(500, new { message = "An error occurred while attempting to ban the user."});
             }
             return response;
-        }
-
-        private static string GenerateOtp()
-        {
-            var random = new Random();
-            return random.Next(100000, 999999).ToString();
-        }
-
-        private static string GenerateVerfiedToken()
-        {
-            var verificationToken = Guid.NewGuid().ToString(); 
-            return verificationToken;
-        }
-
-        private static string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            return Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(password)));
-        }
-
-        private static bool VerifyPassword(string password, string passwordHash)
-        {
-            using var sha256 = SHA256.Create();
-            var hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(password)));
-            return hash == passwordHash;
-        }
-
-        private static User createUserObject(User user){
-            user.password = HashPassword(user.password);
-            user.verificationToken = GenerateVerfiedToken();
-            user.verificationTokenExpiry = DateTime.UtcNow.AddHours(24);
-            Console.WriteLine("password: " + user.password);
-            return user;
         }
     }
 }

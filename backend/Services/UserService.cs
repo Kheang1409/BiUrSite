@@ -29,7 +29,7 @@ namespace Backend.Services
             return _mapper.Map<User>(user);
         }
 
-        public async Task<User> GetUserByEmailAsync(string email){
+        public async Task<User?> GetUserByEmailAsync(string email){
             return await _userRepository.GetUserByEmailAsync(email);
         }
 
@@ -38,15 +38,15 @@ namespace Backend.Services
             await _userRepository.AddUserAsync(User);
         }
 
-        public async Task<bool> UserVerified(string verifiedToken){
-            return await _userRepository.UserVerified(verifiedToken);
+        public async Task<bool> UserVerifiedAsync(string verifiedToken){
+            return await _userRepository.UserVerifiedAsync(verifiedToken);
         }
 
-        public async Task<bool> UserForgetPassword(string email, string opt){
-            return await _userRepository.UserForgetPassword(email, opt);
+        public async Task<bool> UserForgetPasswordAsync(string email, string opt){
+            return await _userRepository.UserForgetPasswordAsync(email, opt);
         }
-        public async Task<bool> UserResetPassword(string opt, string hashPassword){
-            return await _userRepository.UserResetPassword(opt, hashPassword);
+        public async Task<bool> UserResetPasswordAsync(string opt, string hashPassword){
+            return await _userRepository.UserResetPasswordAsync(opt, hashPassword);
         }
 
         public async Task<bool> BanUserAsync(int userId){

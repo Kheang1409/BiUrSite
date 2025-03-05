@@ -37,6 +37,9 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("isDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("modifiedDate")
                         .HasColumnType("datetime2");
 
@@ -116,8 +119,7 @@ namespace backend.Migrations
 
                     b.Property<string>("password")
                         .IsRequired()
-                        .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("role")
                         .IsRequired()
@@ -129,8 +131,8 @@ namespace backend.Migrations
 
                     b.Property<string>("username")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(15)
+                        .HasColumnType("nvarchar(15)");
 
                     b.Property<string>("verificationToken")
                         .HasColumnType("nvarchar(max)");
@@ -145,6 +147,19 @@ namespace backend.Migrations
                             t.HasCheckConstraint("CK_User_Role", "role IN ('User', 'Admin')");
 
                             t.HasCheckConstraint("CK_User_Status", "status IN ('Unverified', 'Verified', 'Banned')");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            userId = 1,
+                            createdDate = new DateTime(2025, 3, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            email = "example@gmail.com",
+                            isActive = false,
+                            password = "$2a$11$FCyLQBXkPuw44t82Fi8Qf.V8pecKGOPcPh59fGkrbfXEjbsMEc6FK",
+                            role = "Admin",
+                            status = "Verified",
+                            username = "admin"
                         });
                 });
 
