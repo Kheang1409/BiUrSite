@@ -57,8 +57,10 @@ namespace Backend.Controllers
                 user.password = Models.User.HashPassword(user.password);
                 var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
                 var verificationLink = $"{baseUrl}/api/users/verify-user?verificationToken={user.verificationToken}";
-                await _userService.AddUserAsync(user);
-                await _notificationService.SendConfirmationEmail(user.email, verificationLink);
+                await Task.WhenAll(
+                    _userService.AddUserAsync(user),
+                    _notificationService.SendConfirmationEmail(user.email, verificationLink)
+                );
             }
             return response;
         }
