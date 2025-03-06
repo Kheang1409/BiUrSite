@@ -4,6 +4,7 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
 
 namespace Backend.Controllers
 {
@@ -15,12 +16,14 @@ namespace Backend.Controllers
         private readonly IJwtService _jwtService;
         private readonly INotificationService _notificationService;
         private readonly IMapper _mapper;
-        public UserController(IUserService userService, IJwtService jwtService, INotificationService notificationService, IMapper mapper)
+        private readonly ICacheService _cache;
+        public UserController(IUserService userService, IJwtService jwtService, INotificationService notificationService, IMapper mapper, ICacheService cache, IConnectionMultiplexer redis)
         {
             _userService = userService;
             _jwtService = jwtService;
             _notificationService = notificationService;
             _mapper= mapper;
+            _cache = cache;
         }
 
         [HttpGet]
@@ -29,9 +32,11 @@ namespace Backend.Controllers
             if(pageNumber < 1)
                 response = BadRequest(new { message = "Page number must be start from 1!"});
             if(response is OkObjectResult){
+                var cacheKey = $"users_page_{pageNumber}_{username ?? "all"}";
                 int _pageNumber = (pageNumber ?? 1) - 1;
-                var users = await _userService.GetUsersAsync(_pageNumber, username);
-                response = Ok(new {message = "User data retrieved.", data = users});
+                var users = await _cache.GetDataAsync<List<User>>(cacheKey) ?? await _userService.GetUsersAsync(_pageNumber, username);
+                await _cache.SetDataAsync(cacheKey, users, TimeSpan.FromMinutes(5));
+                response = Ok(new {message = "User data retrieved.", data = _mapper.Map<List<UserDto>>(users)});
             }
             return response;
         }

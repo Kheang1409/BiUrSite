@@ -9,6 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddSingleton<IJwtService, JwtService>();
+builder.Services.AddSingleton<ICacheService, CacheService>();
+builder.Services.AddSingleton<IRedisService, RedisService>();
 
 builder.Services.AddScoped<IDatabaseService, DatabaseService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -19,10 +21,11 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
+builder.Services.AddAutoMapper(typeof(Program), typeof(UserProfile), typeof(PostProfile), typeof(CommentProfile));
 
-builder.Services.AddAutoMapper(typeof(Program));
-builder.Services.AddAutoMapper(typeof(UserProfile));
-builder.Services.AddAutoMapper(typeof(PostProfile));
+// Configure redis
+var redisService = builder.Services.BuildServiceProvider().GetRequiredService<IRedisService>();
+redisService.ConfigureRedis(builder.Services, builder.Configuration);
 
 // Configure authentication
 var authenticationService = builder.Services.BuildServiceProvider().GetRequiredService<IAuthenticationService>();
@@ -46,8 +49,6 @@ var app = builder.Build();
 // Apply database migrations
 databaseService.ApplyDatabaseMigrations(app);
 
-
-Console.WriteLine($"IsDevelopment: {app.Environment.IsDevelopment()}");
 // Configure middleware pipeline
 if (app.Environment.IsDevelopment())
 {

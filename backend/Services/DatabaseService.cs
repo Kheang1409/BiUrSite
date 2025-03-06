@@ -8,8 +8,8 @@ namespace Backend.Services
     {
         public void ConfigureDatabase(IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = Environment.GetEnvironmentVariable("SqlConnection")
-                                   ?? configuration.GetConnectionString("DefaultConnection");
+            var connectionString = Environment.GetEnvironmentVariable("SQLConnection")
+                                   ?? configuration.GetConnectionString("SQLConnection");
 
             services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlServer(connectionString, sqlOptions =>

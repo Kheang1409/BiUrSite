@@ -15,11 +15,14 @@ namespace Backend.Controllers
         private readonly IMapper _mapper;
         private readonly IPostService _postService;
         private readonly ICommentService _commentService;
-        public PostController(IPostService postService, ICommentService commentService, IMapper mapper)
+        private readonly ICacheService _cache;
+
+        public PostController(IPostService postService, ICommentService commentService, IMapper mapper, ICacheService cache)
         {
             _postService = postService;
             _commentService = commentService;
             _mapper= mapper;
+            _cache = cache;
 
         }
 
@@ -29,8 +32,9 @@ namespace Backend.Controllers
             if(pageNumber < 1)
                 response = BadRequest(new { message = "Page number must be start from 1!"});
             if(response is OkObjectResult){
+                var cacheKey = $"posts_page_{pageNumber}_keyword_{keyword ?? "all"}_userId_{userId?.ToString() ?? "all"}";
                 int _pageNumber = (pageNumber ?? 1) - 1;
-                var posts = await _postService.GetPostsAsync(_pageNumber, keyword, userId);
+                var posts = await _cache.GetDataAsync<List<Post>>(cacheKey) ?? await _postService.GetPostsAsync(_pageNumber, keyword, userId);
                 response = Ok(new {message = "Post data retrieved.", data = _mapper.Map<List<PostDto>>(posts)});
             }
             return response;
@@ -123,8 +127,9 @@ namespace Backend.Controllers
                 response = BadRequest(new { message = "Post not found!"});
             }
             else{
+                string cacheKey = $"comments_postId_{postId}_page_{pageNumber}_keyword_{keyword ?? "all"}_userId_{userId?.ToString() ?? "all"}";
                 int _pageNumber = (pageNumber ?? 1) - 1;
-                var comments = await _commentService.GetCommentsAsync(_pageNumber, keyword, userId, postId);
+                var comments =  await _cache.GetDataAsync<List<Comment>>(cacheKey) ?? await _commentService.GetCommentsAsync(_pageNumber, keyword, userId, postId);
                 if(response is OkObjectResult){
                     response = Ok(new {message = "Comment data retrieved.", data = _mapper.Map<List<CommentDto>>(comments) });
                 }

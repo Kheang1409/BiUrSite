@@ -161,7 +161,7 @@ namespace backend.Migrations
                         {
                             t.HasCheckConstraint("CK_User_Role", "role IN ('User', 'Admin')");
 
-                            t.HasCheckConstraint("CK_User_Status", "status IN ('Unverified', 'Verified', 'Banned')");
+                            t.HasCheckConstraint("CK_User_Status", "status IN ('Unverified', 'Verified', 'Banned', 'Deleted')");
                         });
 
                     b.HasData(
@@ -185,26 +185,26 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Backend.Models.User", "user")
+                    b.HasOne("Backend.Models.User", "commenter")
                         .WithMany("comments")
                         .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("post");
+                    b.Navigation("commenter");
 
-                    b.Navigation("user");
+                    b.Navigation("post");
                 });
 
             modelBuilder.Entity("Backend.Models.Post", b =>
                 {
-                    b.HasOne("Backend.Models.User", "user")
+                    b.HasOne("Backend.Models.User", "author")
                         .WithMany("posts")
                         .HasForeignKey("userId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("user");
+                    b.Navigation("author");
                 });
 
             modelBuilder.Entity("Backend.Models.Post", b =>

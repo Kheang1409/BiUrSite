@@ -1,11 +1,10 @@
-using Backend.DTOs;
 using Backend.Models;
 namespace Backend.Services
 {
     public interface IUserService
     {
 
-        Task<List<UserDto>> GetUsersAsync(int pageNumber, string username);
+        Task<List<User>> GetUsersAsync(int pageNumber, string username);
         Task<User> GetUserByIdAsync(int userId);
         Task<User?> GetUserByEmailAsync(string email);
         Task AddUserAsync(User user);

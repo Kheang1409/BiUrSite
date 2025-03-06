@@ -8,11 +8,17 @@ services:
       - SA_PASSWORD=XXXX XXXX XXXX XXXX
     ports:
       - "1433:1433"
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "6379:6379"
 
   backend:
     build: ./backend
     environment:
-      - SqlConnection=Server=sql_server_container,1433;Database=BiUrSiteDB;User Id=sa;Password=XXXX XXXX XXXX XXXX;TrustServerCertificate=True
+      - SQLConnection=Server=sql_server_container,1433;Database=BiUrSiteDB;User Id=sa;Password=XXXX XXXX XXXX XXXX;TrustServerCertificate=True
+      - RedisConnection=redis_container:6379
       - JwtSettings__SecretKey=XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
       - JwtSettings__Issuer=BiUrSiteApp
       - JwtSettings__Audience=BiUrSiteApp

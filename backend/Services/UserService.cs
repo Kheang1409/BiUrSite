@@ -17,10 +17,10 @@ namespace Backend.Services
             _mapper = mapper;
         }
 
-        public async Task<List<UserDto>> GetUsersAsync(int pageNumber, string usernamme)
+        public async Task<List<User>> GetUsersAsync(int pageNumber, string usernamme)
         {
             var users = await _userRepository.GetUsersAsync(pageNumber, usernamme);
-            return  _mapper.Map<List<UserDto>>(users);
+            return users;
         }
 
         public async Task<User> GetUserByIdAsync(int userId)

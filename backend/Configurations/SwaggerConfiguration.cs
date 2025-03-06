@@ -1,4 +1,3 @@
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
 namespace Backend.Configurations
