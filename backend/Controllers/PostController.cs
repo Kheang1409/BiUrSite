@@ -117,7 +117,7 @@ namespace Backend.Controllers
 
         [HttpGet("{postId}/comments")]
         public async Task<IActionResult> GetComments(int postId, [FromQuery] int ? pageNumber=1, string? keyword = null, int ? userId = null){
-            IActionResult response = Ok(new {message = "Post data retrieved.", data = new object() });
+            IActionResult response = Ok(new {message = "Comment data retrieved.", data = new object() });
             var post = await _postService.GetPostByIdAsync(postId);
             if(post == null){
                 response = BadRequest(new { message = "Post not found!"});
@@ -126,7 +126,7 @@ namespace Backend.Controllers
                 int _pageNumber = (pageNumber ?? 1) - 1;
                 var comments = await _commentService.GetCommentsAsync(_pageNumber, keyword, userId, postId);
                 if(response is OkObjectResult){
-                    response = Ok(new {message = "Post data retrieved.", data = _mapper.Map<List<CommentDto>>(comments) });
+                    response = Ok(new {message = "Comment data retrieved.", data = _mapper.Map<List<CommentDto>>(comments) });
                 }
             }
             return response;
@@ -147,7 +147,7 @@ namespace Backend.Controllers
         [Authorize]
         [HttpPost("{postId}/comments")]
         public async Task<IActionResult> CreateComment(int postId, CreateCommentDto commentDto){
-            IActionResult response = Ok(new {message = "Comment data retrieved.", data = new object() });
+            IActionResult response = Ok(new { message = "Comment published successfully.", data = new object()});
             var post = await _postService.GetPostByIdAsync(postId);
             if(post == null){
                 response = BadRequest(new { message = "Post not found!"});
@@ -157,6 +157,9 @@ namespace Backend.Controllers
                 comment.postId = post.postId;
                 comment.userId = GetAuthId();
                 await _commentService.AddCommentAsync(comment);
+                if(response is OkObjectResult){
+                    response = Ok(new {message = "Comment published successfully.", data = comment});
+                }
             }
             return response;
         }

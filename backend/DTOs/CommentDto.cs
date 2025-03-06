@@ -4,9 +4,10 @@ namespace Backend.Models{
     public class CommentDto{
         public int commentId {get; set;}
         public required string description {get; set;}
-        public UserDto? user {get; set;}
-        public int postId {get; set;}
-        public DateTime createdDate {get; set;} = DateTime.UtcNow; 
+        public bool isDeleted {get; set;}
+        public DateTime? createdDate {get; set;}
         public DateTime? modifiedDate {get; set;}
+        public UserDto? commenter {get; set;}
+        public PostDto? post {get; set;}
     }
 }

@@ -25,8 +25,9 @@ namespace Backend.Models{
         public DateTime? optExpiry { get; set; }
         public string? verificationToken  { get; set; }
         public DateTime? verificationTokenExpiry  { get; set; }
-        public DateTime? createdDate {get; set;} = DateTime.UtcNow;
+        public DateTime? createdDate {get; set;}
         public DateTime? modifiedDate {get; set;}
+        public DateTime? deletedDate { get; set; }
         [JsonIgnore]
         public List<Post>? posts {get; set;} = new List<Post>();
         public List<Comment>? comments {get; set;} = new List<Comment>();
@@ -47,7 +48,6 @@ namespace Backend.Models{
         public static string HashPassword(string plainPassword)
         {
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword);
-            Console.WriteLine("called: " + hashedPassword);
             return hashedPassword;
         }
 

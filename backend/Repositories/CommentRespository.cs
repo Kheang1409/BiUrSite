@@ -1,10 +1,6 @@
-using System.Collections;
-using System.Linq.Expressions;
-using Backend.Enums;
 using Backend.Extensions;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
-using Org.BouncyCastle.Utilities.IO;
 
 namespace Backend.Repositories
 {
@@ -22,8 +18,11 @@ namespace Backend.Repositories
 
         public async Task<List<Comment>> GetCommentsAsync(int pageNumber, string keyword, int ? userId, int ? postId){
 
-            IQueryable<Comment> comments = _context.Comments.AsNoTracking()
-                .Include(comment => comment.user)
+            IQueryable<Comment> comments = _context.Comments
+                .AsNoTracking()
+                .Include(comment => comment.commenter)
+                .Include(comment => comment.post)
+                .ThenInclude(post => post.author)
                 .Skip(_limitItem*pageNumber)
                 .Take(_limitItem);
             if(keyword != null)
@@ -37,9 +36,13 @@ namespace Backend.Repositories
         }
 
         public async Task<Comment?> GetCommentByIdAsync(int postId, int commentId)
-            => await _context.Comments.AsNoTracking().Include(comment => comment.user)
-                                        .FilterAvailableComments()
-                                        .FirstOrDefaultAsync();
+            => await _context.Comments
+                .AsNoTracking()
+                .Include(comment => comment.commenter)
+                .Include(comment => comment.post)
+                .ThenInclude(post => post.author)
+                .FilterAvailableComments()
+                .FirstOrDefaultAsync();
             
         public async Task AddCommentAsync(Comment comment){
             await _context.AddAsync(comment);
@@ -53,7 +56,8 @@ namespace Backend.Repositories
                 .Where(comment => comment.commentId == commentId)
                 .FilterAvailableComments()
                 .ExecuteUpdateAsync(comment => comment
-                    .SetProperty(comment => comment.description, description));
+                    .SetProperty(comment => comment.description, description)
+                    .SetProperty(comment => comment.modifiedDate, DateTime.UtcNow));
             return affectedRow == 1;
         }
 
@@ -64,7 +68,8 @@ namespace Backend.Repositories
                 .Where(comment => comment.commentId == commentId)
                 .FilterAvailableComments()
                 .ExecuteUpdateAsync(comment => comment
-                    .SetProperty(comment => comment.isDeleted, true));
+                    .SetProperty(comment => comment.isDeleted, true)
+                    .SetProperty(comment => comment.deletedDate, DateTime.UtcNow));
             return affectedRow == 1;
         }
 

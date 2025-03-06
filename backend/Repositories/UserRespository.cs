@@ -48,8 +48,9 @@ namespace Backend.Repositories
                 .FilterUserByStatus(Status.Unverified)
                 .ExecuteUpdateAsync(user => user
                     .SetProperty(user => user.status, Status.Verified)
-                    .SetProperty(user => user.verificationToken, string.Empty)
-                    .SetProperty(user => user.verificationTokenExpiry, (DateTime?)null));
+                    .SetProperty(user => user.verificationToken, (String?)null)
+                    .SetProperty(user => user.verificationTokenExpiry, (DateTime?)null)
+                    .SetProperty(user => user.modifiedDate, DateTime.UtcNow));
             return affectdRow == 1; 
         }
 
@@ -68,8 +69,9 @@ namespace Backend.Repositories
                 .FilterUserByStatus(Status.Verified)
                 .ExecuteUpdateAsync(user => user
                     .SetProperty(user => user.password, hashPassword)
-                    .SetProperty(user => user.opt, string.Empty)
-                    .SetProperty(user => user.optExpiry, (DateTime?)null));
+                    .SetProperty(user => user.opt, (String?)null)
+                    .SetProperty(user => user.optExpiry, (DateTime?)null)
+                    .SetProperty(user => user.modifiedDate, DateTime.UtcNow));
             return affectdRow == 1;
         }
         public async Task AddUserAsync(User user) {
@@ -83,9 +85,21 @@ namespace Backend.Repositories
         }
 
         public async Task<bool> BanUserAsync(int userId){
-            int affectdRow = await _context.Users.Where(user => user.userId == userId)
+            int affectdRow = await _context.Users
+            .Where(user => user.userId == userId)
             .ExecuteUpdateAsync(user => user
-                .SetProperty(user => user.status, Status.Banned));
+                .SetProperty(user => user.status, Status.Banned)
+                .SetProperty(user => user.modifiedDate, DateTime.UtcNow));
+            return affectdRow == 1;
+        }
+
+        public async Task<bool> SoftDeleteUserAsync(int userId)
+        {
+            int affectdRow = await _context.Users
+                .Where(user => user.userId == userId)
+                .ExecuteUpdateAsync(user => user
+                    .SetProperty(user => user.status, Status.Deleted)
+                    .SetProperty(user => user.deletedDate, DateTime.UtcNow));
             return affectdRow == 1;
         }
 

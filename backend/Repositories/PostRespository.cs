@@ -23,8 +23,7 @@ namespace Backend.Repositories
         {
             IQueryable<Post> posts = _context.Posts
                 .AsNoTracking()
-                .Include(post => post.user)
-                .Include(post => post.comments.Where(comment => comment.isDeleted == false).Take(_limitItem/2))
+                .Include(post => post.author)
                 .Skip(_limitItem*pageNumber)
                 .Take(_limitItem);
             if(keyword != null)
@@ -38,6 +37,7 @@ namespace Backend.Repositories
         public async Task<Post?> GetPostByIdAsync(int postId)
             => await _context.Posts
                 .AsNoTracking()
+                .Include(post => post.author)
                 .Where(post => post.postId == postId)
                 .FilterAvailablePost()
                 .FirstOrDefaultAsync();
@@ -54,7 +54,8 @@ namespace Backend.Repositories
                 .Where(post => post.postId == postId)
                 .FilterAvailablePost()
                 .ExecuteUpdateAsync(post => post
-                    .SetProperty(post => post.description, description));
+                    .SetProperty(post => post.description, description)
+                    .SetProperty(post => post.modifiedDate, DateTime.UtcNow));
             return affectRow == 1;
         }
         public async Task<bool> SoftDeletePostAsync(int postId)
@@ -63,7 +64,8 @@ namespace Backend.Repositories
             .Where(post=> post.postId == postId)
             .FilterAvailablePost()
             .ExecuteUpdateAsync(post => post
-                .SetProperty(post => post.isDeleted, true));
+                .SetProperty(post => post.isDeleted, true)
+                .SetProperty(post => post.deletedDate, DateTime.UtcNow));
             return affectRow == 1;
         }
 

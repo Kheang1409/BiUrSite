@@ -10,16 +10,18 @@ namespace Backend.Models{
         public required string description {get; set;}
         [Required(ErrorMessage = "UserId is required.")]
         public bool isDeleted {get; set; }
+        [Required(ErrorMessage = "UserId is required.")]
         public int userId {get; set;}
-        [ForeignKey("userId")]
-        [JsonIgnore]
-        public User? user {get; set;}
         [Required(ErrorMessage = "PostId is required.")]
         public int postId {get; set;}
+        public DateTime? createdDate {get; set;}
+        public DateTime? modifiedDate {get; set;}
+        public DateTime? deletedDate { get; set; }
+        [ForeignKey("userId")]
+        [JsonIgnore]
+        public User? commenter {get; set;}
         [ForeignKey("postId")]
         [JsonIgnore]
         public Post? post {get; set;}
-        public DateTime createdDate {get; set;} = DateTime.UtcNow;
-        public DateTime? modifiedDate {get; set;}
     }
 }

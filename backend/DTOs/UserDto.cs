@@ -11,6 +11,7 @@ namespace Backend.DTOs
         public bool isActive { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Status status { get; set; }
-        public DateTime createdDate { get; set; }
+        public DateTime? createdDate { get; set; }
+        public DateTime? modifiedDate {get; set; }
     }
 }

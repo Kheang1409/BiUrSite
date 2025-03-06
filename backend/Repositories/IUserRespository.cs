@@ -13,6 +13,7 @@ namespace Backend.Repositories
         Task AddUserAsync(User user);
         Task UpdateUserAsync(User user);
         Task<bool> BanUserAsync(int userId);
+        Task<bool> SoftDeleteUserAsync(int userId);
         Task<bool>  DeleteUserAsync(int userId);
     }
 }

@@ -158,5 +158,19 @@ namespace Backend.Controllers
             }
             return response;
         }
+        [Authorize(Roles = "Admin")]
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> Delete(int userId){
+            IActionResult response = Ok(new { message = $"User with ID {userId} has been deleted successfully." });
+            var user = await _userService.GetUserByIdAsync(userId);
+            if(user == null){
+                response = BadRequest(new { message = "Unable to ban user. User not found."});
+            }
+            var isDeleted = await _userService.SoftDeleteUserAsync(userId);
+            if(!isDeleted){
+                response = StatusCode(500, new { message = "An error occurred while attempting to deleted the user."});
+            }
+            return response;
+        }
     }
 }

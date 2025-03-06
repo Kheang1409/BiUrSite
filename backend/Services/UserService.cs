@@ -58,9 +58,13 @@ namespace Backend.Services
             await _userRepository.UpdateUserAsync(User);
         }
 
-        public async Task DeleteUserAsync(int UserId)
+        public async Task<bool> SoftDeleteUserAsync(int userId){
+            return await _userRepository.SoftDeleteUserAsync(userId);
+        }
+
+        public async Task<bool> DeleteUserAsync(int UserId)
         {
-            await _userRepository.DeleteUserAsync(UserId);
+            return await _userRepository.DeleteUserAsync(UserId);
         }
     }
 }

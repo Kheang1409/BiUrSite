@@ -14,6 +14,7 @@ namespace Backend.Services
         Task<bool> UserResetPasswordAsync(string opt, string hashPassword);
         Task UpdateUserAsync(User user);
         Task<bool> BanUserAsync(int userId);
-        Task DeleteUserAsync(int userId);
+        Task<bool> SoftDeleteUserAsync(int userId);
+        Task<bool> DeleteUserAsync(int userId);
     }
 }
