@@ -27,7 +27,7 @@ namespace Backend.Repositories
                 .Skip(_limitItem*pageNumber)
                 .Take(_limitItem);
             if(keyword != null)
-                posts  = posts.Where(post=> post.description.ToLower().Contains(keyword.ToLower()));
+                posts  = posts.Where(post=> post.description.Contains(keyword, StringComparison.OrdinalIgnoreCase));
             if(userId != null)
                 posts = posts.Where(post => post.userId == userId);
             var postList =  await  posts.FilterAvailablePost().ToListAsync();

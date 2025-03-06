@@ -26,7 +26,7 @@ namespace Backend.Repositories
                 .Skip(_limitItem*pageNumber)
                 .Take(_limitItem);
             if(keyword != null)
-                comments  = comments.Where(comment => comment.description.ToLower().Contains(keyword.ToLower()));
+                comments  = comments.Where(comment => comment.description.Contains(keyword, StringComparison.OrdinalIgnoreCase));
             if(userId != null)
                 comments  = comments.Where(comment => comment.userId == userId);
             if(postId != null)
