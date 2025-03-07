@@ -1,0 +1,15 @@
+<div class="comment-modal">
+    <div class="modal-header">
+      <h2>Add a Comment</h2>
+      <button (click)="closeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-content">
+      <!-- Comment Input (Fixed at Bottom) -->
+      <div class="comment-input">
+        <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
+        <button (click)="submitComment()">Submit</button>
+      </div>
+    </div>
+  </div>

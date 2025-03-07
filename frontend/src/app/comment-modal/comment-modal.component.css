@@ -1,0 +1,124 @@
+.comment-modal {
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    max-width: 500px; /* Fixed width for the modal */
+    width: 90%; /* Ensure it doesn't exceed the viewport width */
+    margin: auto;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh; /* Set a maximum height relative to the viewport */
+    overflow: hidden; /* Prevent content from overflowing */
+    box-sizing: border-box; /* Ensure padding is included in the width */
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+  }
+  
+  .modal-header button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #666;
+    transition: color 0.3s ease;
+  }
+  
+  .modal-header button:hover {
+    color: #333;
+  }
+  
+  .modal-content {
+    flex-grow: 1;
+    overflow-y: auto; /* Allow scrolling for content */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-right: 10px; /* Add padding to prevent scrollbar overlap */
+    box-sizing: border-box; /* Ensure padding is included in the width */
+    width: 100%; /* Ensure content doesn't overflow */
+  }
+  
+  .comments-list {
+    flex-grow: 1;
+    overflow-y: auto; /* Make comments list scrollable */
+    margin-bottom: 20px;
+  }
+  
+  .comment {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .comment p {
+    margin: 0;
+    color: #333;
+    word-wrap: break-word; /* Ensure long text wraps */
+  }
+  
+  .comment small {
+    color: #666;
+    word-wrap: break-word; /* Ensure long text wraps */
+  }
+  
+  .comment-input {
+    margin-top: auto; /* Stick to the bottom */
+    padding-top: 20px;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .comment-input textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    resize: vertical;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box; /* Ensure padding is included in the width */
+  }
+  
+  .comment-input button {
+    background: linear-gradient(45deg, #1877f2, #42b72a);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.3s ease;
+    box-sizing: border-box; /* Ensure padding is included in the width */
+  }
+  
+  .comment-input button:hover {
+    background: linear-gradient(45deg, #166fe5, #3aa123);
+  }
+  
+  /* Ensure no horizontal scrolling on small screens */
+  @media (max-width: 768px) {
+    .comment-modal {
+      width: 95%; /* Slightly reduce width on smaller screens */
+      padding: 15px; /* Reduce padding for smaller screens */
+    }
+  
+    .modal-content {
+      padding-right: 5px; /* Reduce padding to prevent overflow */
+    }
+  
+    .comment-input textarea {
+      padding: 8px; /* Adjust textarea padding for smaller screens */
+    }
+  }

@@ -1,0 +1,12 @@
+<div class="feed-container">
+    <!-- Post Creation Box -->
+    <div class="post-box">
+        <textarea placeholder="What's on your mind?"></textarea>
+        <button class="post-button">Post</button>
+    </div>
+
+    <!-- Feed Posts -->
+    <div class="feed-posts">
+        <app-post *ngFor="let post of posts" [post]="post"></app-post>
+    </div>
+</div>

@@ -1,0 +1,175 @@
+.register-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f2f5;
+    padding: 20px;
+}
+
+.register-intro {
+    max-width: 500px;
+    margin-right: 50px;
+}
+
+.register-intro h1 {
+    font-size: 4rem;
+    margin: 0;
+    background: linear-gradient(45deg, #1877f2, #42b72a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.register-intro p {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.register-form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    text-align: center;
+}
+
+.register-form input {
+    width: calc(100% - 28px); /* Adjust width to account for padding */
+    padding: 14px;
+    margin: 10px 0;
+    border: 1px solid #dddfe2;
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+}
+
+.register-form input:focus {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+.register-form button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(45deg, #1877f2, #42b72a);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s ease;
+}
+
+.register-form button:hover {
+    background: linear-gradient(45deg, #166fe5, #36a420);
+}
+
+.register-form a {
+    color: #1877f2;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: block;
+    margin: 10px 0;
+}
+
+.register-form a:hover {
+    text-decoration: underline;
+}
+
+.register-create-account {
+    background: linear-gradient(45deg, #42b72a, #1877f2);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    width: auto;
+    display: inline-block;
+    transition: background 0.3s ease;
+}
+
+.register-create-account:hover {
+    background: linear-gradient(45deg, #36a420, #166fe5);
+}
+
+.register-hr {
+    border: 0;
+    height: 1px;
+    background: #dddfe2;
+    margin: 20px 0;
+}
+
+.register-gradient-card {
+    background: linear-gradient(45deg, #1877f2, #42b72a);
+    color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.register-gradient-card h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.register-gradient-card p {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .register-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .register-intro {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .register-intro h1 {
+        font-size: 3rem;
+    }
+
+    .register-intro p {
+        font-size: 1rem;
+    }
+
+    .register-form {
+        width: 90%;
+        max-width: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .register-intro h1 {
+        font-size: 2.5rem;
+    }
+
+    .register-intro p {
+        font-size: 0.9rem;
+    }
+
+    .register-form {
+        padding: 15px;
+    }
+
+    .register-form input, .register-form button {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+
+    .register-create-account {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+}

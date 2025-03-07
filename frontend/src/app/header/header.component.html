@@ -1,0 +1,31 @@
+<header class="header">
+    <h1>BiUrSite</h1>
+    <div class="search-bar">
+        <input type="text" placeholder="Search...">
+        <i class="fas fa-search"></i>
+    </div>
+    <div class="header-icons">
+        <!-- Notification Icon -->
+        <div class="notification-icon" (click)="toggleNotificationDropdown()">
+            <i class="fas fa-bell"></i>
+            <div class="notification-dropdown" [ngClass]="{'show': showNotificationDropdown}">
+                <ul>
+                    <li>John liked your post</li>
+                    <li>Jane commented on your post</li>
+                    <li>New feature released!</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Profile Menu -->
+        <div class="profile-menu" (click)="toggleProfileDropdown()">
+            <i class="fas fa-user-circle"></i>
+            <div class="profile-dropdown" [ngClass]="{'show': showProfileDropdown}">
+                <ul>
+                    <li><a href="#">View Profile</a></li>
+                    <li><a href="#">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>

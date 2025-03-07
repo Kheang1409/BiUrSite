@@ -1,0 +1,178 @@
+.login-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f2f5;
+    padding: 20px;
+}
+
+.intro {
+    max-width: 500px;
+    margin-right: 50px;
+}
+
+.intro h1 {
+    font-size: 4rem;
+    margin: 0;
+    background: linear-gradient(45deg, #1877f2, #42b72a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.intro p {
+    font-size: 1.2rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.login-form {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    text-align: center;
+    box-sizing: border-box; /* Ensure padding is included in the width */
+}
+
+.login-form input {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0;
+    border: 1px solid #dddfe2;
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+    box-sizing: border-box; /* Include padding in the width */
+}
+
+.login-form input:focus {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+.login-form button {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(45deg, #1877f2, #42b72a);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s ease;
+    box-sizing: border-box; /* Include padding in the width */
+}
+
+.login-form button:hover {
+    background: linear-gradient(45deg, #166fe5, #36a420);
+}
+
+.login-form a {
+    color: #1877f2;
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: block;
+    margin: 10px 0;
+}
+
+.login-form a:hover {
+    text-decoration: underline;
+}
+
+.create-account {
+    background: linear-gradient(45deg, #42b72a, #1877f2);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 20px;
+    width: auto;
+    display: inline-block;
+    transition: background 0.3s ease;
+}
+
+.create-account:hover {
+    background: linear-gradient(45deg, #36a420, #166fe5);
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #dddfe2;
+    margin: 20px 0;
+}
+
+.gradient-card {
+    background: linear-gradient(45deg, #1877f2, #42b72a);
+    color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.gradient-card h2 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.gradient-card p {
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .intro {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .intro h1 {
+        font-size: 3rem;
+    }
+
+    .intro p {
+        font-size: 1rem;
+    }
+
+    .login-form {
+        width: 90%;
+        max-width: 400px;
+    }
+}
+
+@media (max-width: 480px) {
+    .intro h1 {
+        font-size: 2.5rem;
+    }
+
+    .intro p {
+        font-size: 0.9rem;
+    }
+
+    .login-form {
+        padding: 15px;
+    }
+
+    .login-form input, .login-form button {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+
+    .create-account {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+}
