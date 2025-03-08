@@ -19,7 +19,7 @@ namespace Backend.Services
         public async Task<Post> GetPostByIdAsync(int postId)
              => await _postRepository.GetPostByIdAsync(postId);
             
-        public async Task AddPostAsync(Post post)
+        public async Task<Post> AddPostAsync(Post post)
             => await _postRepository.AddPostAsync(post);
 
         public async Task<bool> UpdateContentAsync(int postId, string description)

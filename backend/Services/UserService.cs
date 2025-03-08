@@ -1,8 +1,6 @@
 using AutoMapper;
-using Backend.DTOs;
 using Backend.Models;
 using Backend.Repositories;
-using Newtonsoft.Json;
 
 namespace Backend.Services
 {

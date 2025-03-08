@@ -22,15 +22,18 @@ namespace Backend.Repositories
                 .AsNoTracking()
                 .Include(comment => comment.commenter)
                 .Include(comment => comment.post)
-                .ThenInclude(post => post.author)
-                .Skip(_limitItem*pageNumber)
-                .Take(_limitItem);
+                .ThenInclude(post => post.author);
+                
             if(keyword != null)
-                comments  = comments.Where(comment => comment.description.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+                comments  = comments.Where(post => EF.Functions.Like(post.description, $"%{keyword}%"));
             if(userId != null)
                 comments  = comments.Where(comment => comment.userId == userId);
             if(postId != null)
                 comments  = comments.Where(comment => comment.postId == postId);
+            comments = comments
+                .OrderByDescending(comment => comment.createdDate)
+                .Skip(_limitItem*pageNumber)
+                .Take(_limitItem);
             var commentList = await comments.FilterAvailableComments().ToListAsync();
             return commentList;
         }
@@ -44,9 +47,10 @@ namespace Backend.Repositories
                 .FilterAvailableComments()
                 .FirstOrDefaultAsync();
             
-        public async Task AddCommentAsync(Comment comment){
-            await _context.AddAsync(comment);
+        public async Task<Comment> AddCommentAsync(Comment comment){
+            var newComment = await _context.AddAsync(comment);
             await _context.SaveChangesAsync();
+            return newComment.Entity;
         }
 
         public async Task<bool> UpdateContentAsync(int postId, int commentId, string description)

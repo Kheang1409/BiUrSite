@@ -6,6 +6,8 @@ using Backend.AutoMapper;
 
 var builder = WebApplication.CreateBuilder(args);
 
+CorsConfiguration.ConfigureCors(builder.Services);
+
 builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddSingleton<IJwtService, JwtService>();
@@ -63,7 +65,7 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
 // Apply CORS policy
-app.UseCors("AllowSpecificOrigin");
+app.UseCors("AllowAllOrigins");
 
 // Enable authorization and HTTPS redirection
 app.UseAuthorization();

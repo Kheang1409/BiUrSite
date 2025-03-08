@@ -19,7 +19,7 @@ namespace Backend.Services
         public async Task<Comment> GetCommentByIdAsync(int postId, int commentId)
              => await _commentRepository.GetCommentByIdAsync(postId, commentId);
             
-        public async Task AddCommentAsync(Comment comment)
+        public async Task<Comment> AddCommentAsync(Comment comment)
             => await _commentRepository.AddCommentAsync(comment);
 
         public async Task<bool> UpdateContentAsync(int postId, int commentId, string description)

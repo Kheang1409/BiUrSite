@@ -63,12 +63,16 @@ namespace Backend.Controllers
                                        .Select(e => e.ErrorMessage).ToList();
                 response = BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors});
             }
+            var newPost = _mapper.Map<Post>(postDto);
+            newPost.userId = GetAuthId();
+            
+            var post = await _postService.AddPostAsync(newPost);
+            if (post == null){
+                response = StatusCode(500, new {message = "An error occurred while attempting to create the post."});
+            }
             if(response is OkObjectResult)
             {
-                var post = _mapper.Map<Post>(postDto);
-                post.userId = GetAuthId();
-                await _postService.AddPostAsync(post);
-                response = Ok(new {message = "Post published successfully.", data = post});
+                response = StatusCode(201, new {message = "Post published successfully.", data = _mapper.Map<PostDto>(post)});
             }
             return response;
         }

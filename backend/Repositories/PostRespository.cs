@@ -23,13 +23,16 @@ namespace Backend.Repositories
         {
             IQueryable<Post> posts = _context.Posts
                 .AsNoTracking()
-                .Include(post => post.author)
-                .Skip(_limitItem*pageNumber)
-                .Take(_limitItem);
-            if(keyword != null)
-                posts  = posts.Where(post=> post.description.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+                .Include(post => post.author);
+            if(keyword != null){
+                posts  = posts.Where(post => EF.Functions.Like(post.description, $"%{keyword}%"));
+            }
             if(userId != null)
                 posts = posts.Where(post => post.userId == userId);
+            posts = posts
+                .OrderByDescending(post => post.createdDate)
+                .Skip(_limitItem*pageNumber)
+                .Take(_limitItem);
             var postList =  await  posts.FilterAvailablePost().ToListAsync();
             return postList;
         }
@@ -42,10 +45,11 @@ namespace Backend.Repositories
                 .FilterAvailablePost()
                 .FirstOrDefaultAsync();
 
-        public async Task AddPostAsync(Post post)
+        public async Task<Post> AddPostAsync(Post post)
         {
-            await _context.Posts.AddAsync(post);
+            var createdPost = await _context.Posts.AddAsync(post);
             await _context.SaveChangesAsync();
+            return createdPost.Entity;
         }
 
         public async Task<bool> UpdateContentAsync(int postId, string description)
