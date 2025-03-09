@@ -7,7 +7,7 @@ namespace Backend.Models{
         [Key]
         public int userId {get; set;}
         [Required(ErrorMessage = "Username is required.")]
-        [StringLength(maximumLength: 15, MinimumLength = 5, ErrorMessage = "Username must be between 5 and 15 characters.")]
+        [StringLength(maximumLength: 15, MinimumLength = 2, ErrorMessage = "Username must be between 2 and 15 characters.")]
         public required string username {get; set;}
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email address format.")]
@@ -15,6 +15,7 @@ namespace Backend.Models{
         [Required(ErrorMessage = "Password is required.")]
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
         public required string password { get; set; }
+        public string? profile {get; set;} ="";
         [Required]
         public bool isActive {get; set;} = false;
         [Required]

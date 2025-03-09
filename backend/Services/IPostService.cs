@@ -6,6 +6,7 @@ namespace Backend.Services
 
         Task<List<Post>> GetPostsAsync(int pageNumber, string keyword, int ? userId);
         Task<Post?> GetPostByIdAsync(int postId);
+        Task<int> GetUserTotalPostAsync(int userId);
         Task<Post> AddPostAsync(Post post);
         Task<bool> UpdateContentAsync(int postId, string description);
         Task<bool> SoftDeletePostAsync(int postId);

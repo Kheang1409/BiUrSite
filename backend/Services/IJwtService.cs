@@ -1,9 +1,10 @@
 using Backend.Enums;
+using Backend.Models;
 
 namespace Backend.Services
 {
     public interface IJwtService
     {
-        string GenerateToken(int userId, string email, string userName, Role role);
+        string GenerateToken(User user);
     }
 }

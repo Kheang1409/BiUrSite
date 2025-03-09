@@ -8,5 +8,6 @@ namespace Backend.Models{
         public DateTime? createdDate {get; set;} 
         public DateTime? modifiedDate {get; set;}
         public UserDto? author {get; set;}
+        public List<CommentDto> ? comments {get; set;}
     }
 }

@@ -41,9 +41,18 @@ namespace Backend.Repositories
             => await _context.Posts
                 .AsNoTracking()
                 .Include(post => post.author)
+                .Include(post => post.comments)
+                .ThenInclude(comment => comment.commenter)
                 .Where(post => post.postId == postId)
                 .FilterAvailablePost()
                 .FirstOrDefaultAsync();
+
+        public async Task<int> GetUserTotalPostAsync(int userId)
+            => await _context.Posts
+                .AsNoTracking()
+                .Where(post => post.author.userId == userId)
+                .FilterAvailablePost()
+                .CountAsync();
 
         public async Task<Post> AddPostAsync(Post post)
         {

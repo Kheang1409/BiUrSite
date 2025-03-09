@@ -8,6 +8,7 @@ namespace Backend.DTOs
         public int userId { get; set; }
         public required string username { get; set; }
         public required string email { get; set; }
+        public string? profile {get; set; }
         public bool isActive { get; set; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public Status status { get; set; }

@@ -6,7 +6,8 @@ namespace Backend.Models{
     public class Comment{
         [Key]
         public int commentId {get; set;}
-        [Required(ErrorMessage = "description is required.")]
+        [Required(ErrorMessage = "Description is required.")]
+        [StringLength(maximumLength: 3000, MinimumLength = 1, ErrorMessage = "Description must be between 1 and 3000 characters.")]
         public required string description {get; set;}
         [Required(ErrorMessage = "UserId is required.")]
         public bool isDeleted {get; set; }
