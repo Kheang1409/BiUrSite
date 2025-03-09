@@ -1,7 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, Inject, OnInit} from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Post } from '../classes/post';
+import { PostsDataService } from '../services/posts-data.service';
+import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
+import { environment } from '../../environments/environment';
+import { User } from '../classes/user';
+import { Comment } from '../classes/comment';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-post-modal',
@@ -9,65 +16,84 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   templateUrl: './post-modal.component.html',
   styleUrls: ['./post-modal.component.css']
 })
-export class PostModalComponent {
-  post: any; // Post data
-  mode: 'post' | 'comment'; // Modal mode
-  newComment = ''; // New comment text
+export class PostModalComponent implements OnInit{
+  post!: Post;
+  userProfileImage!: string;
 
+  login: string = environment.urlShared.login;
+  
+  newComment: string = '';
+  username: string = '';
+
+  isError: boolean = false;
+  errorMessage: string = '';
+  
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private dialogRef: MatDialogRef<PostModalComponent>
-  ) {
-    this.post = data.post;
-    this.mode = data.mode;
-  }
+    private _authService: AuthService,
+    private _postService: PostsDataService, 
+    private dialogRef: MatDialogRef<PostModalComponent>, 
+    @Inject(MAT_DIALOG_DATA) public data: { postId: number },
+    private _router: Router){}
 
-  comments = [
-    {
-      text: 'This is awesome! 😍',
-      user: 'Jane Smith',
-      timestamp: '1 hour ago'
-    },
-    {
-      text: 'Can\'t wait to try it out!',
-      user: 'Alice Johnson',
-      timestamp: '45 minutes ago'
-    },
-    {
-      text: 'Great work, team! 👏',
-      user: 'Bob Brown',
-      timestamp: '30 minutes ago'
-    }
-  ];
+  ngOnInit(): void {
+    this.post = new Post();
+    this.userProfileImage = 'assets/img/profile-default.svg';
+    const postId = this.data.postId;
+    this.getPost(postId);
+  }
 
   closeModal() {
     this.dialogRef.close();
   }
 
-  toggleLike() {
-    this.post.liked = !this.post.liked;
-    this.post.likes += this.post.liked ? 1 : -1;
-  }
+  getPost(postId: number){
+    this._postService.getPost(postId).subscribe({
+      next: (post) => {
+        this.post = post;
+      },
+      error: (error) => {
+        alert(error.message);
+      },
+      complete: () => {
 
-  openCommentModal() {
-    this.mode = 'comment'; // Switch to comment mode
+      },
+    })
   }
 
   postComment() {
-    if (this.newComment.trim()) {
-      this.post.comments.push({
-        text: this.newComment,
-        user: 'Current User', // Replace with actual user
-        timestamp: new Date().toLocaleString()
-      });
-      this.newComment = ''; // Clear the input field
+    if (this._authService.isLoggedIn()) {
+        this.username = this._authService.getUserPayLoad().given_name;
     }
-  }
 
-  sharePost() {
-    const postLink = `https://biursite.com/post/${this.post.id}`; // Replace with actual link
-    navigator.clipboard.writeText(postLink).then(() => {
-      alert('Link copied to clipboard!');
+    if (!this.username.trim()) {
+        this._router.navigate([this.login]);
+        return;
+    }
+
+    if (!this.newComment.trim()) {
+        this.isError = true;
+        this.errorMessage = "Comment cannot be empty.";
+        return;
+    }
+
+    const newComment = new Comment();
+    newComment.description = this.newComment.trim();
+
+    this._postService.createComment(this.post.postId, newComment).subscribe({
+        next: (createdComment) => {
+            createdComment.commenter = new User();
+            createdComment.commenter.username = this.username;
+            this.post.comments.unshift(createdComment);
+            this.newComment = '';
+            this.isError = false;
+        },
+        error: (error) => {
+            this.isError = true;
+            this.errorMessage = error.message || "An error occurred while posting the comment.";
+        },
+        complete: () => {
+
+        },
     });
   }
 }

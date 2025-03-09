@@ -49,6 +49,58 @@
     box-sizing: border-box; /* Include padding in width calculation */
 }
 
+/* General Message Styles */
+.message {
+    text-align: center;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Loading Indicator */
+.loading-indicator {
+    color: #1877f2; /* Blue color for loading text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between spinner and text */
+}
+
+.loading-indicator .spinner {
+    border: 3px solid #f3f3f3; /* Light grey */
+    border-top: 3px solid #1877f2; /* Blue */
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite; /* Spinner animation */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* No More Posts Message */
+.no-more-posts {
+    color: #666; /* Grey color for no more posts text */
+    background-color: #f9f9f9; /* Light grey background */
+    border: 1px solid #ddd; /* Subtle border */
+}
+
+/* Error Message */
+.error-message {
+    color: #dc3545; /* Red color for error text */
+    background-color: #f8d7da; /* Light red background */
+    border: 1px solid #f5c6cb; /* Subtle red border */
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .feed-container {

@@ -5,10 +5,16 @@
     </div>
     <div class="register-form">
         <form (ngSubmit)="onSubmit()">
-            <input type="email" placeholder="Email" [(ngModel)]="email" name="email" required>
-            <input type="text" placeholder="Username" [(ngModel)]="username" name="username" required>
-            <input type="password" placeholder="Password" [(ngModel)]="password" name="password" required>
-            <input type="password" placeholder="Confirm Password" [(ngModel)]="confirmPassword" name="confirmPassword" required>
+            <input type="email" placeholder="Email" [(ngModel)]="user.email" name="email" required>
+            <input type="text" placeholder="Username" [(ngModel)]="user.username" name="username" required>
+            <input type="password" placeholder="Password" [(ngModel)]="user.password" name="password" required>
+            <input type="password" placeholder="Confirm Password" [(ngModel)]="user.confirmPassword" name="confirmPassword" required>
+            
+            <div *ngIf="isPasswordMismatch || isCreateFail" class="error-message">
+                {{createFailMessage}}
+            </div>
+
+
             <button type="submit">Register</button>
             <hr class="register-hr">
             <a href="/login">Already have an account? Log In</a>

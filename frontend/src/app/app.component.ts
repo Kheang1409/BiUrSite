@@ -11,10 +11,21 @@ import { ToTopComponent } from './to-top/to-top.component';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  constructor(private router: Router) {}
+  constructor(private _router: Router) {}
 
-  // Check if the current route is the login page
   isLoginPage(): boolean {
-    return this.router.url === '/login';
+    return this._router.url === '/login';
+  }
+
+  isRegisterPage(): boolean {
+    return this._router.url === '/register';
+  }
+
+  isConfirmationPage(): boolean {
+    return this._router.url === '/confirmation-required';
+  }
+
+  isProfilePage(): boolean{
+    return this._router.url === '/profile';
   }
 }

@@ -4,13 +4,16 @@
         <p>Welcome to <strong>BiUrSite</strong>, a platform where you can share your ideas, feelings, and challenges. Connect with others who can cheer you up, offer advice, and rate each other's posts.</p>
     </div>
     <div class="login-form">
-        <form>
-            <input type="text" placeholder="Email or phone number" required>
-            <input type="password" placeholder="Password" required>
+        <form (ngSubmit)="login()">
+            <input type="text" placeholder="Email" [(ngModel)]="user.email" name="email" required>
+            <input type="password" placeholder="Password" [(ngModel)]="user.password" name="password" required>
+            <div class="error-message" *ngIf="isUnauthorized">
+                {{ unauthorizedMessage }}
+            </div>
             <button type="submit">Log In</button>
-            <a href="#">Forgot password?</a>
+            <a href=forget-password>Forgot password?</a>
             <hr>
-            <a href="/register">Create new account</a> <!-- Link to registration page -->
+            <a href="register">Create new account</a>
         </form>
         <div class="gradient-card">
             <h2>Key Features</h2>

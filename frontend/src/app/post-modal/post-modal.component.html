@@ -6,32 +6,33 @@
         </button>
     </div>
     <div class="modal-content">
-        <!-- Post Details Section -->
         <div class="post">
             <div class="post-header">
-                <img src="https://via.placeholder.com/40" alt="User Avatar" class="user-avatar">
+                <img src="{{post.author.profile || userProfileImage}}" alt="User Avatar" class="user-avatar">
                 <div class="user-info">
-                    <h3>John Doe</h3>
-                    <p>2 hours ago</p>
+                    <h3>{{post.author != null ? post.author.username : ''}}</h3>
+                    <p>{{post.createdDate}}</p>
                 </div>
             </div>
             <div class="post-content">
-                <p>Feeling excited about the new features on BiUrSite! 🎉</p>
+                <p>{{post.description}}</p>
             </div>
         </div>
 
-        <!-- Comments Section -->
         <div class="comments-list">
-            <div class="comment" *ngFor="let comment of comments">
-                <p>{{ comment.text }}</p>
-                <small>{{ comment.user }} - {{ comment.timestamp }}</small>
+            <div class="comment" *ngFor="let comment of post.comments">
+                <p>{{ comment.description }}</p>
+                <small>{{ comment.commenter.username }}</small>
             </div>
         </div>
 
-        <!-- Comment Input Section -->
         <div class="comment-input">
-            <textarea placeholder="Write a comment..."></textarea>
-            <button>Post Comment</button>
+            <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
+            <button (click)="postComment()">Post Comment</button>
+        </div>
+
+        <div *ngIf="isError" class="error-message">
+            {{ errorMessage }}
         </div>
     </div>
 </div>

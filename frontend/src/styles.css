@@ -23,3 +23,14 @@ a {
 a:hover {
     text-decoration: underline;
 }
+
+.error-message {
+    color: #ff0000; /* Red color for error text */
+    font-size: 0.9rem;
+    margin: 10px 0;
+    text-align: center;
+    padding: 10px;
+    background-color: #ffe6e6; /* Light red background */
+    border: 1px solid #ff0000; /* Red border */
+    border-radius: 6px;
+}

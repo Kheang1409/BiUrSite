@@ -1,35 +1,49 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Register } from '../classes/register';
+import { UsersDataService } from '../services/users-data.service';
+import { environment } from '../../environments/environment';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-register',
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
-export class RegisterComponent {
-  email: string = '';
-  username: string = '';
-  password: string = '';
-  confirmPassword: string = '';
+export class RegisterComponent implements OnInit {
+  user!: Register;
 
-  constructor(private router: Router) {}
+  createFailMessage: string = '';
+  isCreateFail: boolean = false;
+  isPasswordMismatch: boolean = false;
+
+  login: string = environment.urlShared.login;
+
+  constructor(private _usersService: UsersDataService, private _router: Router) {}
+
+  ngOnInit(): void {
+    this.user = new Register()
+  }
 
   onSubmit() {
-    if (this.password !== this.confirmPassword) {
-      alert('Passwords do not match!');
+    this.isPasswordMismatch = false;
+    if (!this.user.isPasswordMatched()) {
+      this.createFailMessage = 'Passwords do not match!'
+      this.isPasswordMismatch = true;
       return;
     }
-
-    // Simulate registration logic (replace with actual API call)
-    console.log('Registration Data:', {
-      email: this.email,
-      username: this.username,
-      password: this.password
+    this._usersService.createUser(this.user).subscribe({
+      next: (message) => {
+        this._router.navigate(['/confirmation-required'], {
+          queryParams: { email: this.user.email }
+        });
+      },
+      error: (error) => {
+        this.createFailMessage = error;
+        this.isCreateFail = true;
+      }
     });
-
-    // Redirect to login page after successful registration
-    this.router.navigate(['/login']);
   }
 }

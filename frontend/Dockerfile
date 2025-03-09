@@ -15,8 +15,8 @@ RUN bun install
 # Copy the rest of the source code
 COPY . .
 
-# Build Angular app (it will use environment.prod.ts automatically)
-RUN bun run build --configuration=production
+# Build Angular app with the "docker" configuration
+RUN bun run build --configuration=docker
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
