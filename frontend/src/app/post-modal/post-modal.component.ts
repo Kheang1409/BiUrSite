@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit} from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Component, HostListener, Inject, OnInit} from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Post } from '../classes/post';
 import { PostsDataService } from '../services/posts-data.service';
 import { Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { environment } from '../../environments/environment';
 import { User } from '../classes/user';
 import { Comment } from '../classes/comment';
 import { FormsModule } from '@angular/forms';
+import { EditPostModalComponent } from '../edit-post-modal/edit-post-modal.component';
 
 @Component({
   selector: 'app-post-modal',
@@ -27,18 +28,31 @@ export class PostModalComponent implements OnInit{
 
   isError: boolean = false;
   errorMessage: string = '';
+
+  isOwner!: boolean;
+  isMenuOpen: boolean = false;
   
   constructor(
     private _authService: AuthService,
     private _postService: PostsDataService, 
     private dialogRef: MatDialogRef<PostModalComponent>, 
     @Inject(MAT_DIALOG_DATA) public data: { postId: number },
-    private _router: Router){}
+    private _router: Router,
+    private _dialog: MatDialog){}
 
   ngOnInit(): void {
     this.post = new Post();
     const postId = this.data.postId;
     this.getPost(postId);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const postMenu = target.closest('.post-menu');
+    if (!postMenu && this.isMenuOpen) {
+      this.isMenuOpen = false;
+    }
   }
 
   closeModal() {
@@ -55,6 +69,9 @@ export class PostModalComponent implements OnInit{
       },
       complete: () => {
         this.userProfileImage = this.post.author.profile || 'assets/img/profile-default.svg';
+        if (this._authService.isLoggedIn()) {
+          this.isOwner = this.post.author.userId == this._authService.getUserPayLoad().sub;
+        }
       },
     })
   }
@@ -94,5 +111,43 @@ export class PostModalComponent implements OnInit{
 
         },
     });
+  }
+
+  toggleMenu(event: Event): void {
+    event.stopPropagation();
+    this.isMenuOpen = !this.isMenuOpen;
+  }
+
+  openEditPostModal(event: Event) {
+    event.stopPropagation();
+    const dialogRef = this._dialog.open(EditPostModalComponent, {
+      width: '600px',
+      data: { postId: this.post.postId }
+    });
+
+    dialogRef.afterClosed().subscribe(updatedPost => {
+      if (updatedPost) {
+        this.post = updatedPost;
+      }
+    });
+  }
+
+  delete(event: Event) {
+    event.stopPropagation();
+    if (confirm('Are you sure you want to delete this post?')) {
+      this._postService.deletePost(this.post.postId).subscribe({
+        next: () => {
+          this.dialogRef.close();
+        },
+        error: (error) => {
+          alert(error.message);
+        }
+      });
+    }
+  }
+
+  report(event: Event) {
+    event.stopPropagation();
+    console.log("report!");
   }
 }

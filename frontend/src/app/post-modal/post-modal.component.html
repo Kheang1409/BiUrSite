@@ -8,10 +8,22 @@
     <div class="modal-content">
         <div class="post">
             <div class="post-header">
-                <img src="{{userProfileImage}}" alt="User Avatar" class="user-avatar">
+                <img [src]="userProfileImage" alt="User Avatar" class="user-avatar">
                 <div class="user-info">
                     <h3>{{post.author != null ? post.author.username : ''}}</h3>
                     <p>{{post.createdDate}}</p>
+                </div>
+                <div class="post-menu" [class.active]="isMenuOpen">
+                    <button class="menu-button" (click)="toggleMenu($event)">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <ul>
+                            <li *ngIf="isOwner" (click)="openEditPostModal($event)">Edit</li>
+                            <li *ngIf="isOwner" (click)="delete($event)">Delete</li>
+                            <li *ngIf="!isOwner" (click)="report($event)">Report</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="post-content">

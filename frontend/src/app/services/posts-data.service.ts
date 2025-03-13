@@ -63,9 +63,9 @@ export class PostsDataService {
     );
   }
 
-  updatePost(postId: string, updatedPost: Post): Observable<Post> {
+  updatePost(postId: number, updatedPost: Post): Observable<Post> {
     let url: string = `${this._baseUrl}${this._postUrl}`;
-    url = `${url}/${postId}`;
+    url = `${url}${postId}`;
 
     return this._httpClient.put<{ message: string, data: Post }>(url, updatedPost.jsonify()).pipe(
       map(response => response.data),
@@ -73,12 +73,12 @@ export class PostsDataService {
     );
   }
 
-  deletePost(postId: string): Observable<void> {
+  deletePost(postId: number): Observable<void> {
     let url: string = `${this._baseUrl}${this._postUrl}`;
-    url = `${url}/${postId}`;
+    url = `${url}${postId}`;
 
     return this._httpClient.delete<{ message: string }>(url).pipe(
-      map(() => {}), // No data to extract for delete
+      map(() => {}),
       catchError(this.handleError)
     );
   }

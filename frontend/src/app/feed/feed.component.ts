@@ -136,6 +136,19 @@ export class FeedComponent implements OnInit, OnDestroy {
     });
   }
 
+  deletePost(postId: number){
+    this._postService.deletePost(postId).subscribe({
+      next: () => {
+        this.posts = this.posts.filter(post => post.postId !== postId);
+        console.log('Post deleted successfully');
+      },
+      error: (error) => {
+        this.isError = true;
+        this.errorMessage = error.message;
+      },
+    });
+  }
+
   loadMorePosts(): void {
     if (this.isLoading || !this.hasMorePosts) return;
     this.page++;
