@@ -1,0 +1,122 @@
+.feed-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f0f2f5;
+    border-radius: 12px;
+}
+
+.post-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    width: 100%; /* Ensure the post box takes full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.post-box textarea {
+    width: 100%; /* Make textarea fill the container */
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    resize: none; /* Disable manual resizing */
+    outline: none;
+    box-sizing: border-box; /* Include padding in width calculation */
+    max-height: 150px; /* Optional: Limit maximum height */
+    overflow-y: auto; /* Add scrollbar if content exceeds max height */
+}
+
+.post-box textarea:focus {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+.post-box .post-button {
+    background: linear-gradient(45deg, #1877f2, #42b72a);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background 0.3s ease;
+    margin-top: 10px;
+    width: 100%; /* Make button full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* General Message Styles */
+.message {
+    text-align: center;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Loading Indicator */
+.loading-indicator {
+    color: #1877f2; /* Blue color for loading text */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between spinner and text */
+}
+
+.loading-indicator .spinner {
+    border: 3px solid #f3f3f3; /* Light grey */
+    border-top: 3px solid #1877f2; /* Blue */
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    animation: spin 1s linear infinite; /* Spinner animation */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* No More Posts Message */
+.no-more-posts {
+    color: #666; /* Grey color for no more posts text */
+    background-color: #f9f9f9; /* Light grey background */
+    border: 1px solid #ddd; /* Subtle border */
+}
+
+/* Error Message */
+.error-message {
+    color: #dc3545; /* Red color for error text */
+    background-color: #f8d7da; /* Light red background */
+    border: 1px solid #f5c6cb; /* Subtle red border */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .feed-container {
+        padding: 10px;
+    }
+
+    .post-box {
+        padding: 15px;
+    }
+
+    .post-box textarea {
+        font-size: 0.9rem;
+    }
+
+    .post-box .post-button {
+        font-size: 0.9rem;
+        padding: 10px 20px;
+    }
+}

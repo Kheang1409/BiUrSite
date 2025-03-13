@@ -68,3 +68,6 @@ Thumbs.db
 # Ignore logs and databases
 *.log
 *.sqlite
+
+# Ignore .env
+.env

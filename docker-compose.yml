@@ -5,18 +5,39 @@ services:
     image: mcr.microsoft.com/mssql/server
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=Password_123#
+      - SA_PASSWORD=${SQL_PASSWORD}
     ports:
       - "1433:1433"
 
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "6379:6379"
+
   backend:
     build: ./backend
+    env_file:
+      - .env
     environment:
-      - SqlConnection=Server=sql_server_container,1433;Database=BiUrSite;User Id=sa;Password=Password_123#;TrustServerCertificate=True
+      - SQLConnection=Server=sql_server_container,1433;Database=BiUrSiteDB;User Id=sa;Password=${SQL_PASSWORD};TrustServerCertificate=True
+      - RedisConnection=redis_container:6379
+      - JwtSettings__SecretKey=${JWT_SECRET_KEY}
+      - JwtSettings__Issuer=${JWT_ISSUER}
+      - JwtSettings__Audience=${JWT_AUDIENCE}
+      - JwtSettings__ExpiryMinutes=60
+      - Limit=10
+      - EmailSettings__SmtpServer=smtp.gmail.com
+      - EmailSettings__Port=465
+      - EmailSettings__SenderEmail=${SENDER_EMAIL}
+      - EmailSettings__SenderPassword=${SMTP_PASSWORD}
     ports:
       - "5000:8080"
     depends_on:
       - sql_server_container
+      - redis
+    command: >
+      sh -c "dotnet ef database update && dotnet backend.dll"
 
   frontend:
     build: ./frontend

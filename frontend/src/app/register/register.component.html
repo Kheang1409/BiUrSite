@@ -1,0 +1,31 @@
+<div class="register-container">
+    <div class="register-intro">
+        <h1>BiUrSite</h1>
+        <p>Join <strong>BiUrSite</strong> today! Create an account to share your ideas, connect with others, and explore a supportive community.</p>
+    </div>
+    <div class="register-form">
+        <form (ngSubmit)="onSubmit()">
+            <input type="email" placeholder="Email" [(ngModel)]="user.email" name="email" required>
+            <input type="text" placeholder="Username" [(ngModel)]="user.username" name="username" required>
+            <input type="password" placeholder="Password" [(ngModel)]="user.password" name="password" required>
+            <input type="password" placeholder="Confirm Password" [(ngModel)]="user.confirmPassword" name="confirmPassword" required>
+            
+            <div *ngIf="isPasswordMismatch || isCreateFail" class="error-message">
+                {{createFailMessage}}
+            </div>
+
+
+            <button type="submit">Register</button>
+            <hr class="register-hr">
+            <a href="/login">Already have an account? Log In</a>
+        </form>
+        <div class="register-gradient-card">
+            <h2>Why Join?</h2>
+            <p>
+                <strong>Anonymous:</strong> Register and post without revealing your identity.<br>
+                <strong>User (Verified):</strong> Post, comment, and report content.<br>
+                <strong>Admin:</strong> Manage users, posts, and announcements.<br>
+            </p>
+        </div>
+    </div>
+</div>

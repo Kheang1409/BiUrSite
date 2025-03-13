@@ -1,0 +1,38 @@
+<header class="header">
+    <h1>BiUrSite</h1>
+
+    <div class="search-bar">
+        <input 
+            type="text" 
+            placeholder="Search..." 
+            [(ngModel)]="searchKeyword" 
+            (keyup.enter)="onSearch()"
+        />
+        <i class="fas fa-search" (click)="onSearch()"></i>
+    </div>
+
+    <div class="header-icons" *ngIf="isLoggedIn()">
+        <div class="notification-icon" (click)="toggleNotificationDropdown()">
+            <i class="fas fa-bell"></i>
+            <div class="notification-dropdown" [ngClass]="{'show': showNotificationDropdown}">
+                <ul>
+                    <li>I'm know nothing much here</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="profile-menu" (click)="toggleProfileDropdown()">
+            <img class="user-profile-img" [src]="userProfileImage"/>
+            <div class="profile-dropdown" [ngClass]="{'show': showProfileDropdown}">
+                <ul>
+                    <li (click)="profile()"><a href="">View Profile</a></li>
+                    <li (click)="logout()"><a href="">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-buttons" *ngIf="!isLoggedIn()">
+        <a href="/login" class="auth-button">Login</a>
+    </div>
+</header>

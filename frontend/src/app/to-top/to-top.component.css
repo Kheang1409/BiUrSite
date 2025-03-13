@@ -1,0 +1,30 @@
+.back-to-top {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: linear-gradient(45deg, #1877f2, #42b72a); /* Gradient background */
+    color: #fff;
+    width: 40px; /* Smaller width */
+    height: 40px; /* Smaller height */
+    cursor: pointer;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+    transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none; /* Remove default button border */
+    border-radius: 5px; /* Rounded corners for the button */
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 20 L20 80 L80 80 Z' fill='black'/%3E%3C/svg%3E");
+    mask-size: cover; /* Ensure the mask covers the entire button */
+}
+
+.back-to-top:hover {
+    background: linear-gradient(45deg, #166fe5, #36a420); /* Darker gradient on hover */
+    transform: scale(1.05); /* Slightly enlarge on hover */
+}
+
+.back-to-top i {
+    font-size: 16px; /* Smaller arrow icon */
+    position: relative; /* Ensure the icon is above the mask */
+    z-index: 1; /* Ensure the icon is above the mask */
+}

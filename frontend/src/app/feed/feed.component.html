@@ -1,0 +1,32 @@
+<div class="feed-container">
+    <!-- Display Search Keyword -->
+    <div *ngIf="keyword" class="search-keyword">
+        Showing results for: <strong>{{ keyword }}</strong>
+    </div>
+
+    <!-- Post Creation Box -->
+    <div class="post-box">
+        <textarea [(ngModel)]="newPostDescription" placeholder="What's on your mind?" required></textarea>
+        <button class="post-button" (click)="createPost()">Post</button>
+    </div>
+
+    <!-- Feed Posts -->
+    <div class="feed-posts">
+        <app-post *ngFor="let post of posts" [post]="post"></app-post>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="loading-indicator message">
+        <span class="spinner"></span> Loading more posts...
+    </div>
+
+    <!-- No More Posts Message -->
+    <div *ngIf="!hasMorePosts && !isError" class="no-more-posts message">
+        No more posts to load.
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="isError" class="error-message message">
+        {{ errorMessage }}
+    </div>
+</div>

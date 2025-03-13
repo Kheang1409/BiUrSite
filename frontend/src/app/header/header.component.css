@@ -1,0 +1,212 @@
+/* header.component.css */
+.header {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: linear-gradient(45deg, #1877f2, #42b72a);
+    color: #fff;
+    padding: 15px 20px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px; 
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2rem; /* Reduce font size for smaller screens */
+    flex-shrink: 0; /* Prevent the title from shrinking */
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 20px;
+    padding: 8px 12px; /* Adjust padding */
+    flex: 1; /* Allow search bar to grow and take available space */
+    min-width: 150px; /* Set a minimum width for the search bar */
+    max-width: 300px; /* Set a maximum width for the search bar */
+    position: relative; /* Ensure the icon stays within the search bar */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.search-bar input {
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 1rem;
+    padding: 0 8px;
+    padding-right: 30px; /* Add padding to the right for the icon */
+    width: 100%; /* Ensure input field takes full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+.search-bar i {
+    position: absolute; /* Position the icon absolutely within the search bar */
+    right: 12px; /* Align the icon to the right */
+    color: #666; /* Set icon color */
+    cursor: pointer;
+}
+
+.header-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Reduce gap between icons for smaller screens */
+    flex-shrink: 0; /* Prevent icons from shrinking */
+}
+
+.notification-icon, .profile-menu {
+    position: relative; /* Ensure dropdowns are positioned relative to the icons */
+}
+
+.notification-dropdown, .profile-dropdown {
+    position: absolute;
+    top: 100%; /* Position dropdown directly below the icon */
+    right: 0; /* Align dropdown to the right by default */
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 1000; /* Ensure dropdowns are above other elements */
+    min-width: 200px; /* Set a minimum width for the dropdown */
+    margin-top: 5px; /* Add a small gap between the icon and dropdown */
+}
+
+.notification-dropdown ul, .profile-dropdown ul {
+    list-style: none;
+    padding: 10px 0; /* Add padding to the top and bottom */
+    margin: 0;
+}
+
+.notification-dropdown ul li, .profile-dropdown ul li {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    color: #333; /* Set text color to dark */
+    transition: background 0.3s ease;
+    position: relative; /* For separator lines */
+}
+
+/* Add separator lines between menu items */
+.notification-dropdown ul li:not(:last-child)::after,
+.profile-dropdown ul li:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 12px;
+    right: 12px;
+    height: 1px;
+    background: #e0e0e0; /* Light gray separator line */
+}
+
+.notification-dropdown ul li:hover, .profile-dropdown ul li:hover {
+    background: #f0f2f5; /* Light background on hover */
+    border-radius: 4px;
+}
+
+.notification-dropdown ul li a, .profile-dropdown ul li a {
+    color: #333; /* Set link color to dark */
+    text-decoration: none;
+}
+
+.notification-dropdown ul li a:hover, .profile-dropdown ul li a:hover {
+    text-decoration: underline;
+}
+
+.show {
+    display: block;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 10px; /* Add spacing between buttons */
+    align-items: center;
+}
+
+.auth-button {
+    padding: 8px 16px;
+    background: #fff; /* White background */
+    color: #1877f2; /* Blue text color */
+    text-decoration: none;
+    border-radius: 20px; /* Rounded corners */
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid #1877f2; /* Blue border */
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 80px; /* Ensure buttons have a minimum width */
+}
+
+.auth-button:hover {
+    background: #1877f2; /* Blue background on hover */
+    color: #fff; /* White text on hover */
+    border-color: #1877f2; /* Blue border on hover */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow on hover */
+}
+
+.auth-button:active {
+    transform: scale(0.98); /* Slightly shrink the button when clicked */
+}
+
+.user-profile-img {
+    width: 20px; /* Set the width of the image */
+    height: 20px; /* Set the height of the image */
+    border-radius: 50%; /* Make the image circular */
+    object-fit: cover; /* Ensure the image covers the area without distortion */
+    border: 2px solid #fff; /* Add a border around the image */
+    cursor: pointer; /* Show pointer cursor on hover */
+    transition: transform 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+}
+
+.user-profile-img:hover {
+    transform: scale(1.1); /* Slightly enlarge the image on hover */
+    border-color: #1877f2; /* Change border color on hover */
+}
+
+.logout-button {
+    cursor: pointer;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header {
+        padding: 10px 15px; /* Reduce padding for smaller screens */
+    }
+
+    .header h1 {
+        font-size: 1.5rem; /* Further reduce font size for smaller screens */
+    }
+
+    .search-bar {
+        order: 3; /* Move search bar to the bottom */
+        width: 100%; /* Make search bar full width */
+        max-width: 100%; /* Remove max-width constraint */
+        margin-top: 10px; /* Add margin to separate from icons */
+    }
+
+    .header-icons {
+        order: 2; /* Move icons to the middle */
+    }
+
+    .notification-dropdown, .profile-dropdown {
+        right: auto; /* Reset right alignment */
+        left: 60%; /* Center the dropdown relative to the icon */
+        transform: translateX(-50%); /* Center the dropdown */
+    }
+}
+
+@media (max-width: 480px) {
+    .header h1 {
+        font-size: 1.2rem; /* Further reduce font size for very small screens */
+    }
+
+    .header-icons {
+        gap: 10px; /* Reduce gap between icons further */
+    }
+}

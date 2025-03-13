@@ -1,0 +1,38 @@
+<div class="post-modal">
+    <div class="modal-header">
+        <h2>Post Details</h2>
+        <button (click)="closeModal()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-content">
+        <div class="post">
+            <div class="post-header">
+                <img src="{{post.author.profile || userProfileImage}}" alt="User Avatar" class="user-avatar">
+                <div class="user-info">
+                    <h3>{{post.author != null ? post.author.username : ''}}</h3>
+                    <p>{{post.createdDate}}</p>
+                </div>
+            </div>
+            <div class="post-content">
+                <p>{{post.description}}</p>
+            </div>
+        </div>
+
+        <div class="comments-list">
+            <div class="comment" *ngFor="let comment of post.comments">
+                <p>{{ comment.description }}</p>
+                <small>{{ comment.commenter.username }}</small>
+            </div>
+        </div>
+
+        <div class="comment-input">
+            <textarea [(ngModel)]="newComment" placeholder="Write a comment..."></textarea>
+            <button (click)="postComment()">Post Comment</button>
+        </div>
+
+        <div *ngIf="isError" class="error-message">
+            {{ errorMessage }}
+        </div>
+    </div>
+</div>

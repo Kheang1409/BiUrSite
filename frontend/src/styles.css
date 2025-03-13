@@ -1,1 +1,36 @@
 /* You can add global styles to this file, and also import other style files */
+/* styles.css */
+/* Global Styles */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+/* Global Button Styles */
+button {
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+/* Global Link Styles */
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    color: #ff0000; /* Red color for error text */
+    font-size: 0.9rem;
+    margin: 10px 0;
+    text-align: center;
+    padding: 10px;
+    background-color: #ffe6e6; /* Light red background */
+    border: 1px solid #ff0000; /* Red border */
+    border-radius: 6px;
+}
