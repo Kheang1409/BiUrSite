@@ -1,0 +1,31 @@
+<div class="post-modal">
+    <div class="modal-header">
+        <h2>Edit Post</h2>
+        <button (click)="closeModal()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    <div class="modal-content">
+        <div class="post">
+            <div class="post-header">
+                <img src="{{userProfileImage}}" alt="User Avatar" class="user-avatar">
+                <div class="user-info">
+                    <h3>{{post.author != null ? post.author.username : ''}}</h3>
+                    <p>{{post.createdDate}}</p>
+                </div>
+            </div>
+            <div class="post-content">
+                <textarea [(ngModel)]="post.description" placeholder="Edit your post..."></textarea>
+            </div>
+        </div>
+
+        <div class="post-actions">
+            <button class="save-button" (click)="savePost()">Save Changes</button>
+            <button class="cancel-button" (click)="closeModal()">Cancel</button>
+        </div>
+
+        <div *ngIf="isError" class="error-message">
+            {{ errorMessage }}
+        </div>
+    </div>
+</div>
