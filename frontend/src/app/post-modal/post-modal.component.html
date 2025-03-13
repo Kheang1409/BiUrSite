@@ -8,7 +8,7 @@
     <div class="modal-content">
         <div class="post">
             <div class="post-header">
-                <img src="{{post.author.profile || userProfileImage}}" alt="User Avatar" class="user-avatar">
+                <img src="{{userProfileImage}}" alt="User Avatar" class="user-avatar">
                 <div class="user-info">
                     <h3>{{post.author != null ? post.author.username : ''}}</h3>
                     <p>{{post.createdDate}}</p>

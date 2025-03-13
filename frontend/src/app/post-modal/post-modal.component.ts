@@ -37,7 +37,6 @@ export class PostModalComponent implements OnInit{
 
   ngOnInit(): void {
     this.post = new Post();
-    this.userProfileImage = 'assets/img/profile-default.svg';
     const postId = this.data.postId;
     this.getPost(postId);
   }
@@ -55,7 +54,7 @@ export class PostModalComponent implements OnInit{
         alert(error.message);
       },
       complete: () => {
-
+        this.userProfileImage = this.post.author.profile || 'assets/img/profile-default.svg';
       },
     })
   }
