@@ -6,10 +6,11 @@ import { CommentModalComponent } from '../comment-modal/comment-modal.component'
 import { Post } from '../classes/post';
 import { AuthService } from '../services/auth.service';
 import { EditPostModalComponent } from '../edit-post-modal/edit-post-modal.component';
+import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 
 @Component({
   selector: 'app-post',
-  imports: [CommonModule],
+  imports: [CommonModule, TimeAgoPipe],
   templateUrl: './post.component.html',
   styleUrls: ['./post.component.css']
 })

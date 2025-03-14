@@ -62,6 +62,7 @@ export class FeedComponent implements OnInit, OnDestroy {
         this.posts = []; 
         this.page = 1;
         this.hasMorePosts = true; 
+        this.getPosts(this.page, this.keyword);
       }
     );
     this.getPosts(this.page, this.keyword);

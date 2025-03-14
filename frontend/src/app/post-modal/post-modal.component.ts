@@ -10,10 +10,11 @@ import { User } from '../classes/user';
 import { Comment } from '../classes/comment';
 import { FormsModule } from '@angular/forms';
 import { EditPostModalComponent } from '../edit-post-modal/edit-post-modal.component';
+import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 
 @Component({
   selector: 'app-post-modal',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TimeAgoPipe],
   templateUrl: './post-modal.component.html',
   styleUrls: ['./post-modal.component.css']
 })
