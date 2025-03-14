@@ -179,14 +179,27 @@
     border-bottom: 1px solid #e0e0e0;
 }
 
-.comment p {
+.comment-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.comment-content p {
     margin: 0;
     color: #333;
 }
 
-.comment small {
+.comment-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .comment-info small {
     color: #666;
-}
+    font-size: 0.8rem;
+  }
 
 /* Comment Input */
 .comment-input {
@@ -279,23 +292,21 @@
 
 .comment-actions {
     display: flex;
-    gap: 10px;
-    margin-top: 5px;
+    gap: 5px; /* Add spacing between icons */
 }
-
+  
 .comment-actions button {
     background: none;
-    border: 1px solid #ddd;
-    padding: 5px 10px;
-    border-radius: 4px;
+    border: none;
     cursor: pointer;
-    font-size: 0.8rem;
-    color: #333;
-    transition: background 0.3s ease;
+    font-size: 0.9rem;
+    color: #666;
+    padding: 5px;
+    transition: color 0.3s ease;
 }
-
+  
 .comment-actions button:hover {
-    background: #f0f0f0;
+    color: #333;
 }
 
 /* Responsive Styles */

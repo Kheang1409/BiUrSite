@@ -33,13 +33,20 @@
 
         <div class="comments-list">
             <div class="comment" *ngFor="let comment of post.comments">
+              <div class="comment-content">
                 <p>{{ comment.description }}</p>
-                <small>{{ comment.commenter.username }}</small>
-                <!-- Add Edit and Delete buttons for comments -->
-                <div class="comment-actions" *ngIf="isCommentOwner(comment)">
-                    <button (click)="editComment(comment)">Edit</button>
-                    <button (click)="deleteComment(comment)">Delete</button>
+                <div class="comment-info">
+                  <small>{{ comment.commenter.username }} - {{ comment.createdDate | timeAgo }}</small>
+                  <div class="comment-actions" *ngIf="isCommentOwner(comment)">
+                    <button (click)="editComment(comment)">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button (click)="deleteComment(comment)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
                 </div>
+              </div>
             </div>
         </div>
 

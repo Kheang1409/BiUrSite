@@ -148,12 +148,10 @@ export class PostModalComponent implements OnInit {
     console.log('report!');
   }
 
-  // Check if the current user is the comment owner
   isCommentOwner(comment: Comment): boolean {
-    return  this._authService.isLoggedIn() && comment.commenter.userId === this._authService.getUserPayload().sub;
+    return  this._authService.isLoggedIn() && comment.commenter.userId == this._authService.getUserPayload().sub;
   }
 
-  // Edit Comment Function
   editComment(comment: Comment) {
     const updatedDescription = prompt('Edit your comment:', comment.description);
     if (updatedDescription && updatedDescription.trim()) {
