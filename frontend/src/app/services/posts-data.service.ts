@@ -92,6 +92,24 @@ export class PostsDataService {
     );
   }
 
+  updateComment(postId: number, commentId: number, updateComment: Comment){
+    let url: string = `${this._baseUrl}${this._postUrl}`;
+    url = `${url}${postId}${this._subsetUrl}${commentId}`;
+    return this._httpClient.put<{ message: string, data: Comment }>(url, updateComment.jsonify()).pipe(
+      map(response => response.data),
+      catchError(this.handleError)
+    );
+  }
+
+  deleteComment(postId: number, commentId: number){
+    let url: string = `${this._baseUrl}${this._postUrl}`;
+    url = `${url}${postId}${this._subsetUrl}${commentId}`;
+    return this._httpClient.delete<{ message: string, data: Comment }>(url).pipe(
+      map(response => response.data),
+      catchError(this.handleError)
+    );
+  }
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred.';
     if (error.status === 400) {
