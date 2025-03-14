@@ -223,7 +223,7 @@ export class PostModalComponent implements OnInit, AfterViewInit {
       if (confirmed) {
         this._postService.deleteComment(this.post.postId, comment.commentId).subscribe({
           next: () => {
-              this.post.comments = this.post.comments.filter((c) => c.commentId !== comment.commentId);
+              this.comments = this.comments.filter((c) => c.commentId !== comment.commentId);
           },
           error: (error) => {
               alert('Failed to delete comment: ' + error.message);
