@@ -63,9 +63,9 @@ export class PostsDataService {
     );
   }
 
-  updatePost(postId: string, updatedPost: Post): Observable<Post> {
+  updatePost(postId: number, updatedPost: Post): Observable<Post> {
     let url: string = `${this._baseUrl}${this._postUrl}`;
-    url = `${url}/${postId}`;
+    url = `${url}${postId}`;
 
     return this._httpClient.put<{ message: string, data: Post }>(url, updatedPost.jsonify()).pipe(
       map(response => response.data),
@@ -73,12 +73,26 @@ export class PostsDataService {
     );
   }
 
-  deletePost(postId: string): Observable<void> {
+  deletePost(postId: number): Observable<void> {
     let url: string = `${this._baseUrl}${this._postUrl}`;
-    url = `${url}/${postId}`;
+    url = `${url}${postId}`;
 
     return this._httpClient.delete<{ message: string }>(url).pipe(
-      map(() => {}), // No data to extract for delete
+      map(() => {}),
+      catchError(this.handleError)
+    );
+  }
+
+  getComments(postId: number, pageNumber: number, keyword: string | null, userId: string | null): Observable<Comment[]> {
+    let url: string = `${this._baseUrl}${this._postUrl}`;
+    url = `${url}${postId}${this._subsetUrl}?${this.queryPageNumber}=${pageNumber}`;
+    if (keyword)
+      url = `${url}&${this.queryKeyword}=${keyword}`;
+    if (userId)
+      url = `${url}&${this.queryUserId}=${userId}`;
+
+    return this._httpClient.get<{ message: string, data: Comment[] }>(url).pipe(
+      map(response => response.data),
       catchError(this.handleError)
     );
   }
@@ -88,6 +102,24 @@ export class PostsDataService {
     url = `${url}${postId}${this._subsetUrl}`;
     return this._httpClient.post<{ message: string, data: Comment }>(url, newComment.jsonify()).pipe(
       map(response => response.data),
+      catchError(this.handleError)
+    );
+  }
+
+  updateComment(postId: number, commentId: number, updateComment: Comment){
+    let url: string = `${this._baseUrl}${this._postUrl}`;
+    url = `${url}${postId}${this._subsetUrl}${commentId}`;
+    return this._httpClient.put<{ message: string, data: Comment }>(url, updateComment.jsonify()).pipe(
+      map(response => response.data),
+      catchError(this.handleError)
+    );
+  }
+
+  deleteComment(postId: number, commentId: number) : Observable<void>{
+    let url: string = `${this._baseUrl}${this._postUrl}`;
+    url = `${url}${postId}${this._subsetUrl}${commentId}`;
+    return this._httpClient.delete<{ message: string}>(url).pipe(
+      map(() => {}),
       catchError(this.handleError)
     );
   }

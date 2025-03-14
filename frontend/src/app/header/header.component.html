@@ -12,7 +12,7 @@
     </div>
 
     <div class="header-icons" *ngIf="isLoggedIn()">
-        <div class="notification-icon" (click)="toggleNotificationDropdown()">
+        <div class="notification-icon" (click)="toggleNotificationDropdown($event)">
             <i class="fas fa-bell"></i>
             <div class="notification-dropdown" [ngClass]="{'show': showNotificationDropdown}">
                 <ul>
@@ -21,12 +21,12 @@
             </div>
         </div>
 
-        <div class="profile-menu" (click)="toggleProfileDropdown()">
+        <div class="profile-menu" (click)="toggleProfileDropdown($event)">
             <img class="user-profile-img" [src]="userProfileImage"/>
             <div class="profile-dropdown" [ngClass]="{'show': showProfileDropdown}">
                 <ul>
-                    <li (click)="profile()"><a href="">View Profile</a></li>
-                    <li (click)="logout()"><a href="">Logout</a></li>
+                    <li (click)="goToProfile()"><a>View Profile</a></li>
+                    <li (click)="logout()"><a>Logout</a></li>
                 </ul>
             </div>
         </div>

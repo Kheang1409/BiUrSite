@@ -35,7 +35,7 @@ export class CommentModalComponent implements OnInit {
 
     ngOnInit(): void {
         if (this._authService.isLoggedIn()) {
-            this.username = this._authService.getUserPayLoad().given_name;
+            this.username = this._authService.getUserPayload().given_name;
         }
         this.postId = this.data.postId;
     }

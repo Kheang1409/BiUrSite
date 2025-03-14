@@ -1,18 +1,30 @@
 <div class="post" (click)="openPostModal()">
-    <div class="post-header">
-      <img [src]="userProfileImage" alt="User Avatar" class="user-avatar">
+  <div class="post-header">
+      <img [src]="post.author.profile" alt="User Avatar" class="user-avatar">
       <div class="user-info">
-        <h3>{{ post.author.username }}</h3>
-        <p>{{ post.createdDate }}</p>
+          <h3>{{ post.author.username }}</h3>
+          <p>{{ post.createdDate | timeAgo }}</p>
       </div>
-    </div>
-    <div class="post-content">
-      <p>{{ post.description }}</p>
-    </div>
-    <div class="post-actions">
-      <button class="comment-button" (click)="openCommentModal($event)">
-        <i class="fas fa-comment"></i>
-        <span class="button-text">Comment</span>
-      </button>
-    </div>
+      <div class="post-menu" [class.active]="isMenuOpen">
+          <button class="menu-button" (click)="toggleMenu($event)">
+              <i class="fas fa-ellipsis-v"></i>
+          </button>
+          <div class="dropdown-menu">
+              <ul>
+                  <li *ngIf="isOwner" (click)="openEditPostModal($event)">Edit</li>
+                  <li *ngIf="isOwner" (click)="onDelete($event)">Delete</li>
+                  <li *ngIf="!isOwner"(click)="onReport($event)" >Report</li>
+              </ul>
+          </div>
+      </div>
   </div>
+  <div class="post-content">
+      <p>{{ post.description }}</p>
+  </div>
+  <div class="post-actions">
+      <button class="comment-button" (click)="openCommentModal($event)">
+          <i class="fas fa-comment"></i>
+          <span class="button-text">Comment</span>
+      </button>
+  </div>
+</div>

@@ -19,14 +19,13 @@ import { Router } from '@angular/router';
 })
 export class FeedComponent implements OnInit, OnDestroy {
   posts: Post[] = new Array<Post>();
+  post: Post = new Post();
 
   private pageNumberKey = environment.keys.pageNumberKey;
   login: string = environment.urlShared.login;
 
 
   page: number = 1;
-  total_page!: number;
-  total_job!: number;
 
   isError: boolean = false;
   errorMessage: string = '';
@@ -38,6 +37,10 @@ export class FeedComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   hasMorePosts: boolean = true;
 
+  userPayload: any;
+
+  private scrollDebounceTimeout: any;
+
   private searchSubscription!: Subscription;
 
   constructor(
@@ -46,17 +49,13 @@ export class FeedComponent implements OnInit, OnDestroy {
     private _searchService: SearchService,
     private _router: Router
   ) {
-    this.page =
-      sessionStorage.getItem(this.pageNumberKey) == null
-        ? 1
-        : Number(sessionStorage.getItem(this.pageNumberKey));
+    this.page = sessionStorage.getItem(this.pageNumberKey) == null ? 1 : Number(sessionStorage.getItem(this.pageNumberKey));
+    if (this._authService.isLoggedIn() && this._authService.getUserPayload()) {
+      this.userPayload = this._authService.getUserPayload();
+    }
   }
 
   ngOnInit(): void {
-    if (this._authService.isLoggedIn()) {
-      this.username = this._authService.getUserPayLoad().given_name;
-    }
-
     this.searchSubscription = this._searchService.searchKeyword$.subscribe(
       (keyword) => {
         this.keyword = keyword;
@@ -73,19 +72,22 @@ export class FeedComponent implements OnInit, OnDestroy {
     if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();
     }
+    sessionStorage.removeItem(this.pageNumberKey);
   }
 
   @HostListener('window:scroll', ['$event'])
   onScroll(): void {
     if (this.isLoading || !this.hasMorePosts) return;
+    clearTimeout(this.scrollDebounceTimeout);
+    this.scrollDebounceTimeout = setTimeout(() => {
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-    if (scrollTop + windowHeight >= documentHeight) {
-      this.loadMorePosts();
-    }
+      if (scrollTop + windowHeight >= documentHeight) {
+        this.loadMorePosts();
+      }
+    }, 200);
   }
 
   getPosts(pageNumber: number, keyword: string): void {
@@ -102,6 +104,7 @@ export class FeedComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isError = true;
         this.errorMessage = error.message;
+        this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;
@@ -110,20 +113,22 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   createPost() {
-    if(!this.username.trim()){
+    if(!this._authService.isLoggedIn()){
       this._router.navigate([this.login]);
     }
     if (!this.newPostDescription.trim()) {
+      this.isError = true;
+      this.errorMessage = 'A Post Cannot Be Empty!';
       return;
     }
-    const newPost = new Post();
-    newPost.description = this.newPostDescription.trim();
     
-    this._postService.createPost(newPost).subscribe({
-      next: (createdPost) => {
-        createdPost.author = new User();
-        createdPost.author.username = this.username;
-        this.posts.unshift(createdPost);
+    this.post.description = this.newPostDescription.trim();
+    
+    this._postService.createPost(this.post).subscribe({
+      next: (post) => {
+        post.author = new User();
+        post.author.username = this.userPayload.given_name;
+        this.posts.unshift(post);
         this.newPostDescription = '';
       },
       error: (error) => {
@@ -132,6 +137,19 @@ export class FeedComponent implements OnInit, OnDestroy {
       },
       complete: () => {
 
+      },
+    });
+  }
+
+  deletePost(postId: number){
+    this._postService.deletePost(postId).subscribe({
+      next: () => {
+        this.posts = this.posts.filter(post => post.postId !== postId);
+        console.log('Post deleted successfully');
+      },
+      error: (error) => {
+        this.isError = true;
+        this.errorMessage = error.message;
       },
     });
   }

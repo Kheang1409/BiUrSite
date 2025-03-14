@@ -1,0 +1,139 @@
+.post-modal {
+    padding: 20px;
+    background: #fff;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    margin: auto;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+    color: #333;
+}
+
+.modal-header button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+.modal-header button:hover {
+    color: #333;
+}
+
+.modal-content {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-right: 10px;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.user-info h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.user-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.post-content textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    resize: vertical;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.post-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: flex-end;
+}
+
+.post-actions button {
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    outline: none;
+}
+
+.post-actions .save-button {
+    background: linear-gradient(45deg, #1877f2, #42b72a);
+    color: #fff;
+}
+
+.post-actions .cancel-button {
+    background: #f1f1f1;
+    color: #333;
+}
+
+.post-actions button:hover {
+    opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+    .post-modal {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .modal-content {
+        padding-right: 5px;
+    }
+
+    .post-actions button {
+        padding: 6px 10px;
+    }
+}
