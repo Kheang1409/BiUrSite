@@ -1,6 +1,6 @@
 <!-- app.component.html -->
 <div class="container">
-    <app-header *ngIf="!isLoginPage() && !isRegisterPage() && !isConfirmationPage() && !isProfilePage()"></app-header>
+    <app-header *ngIf="!isLoginPage() && !isRegisterPage() && !isConfirmationPage() && !isProfilePage() && !isForgotPasswordPage() && !isResetPasswordPage()"></app-header>
     <router-outlet></router-outlet>
     <app-to-top></app-to-top>
 </div>
