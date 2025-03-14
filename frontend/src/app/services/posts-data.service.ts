@@ -83,6 +83,20 @@ export class PostsDataService {
     );
   }
 
+  getComments(postId: number, pageNumber: number, keyword: string | null, userId: string | null): Observable<Comment[]> {
+    let url: string = `${this._baseUrl}${this._postUrl}`;
+    url = `${url}${postId}${this._subsetUrl}?${this.queryPageNumber}=${pageNumber}`;
+    if (keyword)
+      url = `${url}&${this.queryKeyword}=${keyword}`;
+    if (userId)
+      url = `${url}&${this.queryUserId}=${userId}`;
+
+    return this._httpClient.get<{ message: string, data: Comment[] }>(url).pipe(
+      map(response => response.data),
+      catchError(this.handleError)
+    );
+  }
+
   createComment(postId: number, newComment: Comment): Observable<Comment> {
     let url: string = `${this._baseUrl}${this._postUrl}`;
     url = `${url}${postId}${this._subsetUrl}`;
