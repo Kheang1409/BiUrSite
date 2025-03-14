@@ -4,10 +4,11 @@ import { Post } from '../classes/post';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PostsDataService } from '../services/posts-data.service';
+import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 
 @Component({
   selector: 'app-edit-post-modal',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TimeAgoPipe],
   templateUrl: './edit-post-modal.component.html',
   styleUrl: './edit-post-modal.component.css'
 })
