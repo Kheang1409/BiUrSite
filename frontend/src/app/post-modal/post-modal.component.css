@@ -319,6 +319,37 @@
     color: #333;
 }
 
+.edit-comment-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    resize: vertical;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+}
+
+.edit-comment-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.edit-comment-actions button {
+    background: linear-gradient(45deg, #1877f2, #42b72a);
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.edit-comment-actions button:hover {
+    background: linear-gradient(45deg, #166fe5, #3aa123);
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .post-modal {

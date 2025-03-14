@@ -52,11 +52,11 @@ export class PostModalComponent implements OnInit, AfterViewInit {
 
     if (this._authService.isLoggedIn() && this._authService.getUserPayload() !== null){
       this.userPayload = this._authService.getUserPayload();
-      this.post = this.data.post;
     }
   }
 
   ngOnInit(): void {
+    this.post = this.data.post;
     this.getComments(this.post.postId, this.commentsPage);
   }
 
@@ -186,19 +186,30 @@ export class PostModalComponent implements OnInit, AfterViewInit {
     return  this._authService.isLoggedIn() && comment.commenter.userId == this._authService.getUserPayload().sub;
   }
 
-  editComment(comment: Comment) {
-    const updatedDescription = prompt('Edit your comment:', comment.description);
-    if (updatedDescription && updatedDescription.trim()) {
-      comment.description = updatedDescription.trim();
-      this._postService.updateComment(this.post.postId, comment.commentId, comment).subscribe({
-        next: (updatedComment) => {
-          console.log('Comment updated:', updatedComment);
-        },
-        error: (error) => {
-          alert('Failed to update comment: ' + error.message);
-        },
-      });
+  editComment(comment: Comment): void {
+    comment.isEditing = true;
+    comment.updatedDescription = comment.description;
+  }
+
+  saveEditedComment(comment: Comment): void {
+    if (!comment.updatedDescription?.trim()) {
+      alert('Comment cannot be empty.');
+      return;
     }
+    comment.description = comment.updatedDescription.trim();
+    comment.isEditing = false;
+    comment = Object.assign(new Comment(), comment);
+    this._postService.updateComment(this.post.postId, comment.commentId, comment).subscribe({
+      error: (error) => {
+        alert('Failed to update comment: ' + error.message);
+        comment.description = comment.updatedDescription;
+      },
+    });
+  }
+
+  cancelEdit(comment: Comment): void {
+    comment.isEditing = false;
+    comment.updatedDescription = comment.description;
   }
 
   deleteComment(comment: Comment) {

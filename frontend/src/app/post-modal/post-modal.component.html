@@ -34,7 +34,18 @@
         <div class="comments-list" #commentsList>
             <div class="comment" *ngFor="let comment of comments">
                 <div class="comment-content">
-                    <p>{{ comment.description }}</p>
+                    <!-- Show input box if editing, otherwise show comment text -->
+                    <div *ngIf="comment.isEditing; else showCommentText">
+                        <textarea [(ngModel)]="comment.updatedDescription" class="edit-comment-input"></textarea>
+                        <div class="edit-comment-actions">
+                            <button (click)="saveEditedComment(comment)">Save</button>
+                            <button (click)="cancelEdit(comment)">Cancel</button>
+                        </div>
+                    </div>
+                    <ng-template #showCommentText>
+                        <p>{{ comment.description }}</p>
+                    </ng-template>
+        
                     <div class="comment-info">
                         <small>{{ comment.commenter.username }} - {{ comment.createdDate | timeAgo }}</small>
                         <div class="comment-actions" *ngIf="isCommentOwner(comment)">
