@@ -13,7 +13,7 @@ export class TimeAgoPipe implements PipeTransform {
     const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
     if (seconds < 60) {
-      return `${seconds} sec ago`;
+      return 'Just now';
     }
 
     const minutes = Math.floor(seconds / 60);
@@ -27,22 +27,19 @@ export class TimeAgoPipe implements PipeTransform {
     }
 
     const days = Math.floor(hours / 24);
-    if (days < 7) {
-      return `${days} days ago`;
+    if (days === 1) {
+      return `Yesterday at ${this.formatTime(date)}`;
     }
 
-    const weeks = Math.floor(days / 7);
-    if (weeks < 4) {
-      return `${weeks} weeks ago`;
+    const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    if (now.getFullYear() === date.getFullYear()) {
+      return date.toLocaleString('en-US', options);
     }
 
-    const months = Math.floor(days / 30);
-    if (months < 12) {
-      return `${months} months ago`;
-    }
-
-    const years = Math.floor(days / 365);
-    return `${years} years ago`;
+    return date.toLocaleString('en-US', { ...options, year: 'numeric' });
   }
 
+  private formatTime(date: Date): string {
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  }
 }
