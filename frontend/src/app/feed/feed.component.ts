@@ -26,8 +26,6 @@ export class FeedComponent implements OnInit, OnDestroy {
 
 
   page: number = 1;
-  total_page!: number;
-  total_job!: number;
 
   isError: boolean = false;
   errorMessage: string = '';
@@ -40,6 +38,8 @@ export class FeedComponent implements OnInit, OnDestroy {
   hasMorePosts: boolean = true;
 
   userPayload: any;
+
+  private scrollDebounceTimeout: any;
 
   private searchSubscription!: Subscription;
 
@@ -72,19 +72,22 @@ export class FeedComponent implements OnInit, OnDestroy {
     if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();
     }
+    sessionStorage.removeItem(this.pageNumberKey);
   }
 
   @HostListener('window:scroll', ['$event'])
   onScroll(): void {
     if (this.isLoading || !this.hasMorePosts) return;
+    clearTimeout(this.scrollDebounceTimeout);
+    this.scrollDebounceTimeout = setTimeout(() => {
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
 
-    const windowHeight = window.innerHeight;
-    const documentHeight = document.documentElement.scrollHeight;
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-    if (scrollTop + windowHeight >= documentHeight) {
-      this.loadMorePosts();
-    }
+      if (scrollTop + windowHeight >= documentHeight) {
+        this.loadMorePosts();
+      }
+    }, 200);
   }
 
   getPosts(pageNumber: number, keyword: string): void {
@@ -101,6 +104,7 @@ export class FeedComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.isError = true;
         this.errorMessage = error.message;
+        this.isLoading = false;
       },
       complete: () => {
         this.isLoading = false;
