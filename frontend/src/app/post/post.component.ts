@@ -7,6 +7,7 @@ import { Post } from '../classes/post';
 import { AuthService } from '../services/auth.service';
 import { EditPostModalComponent } from '../edit-post-modal/edit-post-modal.component';
 import { TimeAgoPipe } from '../pipes/time-ago.pipe';
+import { ConfirmDeletionDialogComponent } from '../shared/confirm-deletion-dialog/confirm-deletion-dialog.component';
 
 @Component({
   selector: 'app-post',
@@ -35,14 +36,14 @@ export class PostComponent implements OnInit {
     const target = event.target as HTMLElement;
     const isMenuClicked = target.closest('.post-menu') !== null;
     if (!isMenuClicked && this.isMenuOpen) {
-      this.isMenuOpen = false; // Close the menu if clicked outside
+      this.isMenuOpen = false;
     }
   }
 
   openPostModal(): void {
     this._dialog.open(PostModalComponent, {
       width: '600px',
-      data: { postId: this.post.postId }
+      data: { post: this.post }
     });
   }
 
@@ -75,7 +76,16 @@ export class PostComponent implements OnInit {
 
   onDelete(event: Event): void {
     event.stopPropagation();
-    this.deletePost.emit(this.post.postId);
+    const dialogRef = this._dialog.open(ConfirmDeletionDialogComponent, {
+      width: '400px',
+      data: { itemType: 'Post' } 
+    });
+  
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.deletePost.emit(this.post.postId); 
+      }
+    });
   }
 
   onReport(event: Event): void {
