@@ -8,38 +8,42 @@ export class TimeAgoPipe implements PipeTransform {
   transform(value: string | Date): string {
     if (!value) return '';
 
-    const date = new Date(value);
+    // Ensure the value is treated as UTC
+    const date = new Date(typeof value === 'string' ? value + 'Z' : value);
     const now = new Date();
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    console.log(`value (UTC): ${date.toISOString()}`);
+    console.log(`now (local): ${now.toISOString()}`);
+
+    // Calculate the absolute difference in seconds
+    const seconds = Math.abs(Math.floor((now.getTime() - date.getTime()) / 1000));
 
     if (seconds < 60) {
       return 'Just now';
     }
 
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) {
-      return `${minutes} min ago`;
+    const intervals = {
+      year: 31536000,
+      month: 2592000,
+      week: 604800,
+      day: 86400,
+      hour: 3600,
+      minute: 60
+    };
+
+    let counter;
+    for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+      counter = Math.floor(seconds / secondsInUnit);
+      if (counter > 0) {
+        if (counter === 1) {
+          return `${counter} ${unit} ago`;
+        } else {
+          return `${counter} ${unit}s ago`;
+        }
+      }
     }
 
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) {
-      return `${hours} h ago`;
-    }
-
-    const days = Math.floor(hours / 24);
-    if (days === 1) {
-      return `Yesterday at ${this.formatTime(date)}`;
-    }
-
-    const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    if (now.getFullYear() === date.getFullYear()) {
-      return date.toLocaleString('en-US', options);
-    }
-
-    return date.toLocaleString('en-US', { ...options, year: 'numeric' });
-  }
-
-  private formatTime(date: Date): string {
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+    // Fallback for dates more than a year ago or in the future
+    return date.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 }
