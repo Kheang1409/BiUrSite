@@ -16,40 +16,48 @@ export class HeaderComponent implements OnInit {
   showNotificationDropdown = false;
   showProfileDropdown = false;
   searchKeyword: string = '';
+  userProfileImage = '';
 
-  userProfileImage!: string; 
 
   feed: string = environment.urlFrontend.feed;
   login: string = environment.urlShared.login;
+  profile: string = environment.urlFrontend.profile;
+
 
   constructor(
     private _authService: AuthService,
     private _router: Router,
     private _searchService: SearchService 
-  ) {}
+  ) {
+
+  }
 
   ngOnInit(): void {
-    this.userProfileImage = this._authService.getUserPayLoad().profile || 'assets/img/profile-default.svg';
+    this.searchKeyword = sessionStorage.getItem('searchKeyword') || '';
+    if(this._authService.isLoggedIn())
+      this.userProfileImage = this._authService.getUserPayload().profile;
   } 
 
   onSearch(): void {
-    this._searchService.updateSearchKeyword(this.searchKeyword.trim());
+    const keyword = this.searchKeyword.trim();
+    this._searchService.updateSearchKeyword(keyword);
+    sessionStorage.setItem('searchKeyword', keyword);
   }
 
   toggleNotificationDropdown(event: Event) {
-    event.stopPropagation(); // Prevent event bubbling
+    event.stopPropagation();
     this.showNotificationDropdown = !this.showNotificationDropdown;
-    this.showProfileDropdown = false; // Close profile dropdown if open
+    this.showProfileDropdown = false;
   }
 
   toggleProfileDropdown(event: Event) {
-    event.stopPropagation(); // Prevent event bubbling
+    event.stopPropagation();
     this.showProfileDropdown = !this.showProfileDropdown;
-    this.showNotificationDropdown = false; // Close notification dropdown if open
+    this.showNotificationDropdown = false;
   }
 
-  profile(){
-    this._router.navigate([environment.urlFrontend.profile]);
+  goToProfile(){
+    this._router.navigate([this.profile]);
   }
 
   isLoggedIn(): boolean {
@@ -61,19 +69,16 @@ export class HeaderComponent implements OnInit {
       this._router.navigate([this.login]);
   }
 
-  // Listen for clicks outside the dropdown menus
   @HostListener('document:click', ['$event'])
   onClick(event: MouseEvent) {
     const target = event.target as HTMLElement;
 
-    // Check if the click is outside the notification dropdown
     const notificationIcon = target.closest('.notification-icon');
     const notificationDropdown = target.closest('.notification-dropdown');
     if (!notificationIcon && !notificationDropdown && this.showNotificationDropdown) {
       this.showNotificationDropdown = false;
     }
 
-    // Check if the click is outside the profile dropdown
     const profileMenu = target.closest('.profile-menu');
     const profileDropdown = target.closest('.profile-dropdown');
     if (!profileMenu && !profileDropdown && this.showProfileDropdown) {

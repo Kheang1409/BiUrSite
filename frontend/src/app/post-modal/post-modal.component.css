@@ -277,6 +277,27 @@
     display: block;
 }
 
+.comment-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.comment-actions button {
+    background: none;
+    border: 1px solid #ddd;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #333;
+    transition: background 0.3s ease;
+}
+
+.comment-actions button:hover {
+    background: #f0f0f0;
+}
+
 /* Responsive Styles */
 @media (max-width: 768px) {
     .post-modal {

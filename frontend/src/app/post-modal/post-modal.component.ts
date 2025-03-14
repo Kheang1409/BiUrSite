@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, Inject, OnInit} from '@angular/core';
+import { Component, HostListener, Inject, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Post } from '../classes/post';
 import { PostsDataService } from '../services/posts-data.service';
@@ -17,31 +17,36 @@ import { EditPostModalComponent } from '../edit-post-modal/edit-post-modal.compo
   templateUrl: './post-modal.component.html',
   styleUrls: ['./post-modal.component.css']
 })
-export class PostModalComponent implements OnInit{
+export class PostModalComponent implements OnInit {
   post!: Post;
-  userProfileImage!: string;
-
   login: string = environment.urlShared.login;
-  
+
   newComment: string = '';
   username: string = '';
 
   isError: boolean = false;
   errorMessage: string = '';
 
-  isOwner!: boolean;
   isMenuOpen: boolean = false;
-  
+  userPayload!: any;
+
   constructor(
     private _authService: AuthService,
-    private _postService: PostsDataService, 
-    private dialogRef: MatDialogRef<PostModalComponent>, 
+    private _postService: PostsDataService,
+    private dialogRef: MatDialogRef<PostModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { postId: number },
     private _router: Router,
-    private _dialog: MatDialog){}
+    private _dialog: MatDialog
+  ) {
+
+    if (this._authService.isLoggedIn() && this._authService.getUserPayload() !== null){
+      this.userPayload = this._authService.getUserPayload();
+    }
+  }
 
   ngOnInit(): void {
     this.post = new Post();
+    this.post.author = new User();
     const postId = this.data.postId;
     this.getPost(postId);
   }
@@ -59,7 +64,7 @@ export class PostModalComponent implements OnInit{
     this.dialogRef.close();
   }
 
-  getPost(postId: number){
+  getPost(postId: number) {
     this._postService.getPost(postId).subscribe({
       next: (post) => {
         this.post = post;
@@ -68,48 +73,39 @@ export class PostModalComponent implements OnInit{
         alert(error.message);
       },
       complete: () => {
-        this.userProfileImage = this.post.author.profile || 'assets/img/profile-default.svg';
-        if (this._authService.isLoggedIn()) {
-          this.isOwner = this.post.author.userId == this._authService.getUserPayLoad().sub;
-        }
+
       },
-    })
+    });
   }
 
   postComment() {
-    if (this._authService.isLoggedIn()) {
-        this.username = this._authService.getUserPayLoad().given_name;
-    }
-
     if (!this.username.trim()) {
-        this._router.navigate([this.login]);
-        return;
+      this._router.navigate([this.login]);
+      return;
     }
 
     if (!this.newComment.trim()) {
-        this.isError = true;
-        this.errorMessage = "Comment cannot be empty.";
-        return;
+      this.isError = true;
+      this.errorMessage = 'Comment cannot be empty.';
+      return;
     }
 
     const newComment = new Comment();
     newComment.description = this.newComment.trim();
 
     this._postService.createComment(this.post.postId, newComment).subscribe({
-        next: (createdComment) => {
-            createdComment.commenter = new User();
-            createdComment.commenter.username = this.username;
-            this.post.comments.unshift(createdComment);
-            this.newComment = '';
-            this.isError = false;
-        },
-        error: (error) => {
-            this.isError = true;
-            this.errorMessage = error.message || "An error occurred while posting the comment.";
-        },
-        complete: () => {
-
-        },
+      next: (createdComment) => {
+        createdComment.commenter = new User();
+        createdComment.commenter.username = this.username;
+        this.post.comments.unshift(createdComment);
+        this.newComment = '';
+        this.isError = false;
+      },
+      error: (error) => {
+        this.isError = true;
+        this.errorMessage = error.message || 'An error occurred while posting the comment.';
+      },
+      complete: () => {},
     });
   }
 
@@ -122,10 +118,10 @@ export class PostModalComponent implements OnInit{
     event.stopPropagation();
     const dialogRef = this._dialog.open(EditPostModalComponent, {
       width: '600px',
-      data: { postId: this.post.postId }
+      data: { postId: this.post.postId },
     });
 
-    dialogRef.afterClosed().subscribe(updatedPost => {
+    dialogRef.afterClosed().subscribe((updatedPost) => {
       if (updatedPost) {
         this.post = updatedPost;
       }
@@ -141,13 +137,51 @@ export class PostModalComponent implements OnInit{
         },
         error: (error) => {
           alert(error.message);
-        }
+        },
       });
     }
   }
 
   report(event: Event) {
     event.stopPropagation();
-    console.log("report!");
+    console.log('report!');
+  }
+
+  // Check if the current user is the comment owner
+  isCommentOwner(comment: Comment): boolean {
+    return  this._authService.isLoggedIn() && comment.commenter.userId === this._authService.getUserPayload().sub;
+  }
+
+  // Edit Comment Function
+  editComment(comment: Comment) {
+    const updatedDescription = prompt('Edit your comment:', comment.description);
+    if (updatedDescription && updatedDescription.trim()) {
+      comment.description = updatedDescription.trim();
+      this._postService.updateComment(this.post.postId, comment.commentId, comment).subscribe({
+        next: (updatedComment) => {
+          console.log('Comment updated:', updatedComment);
+        },
+        error: (error) => {
+          alert('Failed to update comment: ' + error.message);
+        },
+      });
+    }
+  }
+
+  deleteComment(comment: Comment) {
+    if (confirm('Are you sure you want to delete this comment?')) {
+      this._postService.deleteComment(this.post.postId, comment.commentId).subscribe({
+        next: () => {
+          this.post.comments = this.post.comments.filter((c) => c.commentId !== comment.commentId);
+        },
+        error: (error) => {
+          alert('Failed to delete comment: ' + error.message);
+        },
+      });
+    }
+  }
+
+  isOwner(): boolean{
+    return this.userPayload && this.post.author.userId == this.userPayload.sub;
   }
 }

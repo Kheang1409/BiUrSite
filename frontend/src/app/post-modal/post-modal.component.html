@@ -8,7 +8,7 @@
     <div class="modal-content">
         <div class="post">
             <div class="post-header">
-                <img [src]="userProfileImage" alt="User Avatar" class="user-avatar">
+                <img [src]="post.author.profile" alt="User Avatar" class="user-avatar">
                 <div class="user-info">
                     <h3>{{post.author != null ? post.author.username : ''}}</h3>
                     <p>{{post.createdDate}}</p>
@@ -19,9 +19,9 @@
                     </button>
                     <div class="dropdown-menu">
                         <ul>
-                            <li *ngIf="isOwner" (click)="openEditPostModal($event)">Edit</li>
-                            <li *ngIf="isOwner" (click)="delete($event)">Delete</li>
-                            <li *ngIf="!isOwner" (click)="report($event)">Report</li>
+                            <li *ngIf="isOwner()" (click)="openEditPostModal($event)">Edit</li>
+                            <li *ngIf="isOwner()" (click)="delete($event)">Delete</li>
+                            <li *ngIf="!isOwner()" (click)="report($event)">Report</li>
                         </ul>
                     </div>
                 </div>
@@ -35,6 +35,11 @@
             <div class="comment" *ngFor="let comment of post.comments">
                 <p>{{ comment.description }}</p>
                 <small>{{ comment.commenter.username }}</small>
+                <!-- Add Edit and Delete buttons for comments -->
+                <div class="comment-actions" *ngIf="isCommentOwner(comment)">
+                    <button (click)="editComment(comment)">Edit</button>
+                    <button (click)="deleteComment(comment)">Delete</button>
+                </div>
             </div>
         </div>
 

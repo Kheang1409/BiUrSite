@@ -25,8 +25,8 @@
             <img class="user-profile-img" [src]="userProfileImage"/>
             <div class="profile-dropdown" [ngClass]="{'show': showProfileDropdown}">
                 <ul>
-                    <li (click)="profile()"><a href="">View Profile</a></li>
-                    <li (click)="logout()"><a href="">Logout</a></li>
+                    <li (click)="goToProfile()"><a>View Profile</a></li>
+                    <li (click)="logout()"><a>Logout</a></li>
                 </ul>
             </div>
         </div>

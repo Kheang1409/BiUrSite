@@ -19,6 +19,7 @@ import { Router } from '@angular/router';
 })
 export class FeedComponent implements OnInit, OnDestroy {
   posts: Post[] = new Array<Post>();
+  post: Post = new Post();
 
   private pageNumberKey = environment.keys.pageNumberKey;
   login: string = environment.urlShared.login;
@@ -38,6 +39,8 @@ export class FeedComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   hasMorePosts: boolean = true;
 
+  userPayload: any;
+
   private searchSubscription!: Subscription;
 
   constructor(
@@ -46,24 +49,19 @@ export class FeedComponent implements OnInit, OnDestroy {
     private _searchService: SearchService,
     private _router: Router
   ) {
-    this.page =
-      sessionStorage.getItem(this.pageNumberKey) == null
-        ? 1
-        : Number(sessionStorage.getItem(this.pageNumberKey));
+    this.page = sessionStorage.getItem(this.pageNumberKey) == null ? 1 : Number(sessionStorage.getItem(this.pageNumberKey));
+    if (this._authService.isLoggedIn() && this._authService.getUserPayload()) {
+      this.userPayload = this._authService.getUserPayload();
+    }
   }
 
   ngOnInit(): void {
-    if (this._authService.isLoggedIn()) {
-      this.username = this._authService.getUserPayLoad().given_name;
-    }
-
     this.searchSubscription = this._searchService.searchKeyword$.subscribe(
       (keyword) => {
         this.keyword = keyword;
         this.posts = []; 
         this.page = 1;
         this.hasMorePosts = true; 
-        this.getPosts(this.page, this.keyword);
       }
     );
     this.getPosts(this.page, this.keyword);
@@ -110,20 +108,22 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   createPost() {
-    if(!this.username.trim()){
+    if(!this._authService.isLoggedIn()){
       this._router.navigate([this.login]);
     }
     if (!this.newPostDescription.trim()) {
+      this.isError = true;
+      this.errorMessage = 'A Post Cannot Be Empty!';
       return;
     }
-    const newPost = new Post();
-    newPost.description = this.newPostDescription.trim();
     
-    this._postService.createPost(newPost).subscribe({
-      next: (createdPost) => {
-        createdPost.author = new User();
-        createdPost.author.username = this.username;
-        this.posts.unshift(createdPost);
+    this.post.description = this.newPostDescription.trim();
+    
+    this._postService.createPost(this.post).subscribe({
+      next: (post) => {
+        post.author = new User();
+        post.author.username = this.userPayload.given_name;
+        this.posts.unshift(post);
         this.newPostDescription = '';
       },
       error: (error) => {

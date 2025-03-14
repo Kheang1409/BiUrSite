@@ -1,4 +1,4 @@
-import { Component, HostListener, Input, OnInit } from '@angular/core';
+import { Component, HostListener, Input, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PostModalComponent } from '../post-modal/post-modal.component';
 import { CommonModule } from '@angular/common';
@@ -13,56 +13,54 @@ import { EditPostModalComponent } from '../edit-post-modal/edit-post-modal.compo
   templateUrl: './post.component.html',
   styleUrls: ['./post.component.css']
 })
+
 export class PostComponent implements OnInit {
   @Input() post!: Post;
-  @Input() deletePost!: (postId: number) => void;
-  @Input() editPost!: (postId: number) => void;
+  @Output() deletePost = new EventEmitter<number>(); 
 
-  isOwner!: boolean;
-  userProfileImage!: string;
+  isOwner: boolean = false;
   isMenuOpen: boolean = false;
 
   constructor(private _dialog: MatDialog, private _authService: AuthService) {}
 
   ngOnInit(): void {
-    this.userProfileImage = this.post.author.profile || 'assets/img/profile-default.svg';
-    if(this._authService.isLoggedIn()){
-      this.isOwner = this.post.author.userId == this._authService.getUserPayLoad().sub;
+    if (this._authService.isLoggedIn()) {
+      this.isOwner = this.post.author.userId == this._authService.getUserPayload().sub;
     }
   }
 
   @HostListener('document:click', ['$event'])
-  onClick(event: MouseEvent) {
+  onClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    const postMenu = target.closest('.post-menu');
-    if (!postMenu && this.isMenuOpen) {
-      this.isMenuOpen = false;
+    const isMenuClicked = target.closest('.post-menu') !== null;
+    if (!isMenuClicked && this.isMenuOpen) {
+      this.isMenuOpen = false; // Close the menu if clicked outside
     }
   }
 
-  openPostModal() {
+  openPostModal(): void {
     this._dialog.open(PostModalComponent, {
       width: '600px',
       data: { postId: this.post.postId }
     });
   }
 
-  openEditPostModal(event: Event) {
-    event.stopPropagation(); 
+  openEditPostModal(event: Event): void {
+    event.stopPropagation();
     const dialogRef = this._dialog.open(EditPostModalComponent, {
       width: '600px',
       data: { postId: this.post.postId }
     });
-  
-    dialogRef.afterClosed().subscribe(updatedPost => {
+
+    dialogRef.afterClosed().subscribe((updatedPost: Post) => {
       if (updatedPost) {
-        this.post = updatedPost;
+        this.post = updatedPost; 
       }
     });
   }
 
-  openCommentModal(event: Event) {
-    event.stopPropagation(); 
+  openCommentModal(event: Event): void {
+    event.stopPropagation();
     this._dialog.open(CommentModalComponent, {
       width: '400px',
       data: { postId: this.post.postId }
@@ -74,15 +72,13 @@ export class PostComponent implements OnInit {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
-  delete(event: Event){
+  onDelete(event: Event): void {
     event.stopPropagation();
-    if (this.deletePost) {
-      this.deletePost(this.post.postId);
-    }
+    this.deletePost.emit(this.post.postId);
   }
 
-  report(event: Event){
+  onReport(event: Event): void {
     event.stopPropagation();
-    console.log("report!");
+    console.log('Reported post:', this.post.postId);
   }
 }

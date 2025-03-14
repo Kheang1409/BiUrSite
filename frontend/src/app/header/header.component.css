@@ -88,6 +88,7 @@
     color: #333;
     transition: background 0.3s ease;
     position: relative;
+    cursor: pointer;
 }
 
 .notification-dropdown ul li:not(:last-child)::after,
