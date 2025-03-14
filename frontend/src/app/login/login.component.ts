@@ -21,7 +21,8 @@ export class LoginComponent implements OnInit {
   isUnauthorized: boolean = false;
 
   feed: string = environment.urlFrontend.feed;
-  forgetPassword: string = environment.urlFrontend.forgotPassword;
+  forgetPassword: string = environment.urlShared.forgotPassword;
+  register : string = environment.urlFrontend.register;
 
   constructor(
     private _usersService: UsersDataService, 
