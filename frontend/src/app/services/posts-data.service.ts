@@ -115,11 +115,11 @@ export class PostsDataService {
     );
   }
 
-  deleteComment(postId: number, commentId: number){
+  deleteComment(postId: number, commentId: number) : Observable<void>{
     let url: string = `${this._baseUrl}${this._postUrl}`;
     url = `${url}${postId}${this._subsetUrl}${commentId}`;
-    return this._httpClient.delete<{ message: string, data: Comment }>(url).pipe(
-      map(response => response.data),
+    return this._httpClient.delete<{ message: string}>(url).pipe(
+      map(() => {}),
       catchError(this.handleError)
     );
   }
