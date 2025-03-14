@@ -20,21 +20,28 @@ export class LoginComponent implements OnInit {
   unauthorizedMessage: string = '';
   isUnauthorized: boolean = false;
 
-  home: string = environment.urlFrontend.feed;
+  feed: string = environment.urlFrontend.feed;
   forgetPassword: string = environment.urlFrontend.forgotPassword;
 
-  constructor(private _usersService: UsersDataService, private _authService: AuthService, private _router: Router) {
-    this.redirectToHomePageIfLoggedIn();
+  constructor(
+    private _usersService: UsersDataService, 
+    private _authService: AuthService, 
+    private _router: Router) {
+    
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    if(this._authService.isLoggedIn()){
+      this._router.navigate([this.feed]);
+    }
+  }
 
   login() {
-    this.getToken(this.user);
+    this.getToken();
   }
   
-  getToken(user: Login) {
-    this._usersService.getToken(user).subscribe(
+  getToken() {
+    this._usersService.getToken(this.user).subscribe(
       {
         next: (token) => {
           this.isUnauthorized = false;
@@ -47,16 +54,11 @@ export class LoginComponent implements OnInit {
         complete: () => {
           if (!this.isUnauthorized) {
             this.isUnauthorized = false;
-            this.redirectToHomePageIfLoggedIn();
+            this._router.navigate([this.feed]);
           }
         }
       }
     )
-  }
-  redirectToHomePageIfLoggedIn() {
-    if (this._authService.isLoggedIn()) {
-      this._router.navigate([this.home]);
-    }
   }
   onForgotPassword() {
     this._router.navigate([this.forgetPassword]);

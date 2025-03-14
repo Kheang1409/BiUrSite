@@ -8,10 +8,22 @@
     <div class="modal-content">
         <div class="post">
             <div class="post-header">
-                <img src="{{post.author.profile || userProfileImage}}" alt="User Avatar" class="user-avatar">
+                <img [src]="post.author.profile" alt="User Avatar" class="user-avatar">
                 <div class="user-info">
                     <h3>{{post.author != null ? post.author.username : ''}}</h3>
-                    <p>{{post.createdDate}}</p>
+                    <p>{{post.createdDate | timeAgo }}</p>
+                </div>
+                <div class="post-menu" [class.active]="isMenuOpen">
+                    <button class="menu-button" (click)="toggleMenu($event)">
+                        <i class="fas fa-ellipsis-v"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <ul>
+                            <li *ngIf="isOwner()" (click)="openEditPostModal($event)">Edit</li>
+                            <li *ngIf="isOwner()" (click)="delete($event)">Delete</li>
+                            <li *ngIf="!isOwner()" (click)="report($event)">Report</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="post-content">
@@ -19,10 +31,36 @@
             </div>
         </div>
 
-        <div class="comments-list">
-            <div class="comment" *ngFor="let comment of post.comments">
-                <p>{{ comment.description }}</p>
-                <small>{{ comment.commenter.username }}</small>
+        <div class="comments-list" #commentsList>
+            <div class="comment" *ngFor="let comment of comments">
+                <div class="comment-content">
+                    <!-- Show input box if editing, otherwise show comment text -->
+                    <div *ngIf="comment.isEditing; else showCommentText">
+                        <textarea [(ngModel)]="comment.updatedDescription" class="edit-comment-input"></textarea>
+                        <div class="edit-comment-actions">
+                            <button (click)="saveEditedComment(comment)">Save</button>
+                            <button (click)="cancelEdit(comment)">Cancel</button>
+                        </div>
+                    </div>
+                    <ng-template #showCommentText>
+                        <p>{{ comment.description }}</p>
+                    </ng-template>
+        
+                    <div class="comment-info">
+                        <small>{{ comment.commenter.username }} - {{ comment.createdDate | timeAgo }}</small>
+                        <div class="comment-actions" *ngIf="isCommentOwner(comment)">
+                            <button (click)="editComment(comment)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button (click)="deleteComment(comment)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div *ngIf="isLoadingComments" class="loading-indicator">
+                Loading more comments...
             </div>
         </div>
 

@@ -10,21 +10,25 @@ import { environment } from '../../environments/environment';
 
 export class AuthService {
 
-  #token!: Token | null;
+  private tokenKey = environment.keys.tokenKey;
+  private currentTime = Math.floor(Date.now() / 1000);
 
-  get token() {
+
+  #token!: Token;
+
+  get token() : Token{
     return this.#token;
   }
-  set token(token: Token | null) {
+
+  set token(token: Token) {
     this.#token = token;
   }
-
-  private tokenKey = environment.keys.tokenKey;
 
   setToken(token: Token) {
     this.#token = token;
     localStorage.setItem(this.tokenKey, token.token);
   }
+
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
@@ -39,25 +43,20 @@ export class AuthService {
   }
 
   isExpiryToken(): boolean {
-    var localToken = `${this.getToken()}`;
-    const userPayload: any = jwtDecode(localToken);
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (userPayload.exp < currentTime) {
+    if(this.getUserPayload() == null)
+      return false;
+    if (this.getUserPayload().exp < this.currentTime) {
       this.clearToken();
       return true;
     }
     return false;
   }
 
-  getUserPayLoad(): any {
-    var localToken = `${this.getToken()}`;
-    const userPayload: any = jwtDecode(localToken);
-    const currentTime = Math.floor(Date.now() / 1000);
-    if (userPayload.exp < currentTime) {
-      this.clearToken();
+  getUserPayload(): any{
+    if(this.getToken())
+      return jwtDecode(`${this.getToken()}`);
+    else
       return null;
-    }
-    return userPayload;
   }
 
   logout() {
