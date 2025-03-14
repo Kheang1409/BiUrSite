@@ -20,6 +20,7 @@ export class RegisterComponent implements OnInit {
   isPasswordMismatch: boolean = false;
 
   login: string = environment.urlShared.login;
+  confirmationRequired: string = environment.urlFrontend.confirmationRequired;
 
   constructor(private _usersService: UsersDataService, private _router: Router) {}
 
@@ -36,8 +37,8 @@ export class RegisterComponent implements OnInit {
     }
     this._usersService.createUser(this.user).subscribe({
       next: (message) => {
-        this._router.navigate(['/confirmation-required'], {
-          queryParams: { email: this.user.email }
+        this._router.navigate([this.confirmationRequired], {
+          queryParams: { email: this.user.email, type: 'email' }
         });
       },
       error: (error) => {

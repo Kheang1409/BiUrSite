@@ -21,6 +21,14 @@ export class AppComponent {
     return this._router.url === '/register';
   }
 
+  isForgotPasswordPage(): boolean{
+    return this._router.url === '/forgot-password';
+  }
+
+  isResetPasswordPage(): boolean{
+    return this._router.url === '/reset-password';
+  }
+
   isConfirmationPage(): boolean {
     return this._router.url === '/confirmation-required';
   }

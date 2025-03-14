@@ -6,6 +6,7 @@ import { Token } from './../classes/token';
 import { environment } from '../../environments/environment';
 import { Register } from '../classes/register';
 import { Login } from '../classes/login';
+import { ResetPassword } from '../classes/reset-password';
 
 
 @Injectable({
@@ -16,6 +17,8 @@ export class UsersDataService {
   private _baseUrl = environment.urlApi.baseUrl;
   private _userUrl = environment.urlApi.userUrl;
   private _login = environment.urlShared.login;
+  private _forgotPassword = environment.urlShared.forgotPassword;
+  private _resetPassword = environment.urlShared.resetPassword;
 
 
   constructor(private _httpClient: HttpClient) { }
@@ -44,6 +47,26 @@ export class UsersDataService {
   createUser(user: Register): Observable<string> {
     let url: string = `${this._baseUrl}${this._userUrl}`;
     return this._httpClient.post<{ message: string }>(url, user.jsonify())
+    .pipe(
+      map(response => response.message),
+      catchError(this.handleError)
+    );
+  }
+
+  forgotPassword(email: string): Observable<string>{
+    let url: string = `${this._baseUrl}${this._userUrl}`;
+    url = `${url}${this._forgotPassword}`;
+    return this._httpClient.post<{ message: string }>(url, {email: email})
+    .pipe(
+      map(response => response.message),
+      catchError(this.handleError)
+    );
+  }
+
+  resetPassword(resetPassword: ResetPassword): Observable<string>{
+    let url: string = `${this._baseUrl}${this._userUrl}`;
+    url = `${url}${this._resetPassword}`;
+    return this._httpClient.post<{ message: string }>(url, resetPassword.jsonify())
     .pipe(
       map(response => response.message),
       catchError(this.handleError)
