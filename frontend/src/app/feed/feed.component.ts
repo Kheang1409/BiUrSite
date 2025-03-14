@@ -127,6 +127,7 @@ export class FeedComponent implements OnInit, OnDestroy {
     this._postService.createPost(this.post).subscribe({
       next: (post) => {
         post.author = new User();
+        post.author.profile = this.userPayload.profile;
         post.author.username = this.userPayload.given_name;
         this.posts.unshift(post);
         this.newPostDescription = '';
