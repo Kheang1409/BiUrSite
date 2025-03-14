@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Post } from '../classes/post';
 import { PostsDataService } from '../services/posts-data.service';
@@ -11,6 +11,7 @@ import { Comment } from '../classes/comment';
 import { FormsModule } from '@angular/forms';
 import { EditPostModalComponent } from '../edit-post-modal/edit-post-modal.component';
 import { TimeAgoPipe } from '../pipes/time-ago.pipe';
+import { ConfirmDeletionDialogComponent } from '../shared/confirm-deletion-dialog/confirm-deletion-dialog.component';
 
 @Component({
   selector: 'app-post-modal',
@@ -18,8 +19,9 @@ import { TimeAgoPipe } from '../pipes/time-ago.pipe';
   templateUrl: './post-modal.component.html',
   styleUrls: ['./post-modal.component.css']
 })
-export class PostModalComponent implements OnInit {
+export class PostModalComponent implements OnInit, AfterViewInit {
   post!: Post;
+  comments: Comment[] = new Array<Comment>();
   login: string = environment.urlShared.login;
 
   newComment: string = '';
@@ -31,56 +33,79 @@ export class PostModalComponent implements OnInit {
   isMenuOpen: boolean = false;
   userPayload!: any;
 
+  commentsPage: number = 1;
+
+  isLoading: boolean = false;
+  hasMoreComments: boolean = true;
+  isLoadingComments: boolean = false;
+
+  @ViewChild('commentsList') commentsList!: ElementRef;
+
   constructor(
     private _authService: AuthService,
     private _postService: PostsDataService,
     private dialogRef: MatDialogRef<PostModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { postId: number },
+    @Inject(MAT_DIALOG_DATA) public data: { post: Post },
     private _router: Router,
     private _dialog: MatDialog
   ) {
 
     if (this._authService.isLoggedIn() && this._authService.getUserPayload() !== null){
       this.userPayload = this._authService.getUserPayload();
+      this.post = this.data.post;
     }
   }
 
   ngOnInit(): void {
-    this.post = new Post();
-    this.post.author = new User();
-    const postId = this.data.postId;
-    this.getPost(postId);
+    this.getComments(this.post.postId, this.commentsPage);
   }
 
-  @HostListener('document:click', ['$event'])
-  onClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    const postMenu = target.closest('.post-menu');
-    if (!postMenu && this.isMenuOpen) {
-      this.isMenuOpen = false;
+  ngAfterViewInit(): void {
+    this.commentsList.nativeElement.addEventListener('scroll', () => this.onScroll());
+  }
+
+  onScroll(): void {
+    const commentsList = this.commentsList.nativeElement;
+    const scrollTop = commentsList.scrollTop;
+    const scrollHeight = commentsList.scrollHeight;
+    const clientHeight = commentsList.clientHeight;
+
+    if (scrollTop + clientHeight >= scrollHeight - 10 && !this.isLoadingComments && this.hasMoreComments) {
+      this.loadMoreComments();
     }
+  }
+
+  loadMoreComments(): void {
+    if (this.isLoadingComments || !this.hasMoreComments) return;
+    this.commentsPage++;
+    this.getComments(this.post.postId, this.commentsPage);
   }
 
   closeModal() {
     this.dialogRef.close();
   }
 
-  getPost(postId: number) {
-    this._postService.getPost(postId).subscribe({
-      next: (post) => {
-        this.post = post;
+  getComments(postId: number, pageNumber: number) {
+    this._postService.getComments(postId, pageNumber, null, null).subscribe({
+      next: (comments) => {
+        if (comments.length === 0) {
+          this.hasMoreComments = false;
+        } else {
+          this.comments = [...this.comments, ... comments];
+        }
+        this.isError = false;
       },
       error: (error) => {
         alert(error.message);
       },
       complete: () => {
-
+        this.isLoadingComments = false;
       },
     });
   }
 
   postComment() {
-    if (!this.username.trim()) {
+    if (!this._authService.isLoggedIn()) {
       this._router.navigate([this.login]);
       return;
     }
@@ -97,8 +122,9 @@ export class PostModalComponent implements OnInit {
     this._postService.createComment(this.post.postId, newComment).subscribe({
       next: (createdComment) => {
         createdComment.commenter = new User();
-        createdComment.commenter.username = this.username;
-        this.post.comments.unshift(createdComment);
+        createdComment.commenter.userId = this.userPayload.sub;
+        createdComment.commenter.username = this.userPayload.given_name;
+        this.comments.unshift(createdComment);
         this.newComment = '';
         this.isError = false;
       },
@@ -131,17 +157,25 @@ export class PostModalComponent implements OnInit {
 
   delete(event: Event) {
     event.stopPropagation();
-    if (confirm('Are you sure you want to delete this post?')) {
-      this._postService.deletePost(this.post.postId).subscribe({
-        next: () => {
-          this.dialogRef.close();
-        },
-        error: (error) => {
-          alert(error.message);
-        },
-      });
-    }
-  }
+
+    const dialogRef = this._dialog.open(ConfirmDeletionDialogComponent, {
+      width: '400px',
+      data: { itemType: 'Post' }
+    });
+  
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+          this._postService.deletePost(this.post.postId).subscribe({
+            next: () => {
+              this.dialogRef.close();
+            },
+            error: (error) => {
+              alert(error.message);
+            },
+          });
+        }
+    });
+  } 
 
   report(event: Event) {
     event.stopPropagation();
@@ -168,16 +202,24 @@ export class PostModalComponent implements OnInit {
   }
 
   deleteComment(comment: Comment) {
-    if (confirm('Are you sure you want to delete this comment?')) {
-      this._postService.deleteComment(this.post.postId, comment.commentId).subscribe({
-        next: () => {
-          this.post.comments = this.post.comments.filter((c) => c.commentId !== comment.commentId);
-        },
-        error: (error) => {
-          alert('Failed to delete comment: ' + error.message);
-        },
-      });
-    }
+
+    const dialogRef = this._dialog.open(ConfirmDeletionDialogComponent, {
+      width: '400px',
+      data: { itemType: 'Post' }
+    });
+  
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this._postService.deleteComment(this.post.postId, comment.commentId).subscribe({
+          next: () => {
+              this.post.comments = this.post.comments.filter((c) => c.commentId !== comment.commentId);
+          },
+          error: (error) => {
+              alert('Failed to delete comment: ' + error.message);
+          },
+        });
+      }
+    });
   }
 
   isOwner(): boolean{

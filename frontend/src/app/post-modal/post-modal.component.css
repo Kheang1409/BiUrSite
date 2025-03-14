@@ -150,7 +150,17 @@
 .comments-list {
     flex-grow: 1;
     overflow-y: auto;
+    max-height: 300px;
     margin-bottom: 20px;
+    padding-right: 10px;
+    box-sizing: border-box;
+}
+
+.loading-indicator {
+    text-align: center;
+    padding: 10px;
+    color: #666;
+    font-size: 0.9rem;
 }
 
 /* Custom Scrollbar for Comments List */

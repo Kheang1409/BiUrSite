@@ -31,22 +31,25 @@
             </div>
         </div>
 
-        <div class="comments-list">
-            <div class="comment" *ngFor="let comment of post.comments">
-              <div class="comment-content">
-                <p>{{ comment.description }}</p>
-                <div class="comment-info">
-                  <small>{{ comment.commenter.username }} - {{ comment.createdDate | timeAgo }}</small>
-                  <div class="comment-actions" *ngIf="isCommentOwner(comment)">
-                    <button (click)="editComment(comment)">
-                      <i class="fas fa-edit"></i>
-                    </button>
-                    <button (click)="deleteComment(comment)">
-                      <i class="fas fa-trash"></i>
-                    </button>
-                  </div>
+        <div class="comments-list" #commentsList>
+            <div class="comment" *ngFor="let comment of comments">
+                <div class="comment-content">
+                    <p>{{ comment.description }}</p>
+                    <div class="comment-info">
+                        <small>{{ comment.commenter.username }} - {{ comment.createdDate | timeAgo }}</small>
+                        <div class="comment-actions" *ngIf="isCommentOwner(comment)">
+                            <button (click)="editComment(comment)">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button (click)="deleteComment(comment)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-              </div>
+            </div>
+            <div *ngIf="isLoadingComments" class="loading-indicator">
+                Loading more comments...
             </div>
         </div>
 
