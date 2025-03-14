@@ -1,4 +1,3 @@
-/* profile.component.css */
 .profile-container {
     background: #fff;
     border-radius: 12px;
@@ -7,12 +6,12 @@
     max-width: 1000px;
     margin: 20px auto;
     overflow: hidden;
-    position: relative; /* Ensure relative positioning for child elements */
+    position: relative; 
 }
 
 .profile-cover {
     height: 300px;
-    background: linear-gradient(45deg, #1877f2, #42b72a);
+    background: url('https://picsum.photos/1280/720');
     position: relative;
 }
 
@@ -23,14 +22,14 @@
     object-fit: cover;
     border: 4px solid #fff;
     position: absolute;
-    top: 220px; /* Position the image halfway out of the cover */
+    top: 220px;
     left: 20px;
-    z-index: 1; /* Ensure the image is above other elements */
+    z-index: 1; 
 }
 
 .profile-header {
     padding: 20px;
-    padding-top: 90px; /* Add padding to push the username below the profile image */
+    padding-top: 90px;
     text-align: left;
 }
 
@@ -54,7 +53,7 @@
 
 .profile-actions button {
     padding: 8px 16px;
-    background: linear-gradient(45deg, #1877f2, #42b72a); /* Gradient background */
+    background: linear-gradient(45deg, #1877f2, #42b72a); 
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -64,8 +63,8 @@
 }
 
 .profile-actions button:hover {
-    opacity: 0.9; /* Slightly fade on hover */
-    transform: scale(1.02); /* Slightly enlarge on hover */
+    opacity: 0.9;
+    transform: scale(1.02);
 }
 
 .profile-details {
@@ -93,7 +92,7 @@
 
 .profile-details button {
     padding: 8px 16px;
-    background: linear-gradient(45deg, #1877f2, #42b72a); /* Gradient background */
+    background: linear-gradient(45deg, #1877f2, #42b72a);
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -104,8 +103,8 @@
 }
 
 .profile-details button:hover {
-    opacity: 0.9; /* Slightly fade on hover */
-    transform: scale(1.02); /* Slightly enlarge on hover */
+    opacity: 0.9;
+    transform: scale(1.02);
 }
 
 .profile-activities {
@@ -165,101 +164,101 @@
 
 .back-to-home {
     position: absolute;
-    top: 30px; /* Adjusted to move the button lower */
-    left: 10px; /* Adjusted to move the button more to the left */
-    z-index: 2; /* Ensure it's above other elements */
+    top: 30px;
+    left: 10px;
+    z-index: 2;
 }
 
 .back-to-home a {
     padding: 8px 16px;
-    background: linear-gradient(45deg, #1877f2, #42b72a); /* Gradient background */
+    background: linear-gradient(45deg, #1877f2, #42b72a);
     color: #fff;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
     transition: all 0.3s ease;
-    text-decoration: none; /* Remove underline from the link */
+    text-decoration: none;
 }
 
 .back-to-home a:hover {
-    opacity: 0.9; /* Slightly fade on hover */
-    transform: scale(1.02); /* Slightly enlarge on hover */
+    opacity: 0.9;
+    transform: scale(1.02); 
 }
 /* Responsive Design */
 @media (max-width: 768px) {
     .profile-container {
-        margin: 10px auto; /* Reduce margin for smaller screens */
+        margin: 10px auto;
     }
 
     .profile-cover {
-        height: 150px; /* Reduce height for smaller screens */
+        height: 150px;
     }
 
     .profile-image {
-        width: 80px; /* Reduce size for smaller screens */
+        width: 80px;
         height: 80px;
-        top: 100px; /* Adjust position for smaller screens */
-        left: 50%; /* Center the image horizontally */
-        transform: translateX(-50%); /* Center the image horizontally */
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
     }
 
     .profile-header {
-        padding: 15px; /* Reduce padding for smaller screens */
-        padding-top: 50px; /* Adjust padding to push the username below the profile image */
-        text-align: center; /* Center align header content */
+        padding: 15px; 
+        padding-top: 50px; 
+        text-align: center;
     }
 
     .profile-header h2 {
-        font-size: 1.5rem; /* Reduce font size for smaller screens */
+        font-size: 1.5rem;
     }
 
     .profile-header p {
-        font-size: 0.9rem; /* Reduce font size for smaller screens */
+        font-size: 0.9rem;
     }
 
     .profile-actions {
-        flex-direction: column; /* Stack buttons vertically */
-        align-items: center; /* Center align buttons */
-        gap: 5px; /* Reduce gap between buttons */
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
     }
 
     .profile-actions button {
-        width: 100%; /* Make buttons full width */
-        font-size: 0.8rem; /* Reduce font size for smaller screens */
-        padding: 6px 12px; /* Adjust padding for smaller screens */
+        width: 100%;
+        font-size: 0.8rem;
+        padding: 6px 12px; 
     }
 
     .profile-details {
-        margin: 10px; /* Reduce margin for smaller screens */
-        padding: 15px; /* Reduce padding for smaller screens */
+        margin: 10px;
+        padding: 15px; 
     }
 
     .profile-details h3 {
-        font-size: 1rem; /* Reduce font size for smaller screens */
+        font-size: 1rem;
     }
 
     .profile-details p {
-        font-size: 0.9rem; /* Reduce font size for smaller screens */
+        font-size: 0.9rem;
     }
 
     .profile-activities {
-        flex-direction: column; /* Stack activity sections vertically */
-        padding: 10px; /* Reduce padding for smaller screens */
+        flex-direction: column;
+        padding: 10px; 
     }
 
     .activity-section {
-        width: 100%; /* Make activity sections full width */
-        margin-bottom: 10px; /* Add margin between sections */
+        width: 100%;
+        margin-bottom: 10px;
     }
 
     .back-to-home {
-        top: 10px; /* Adjust position for smaller screens */
-        left: 10px; /* Adjust position for smaller screens */
+        top: 10px;
+        left: 10px;
     }
 
     .back-to-home a {
-        font-size: 0.8rem; /* Reduce font size for smaller screens */
-        padding: 6px 12px; /* Adjust padding for smaller screens */
+        font-size: 0.8rem;
+        padding: 6px 12px;
     }
 }

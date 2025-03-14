@@ -11,7 +11,7 @@
                 <img src="{{userProfileImage}}" alt="User Avatar" class="user-avatar">
                 <div class="user-info">
                     <h3>{{post.author != null ? post.author.username : ''}}</h3>
-                    <p>{{post.createdDate}}</p>
+                    <p>{{post.createdDate | timeAgo}}</p>
                 </div>
             </div>
             <div class="post-content">

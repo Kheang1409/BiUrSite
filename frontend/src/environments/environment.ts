@@ -4,11 +4,12 @@ export const environment = {
     },
     urlShared: {
         login: 'login',
+        forgotPassword: 'forgot-password',
+        resetPassword: 'reset-password'
     },
     urlFrontend: {
         feed: 'feed',
         register: 'register',
-        forgotPassword: 'forgot-password',
         confirmationRequired: 'confirmation-required',
         profile: 'profile',
         error: '**',

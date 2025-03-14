@@ -1,5 +1,3 @@
-import { User } from "./user";
-
 export class Register {
     #email: string = ''
     #username: string = ''

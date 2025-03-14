@@ -1,9 +1,18 @@
 <div class="confirmation-container">
-    <h1>You're Almost There!</h1>
-    <p>
-      We've sent a confirmation email to <strong>{{ email }}</strong>. Please check your inbox and click the link in the email to verify your account.
-    </p>
-    <p>
-      Once your account is verified, you can <a href="/login">log in</a> and start using BiUrSite.
-    </p>
-  </div>
+  <h1 *ngIf="confirmationType === 'email'">You're Almost There!</h1>
+  <h1 *ngIf="confirmationType === 'otp'">Check Your Email!</h1>
+
+  <p *ngIf="confirmationType === 'email'">
+    We've sent a confirmation email to <strong>{{ email }}</strong>. Please check your inbox and click the link in the email to verify your account.
+  </p>
+  <p *ngIf="confirmationType === 'otp'">
+    We've sent an OTP to <strong>{{ email }}</strong>. Please check your inbox and enter the OTP to proceed.
+  </p>
+
+  <p *ngIf="confirmationType === 'email'">
+    Once your account is verified, you can <a href="{{login}}">log in</a> and start using BiUrSite.
+  </p>
+  <p *ngIf="confirmationType === 'otp'">
+    Once you receive the OTP, go to the <a href="{{resetPassword}}">reset password page</a> to complete the process.
+  </p>
+</div>
