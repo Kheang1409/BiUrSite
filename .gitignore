@@ -1,6 +1,7 @@
 # Ignore .NET build artifacts
 backend/bin/
 backend/obj/
+backend/Migrations/*
 backend/.vs/
 backend/*.user
 backend/*.suo
@@ -43,10 +44,6 @@ frontend/coverage/
 frontend/logs/
 frontend/tmp/
 frontend/out-tsc/
-
-# Ignore appsettings files (except for development)
-backend/appsettings.json
-!backend/appsettings.Development.json
 
 # Ignore IDE specific files
 .idea/
