@@ -11,7 +11,9 @@
 
 .profile-cover {
     height: 300px;
-    background: url('https://picsum.photos/1280/720');
+    background: url('https://picsum.photos/1280/300');
+    background-size: cover;
+    background-position: center;
     position: relative;
 }
 
@@ -20,7 +22,8 @@
     height: 150px;
     border-radius: 50%;
     object-fit: cover;
-    border: 4px solid #fff;
+    border: 8px solid #fff;
+    background-color: #fff;
     position: absolute;
     top: 220px;
     left: 20px;

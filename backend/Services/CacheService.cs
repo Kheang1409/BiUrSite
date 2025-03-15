@@ -21,7 +21,7 @@ namespace Backend.Services
         public async Task<T?> GetDataAsync<T>(string key)
         {
             var value = await _cacheDb.StringGetAsync(key);
-            return value.HasValue ? JsonSerializer.Deserialize<T>(value) : default;
+            return value.HasValue ? JsonSerializer.Deserialize<T>(value.ToString()) : default;
         }
 
         public async Task RemoveDataAsync(string key)

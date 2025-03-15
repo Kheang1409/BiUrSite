@@ -4,7 +4,7 @@ namespace Backend.Repositories
 {
     public interface ICommentRepository
     {
-        Task<List<Comment>> GetCommentsAsync(int pageNumber, string keyword, int ? userId, int ? postId);
+        Task<List<Comment>> GetCommentsAsync(int pageNumber, string? keyword, int ? userId, int ? postId);
         Task<Comment?> GetCommentByIdAsync(int postId, int commentId);
         Task<Comment> AddCommentAsync(Comment comment);
         Task<bool> UpdateContentAsync(int postId, int commentId, string description);

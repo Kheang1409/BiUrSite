@@ -16,10 +16,10 @@ namespace Backend.Repositories
         {
             _context = context;
             _configuration = configuration;
-            _limitItem = int.Parse(_configuration["Limit"]);
+            _limitItem = int.Parse(_configuration["Limit"] ?? "10");
         }
         
-        public async Task<List<Post>> GetPostsAsync(int pageNumber, string keyword, int ? userId)
+        public async Task<List<Post>> GetPostsAsync(int pageNumber, string? keyword, int ? userId)
         {
             IQueryable<Post> posts = _context.Posts
                 .AsNoTracking()

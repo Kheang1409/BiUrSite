@@ -17,7 +17,7 @@ namespace Backend.Models{
         public DateTime? deletedDate { get; set; }
         [ForeignKey("userId")]
         [JsonIgnore]
-        public User? author {get; set;}
+        public required User author {get; set;}
         [JsonIgnore]
         public List<Comment> comments {get; set;} = new List<Comment>();
     }

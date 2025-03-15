@@ -19,7 +19,7 @@ namespace Backend.Repositories
             }
         }
 
-        public async Task<List<User>> GetUsersAsync(int pageNumber, string username){
+        public async Task<List<User>> GetUsersAsync(int pageNumber, string? username){
 
             IQueryable<User> users = _context.Users.AsNoTracking()
                 .Skip(_limitItem*pageNumber)
@@ -54,7 +54,7 @@ namespace Backend.Repositories
             return affectdRow == 1; 
         }
 
-        public async Task<bool> UserForgetPasswordAsync(string email, string otp){
+        public async Task<bool> UserForgetPasswordAsync(string email, string? otp){
             int affectdRow = await _context.Users
                 .Where(user => user.email.Equals(email))
                 .FilterUserByStatus(Status.Verified)

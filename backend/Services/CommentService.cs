@@ -13,7 +13,7 @@ namespace Backend.Services
             _commentRepository = commentRepository;
         }
 
-        public async Task<List<Comment>> GetCommentsAsync(int pageNumber, string keyword, int ? userId, int postId)
+        public async Task<List<Comment>> GetCommentsAsync(int pageNumber, string? keyword, int? userId, int postId)
             => await _commentRepository.GetCommentsAsync(pageNumber, keyword, userId, postId);
 
         public async Task<Comment?> GetCommentByIdAsync(int postId, int commentId)
