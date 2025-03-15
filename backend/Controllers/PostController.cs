@@ -203,7 +203,7 @@ namespace Backend.Controllers
         private int GetAuthId()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return int.Parse(userId);
+            return int.Parse(userId ?? "0");
         }
     }
 }

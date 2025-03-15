@@ -15,7 +15,7 @@ namespace Backend.Models{
         [Required(ErrorMessage = "Password is required.")]
         [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
         public required string password { get; set; }
-        public string? profile {get; set;} ="assets/img/profile-default.svg";
+        public required string profile {get; set;} = "assets/img/profile-default.svg";
         [Required]
         public bool isActive {get; set;} = false;
         [Required]

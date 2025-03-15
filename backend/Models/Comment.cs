@@ -23,6 +23,6 @@ namespace Backend.Models{
         public User? commenter {get; set;}
         [ForeignKey("postId")]
         [JsonIgnore]
-        public Post? post {get; set;}
+        public required Post post {get; set;}
     }
 }

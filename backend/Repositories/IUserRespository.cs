@@ -4,11 +4,11 @@ namespace Backend.Repositories
 {
     public interface IUserRepository
     {
-        Task<List<User>> GetUsersAsync(int pageNumber, string usernamme);
+        Task<List<User>> GetUsersAsync(int pageNumber, string? usernamme);
         Task<User?> GetUserByIdAsync(int userId);
         Task<User?> GetUserByEmailAsync(string email);
         Task<bool> UserVerifiedAsync(string verifiedToken);
-        Task<bool> UserForgetPasswordAsync(string email, string otp);
+        Task<bool> UserForgetPasswordAsync(string email, string? otp);
         Task<bool> UserResetPasswordAsync(string otp, string hashPassword);
         Task AddUserAsync(User user);
         Task UpdateUserAsync(User user);

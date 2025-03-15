@@ -15,7 +15,7 @@ namespace Backend.Services
             _mapper = mapper;
         }
 
-        public async Task<List<User>> GetUsersAsync(int pageNumber, string usernamme)
+        public async Task<List<User>> GetUsersAsync(int pageNumber, string? usernamme)
         {
             var users = await _userRepository.GetUsersAsync(pageNumber, usernamme);
             return users;
@@ -40,7 +40,7 @@ namespace Backend.Services
             return await _userRepository.UserVerifiedAsync(verifiedToken);
         }
 
-        public async Task<bool> UserForgetPasswordAsync(string email, string otp){
+        public async Task<bool> UserForgetPasswordAsync(string email, string? otp){
             return await _userRepository.UserForgetPasswordAsync(email, otp);
         }
         public async Task<bool> UserResetPasswordAsync(string otp, string hashPassword){
