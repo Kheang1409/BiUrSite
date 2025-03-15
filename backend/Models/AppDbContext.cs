@@ -20,6 +20,7 @@ namespace Backend.Models
                 userId = 1,
                 username = "admin",
                 email = "example@gmail.com",
+                profile = "assets/img/profile-default.svg",
                 role = Role.Admin,
                 status = Status.Verified,
                 password = "$2a$11$FCyLQBXkPuw44t82Fi8Qf.V8pecKGOPcPh59fGkrbfXEjbsMEc6FK" // Prehashed password. Don't use User.HashPassword("123456"), <- dynamic value 

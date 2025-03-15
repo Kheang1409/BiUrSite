@@ -13,16 +13,16 @@ namespace Backend.Repositories
         public CommentRepository(AppDbContext context, IConfiguration configuration){
             _context = context;
             _configuration = configuration;
-            _limitItem = int.Parse(_configuration["Limit"]);
+            _limitItem = int.Parse(_configuration["Limit"] ?? "10");
         }
 
-        public async Task<List<Comment>> GetCommentsAsync(int pageNumber, string keyword, int ? userId, int ? postId){
+        public async Task<List<Comment>> GetCommentsAsync(int pageNumber, string? keyword, int ? userId, int ? postId){
 
             IQueryable<Comment> comments = _context.Comments
                 .AsNoTracking()
                 .Include(comment => comment.commenter)
                 .Include(comment => comment.post)
-                .ThenInclude(post => post.author);
+                    .ThenInclude(post => post.author);
                 
             if(keyword != null)
                 comments  = comments.Where(post => EF.Functions.Like(post.description, $"%{keyword}%"));

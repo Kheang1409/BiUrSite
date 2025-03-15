@@ -1,4 +1,3 @@
-using AutoMapper;
 using Backend.Models;
 using Backend.Repositories;
 
@@ -13,7 +12,7 @@ namespace Backend.Services
             _postRepository = postRepository;
         }
 
-        public async Task<List<Post>> GetPostsAsync(int pageNumber, string keyword, int ? userId)
+        public async Task<List<Post>> GetPostsAsync(int pageNumber, string? keyword, int ? userId)
             => await _postRepository.GetPostsAsync(pageNumber, keyword, userId);
 
         public async Task<Post?> GetPostByIdAsync(int postId)

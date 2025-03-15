@@ -106,7 +106,7 @@ namespace Backend.Controllers
             var existUser = await _userService.GetUserByEmailAsync(email);
             if (existUser == null)
                 return NotFound(new { message = "No account found with this email address. Please check the email or register a new account." });
-
+            
             existUser.GenerateOtp();
             var isValid = await _userService.UserForgetPasswordAsync(email, existUser.otp);
             if (!isValid)

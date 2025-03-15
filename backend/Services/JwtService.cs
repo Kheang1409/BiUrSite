@@ -30,7 +30,7 @@ namespace Backend.Services
                             ?? jwtSettings["Audience"];
             var expiryMinutes = int.TryParse(Environment.GetEnvironmentVariable("JwtSettings__ExpiryMinutes"), out var envExpiryMinutes) 
                                 ? envExpiryMinutes 
-                                : int.Parse(jwtSettings["ExpiryMinutes"]);
+                                : int.Parse(jwtSettings["ExpiryMinutes"] ?? "60");
 
             if (string.IsNullOrEmpty(secretKey))
                 throw new ArgumentNullException(nameof(secretKey), "JWT secret key cannot be null or empty.");

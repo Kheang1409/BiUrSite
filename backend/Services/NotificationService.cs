@@ -16,7 +16,7 @@ namespace Backend.Services
             _emailSettings = emailSettings.Value;
         }
 
-        public async Task SendOtpEmail(string recipientEmail, string otp)
+        public async Task SendOtpEmail(string recipientEmail, string? otp)
         {
             var emailBody = $"Your OTP to reset your password is: {otp}. It will expire in 3 minutes.";
             var message = CreateEmailMessage(recipientEmail, "Password Reset OTP", emailBody);
