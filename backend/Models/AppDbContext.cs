@@ -36,11 +36,11 @@ namespace Backend.Models
                 .Property(user => user.status)
                 .HasConversion<string>();
 
-            modelBuilder.Entity<User>()
-                .HasCheckConstraint("CK_User_Status", "status IN ('Unverified', 'Verified', 'Banned', 'Deleted')");
+            modelBuilder.Entity<User>()?
+                .ToTable("Users", userTable => userTable.HasCheckConstraint("CK_User_Status", "status IN ('Unverified', 'Verified', 'Banned', 'Deleted')"));
 
-            modelBuilder.Entity<User>()
-                .HasCheckConstraint("CK_User_Role", "role IN ('User', 'Admin')");
+            modelBuilder.Entity<User>()?
+                .ToTable("Users", userTable => userTable.HasCheckConstraint("CK_User_Role", "role IN ('User', 'Admin')"));
 
             modelBuilder.Entity<Comment>()
                 .HasOne(c => c.commenter)

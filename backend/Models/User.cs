@@ -22,8 +22,8 @@ namespace Backend.Models{
         public Status status {get; set;} = Status.Unverified;
         [Required]
         public Role role {get; set; } = Role.User;
-        public string? opt { get; set; }
-        public DateTime? optExpiry { get; set; }
+        public string? otp { get; set; }
+        public DateTime? otpExpiry { get; set; }
         public string? verificationToken  { get; set; }
         public DateTime? verificationTokenExpiry  { get; set; }
         public DateTime? createdDate {get; set;}
@@ -35,8 +35,8 @@ namespace Backend.Models{
 
         public void GenerateOtp()
         {
-            opt = new Random().Next(100000, 999999).ToString();
-            optExpiry = DateTime.UtcNow.AddMinutes(3);
+            otp = new Random().Next(100000, 999999).ToString();
+            otpExpiry = DateTime.UtcNow.AddMinutes(3);
         }
 
         public User GenerateVerfiedToken()
