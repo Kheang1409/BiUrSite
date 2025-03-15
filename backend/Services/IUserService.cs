@@ -9,8 +9,8 @@ namespace Backend.Services
         Task<User?> GetUserByEmailAsync(string email);
         Task AddUserAsync(User user);
         Task<bool> UserVerifiedAsync(string verifiedToken);
-        Task<bool> UserForgetPasswordAsync(string email, string opt);
-        Task<bool> UserResetPasswordAsync(string opt, string hashPassword);
+        Task<bool> UserForgetPasswordAsync(string email, string otp);
+        Task<bool> UserResetPasswordAsync(string otp, string hashPassword);
         Task UpdateUserAsync(User user);
         Task<bool> BanUserAsync(int userId);
         Task<bool> SoftDeleteUserAsync(int userId);

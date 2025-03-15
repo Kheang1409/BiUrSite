@@ -54,18 +54,18 @@ namespace Backend.Repositories
             return affectdRow == 1; 
         }
 
-        public async Task<bool> UserForgetPasswordAsync(string email, string opt){
+        public async Task<bool> UserForgetPasswordAsync(string email, string otp){
             int affectdRow = await _context.Users
                 .Where(user => user.email.Equals(email))
                 .FilterUserByStatus(Status.Verified)
                 .ExecuteUpdateAsync(user => user
-                    .SetProperty(user => user.otp, opt)
+                    .SetProperty(user => user.otp, otp)
                     .SetProperty(user => user.otpExpiry, DateTime.UtcNow.AddMinutes(3)));
             return affectdRow == 1;
         }
-        public async Task<bool>  UserResetPasswordAsync(string opt, string hashPassword){
+        public async Task<bool>  UserResetPasswordAsync(string otp, string hashPassword){
             int affectdRow = await _context.Users
-                .Where(user => user.otp != null && user.otp.Equals(opt))
+                .Where(user => user.otp != null && user.otp.Equals(otp))
                 .FilterUserByStatus(Status.Verified)
                 .ExecuteUpdateAsync(user => user
                     .SetProperty(user => user.password, hashPassword)
