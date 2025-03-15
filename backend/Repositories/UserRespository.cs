@@ -59,18 +59,18 @@ namespace Backend.Repositories
                 .Where(user => user.email.Equals(email))
                 .FilterUserByStatus(Status.Verified)
                 .ExecuteUpdateAsync(user => user
-                    .SetProperty(user => user.opt, opt)
-                    .SetProperty(user => user.optExpiry, DateTime.UtcNow.AddMinutes(3)));
+                    .SetProperty(user => user.otp, opt)
+                    .SetProperty(user => user.otpExpiry, DateTime.UtcNow.AddMinutes(3)));
             return affectdRow == 1;
         }
         public async Task<bool>  UserResetPasswordAsync(string opt, string hashPassword){
             int affectdRow = await _context.Users
-                .Where(user => user.opt != null && user.opt.Equals(opt))
+                .Where(user => user.otp != null && user.otp.Equals(opt))
                 .FilterUserByStatus(Status.Verified)
                 .ExecuteUpdateAsync(user => user
                     .SetProperty(user => user.password, hashPassword)
-                    .SetProperty(user => user.opt, (String?)null)
-                    .SetProperty(user => user.optExpiry, (DateTime?)null)
+                    .SetProperty(user => user.otp, (String?)null)
+                    .SetProperty(user => user.otpExpiry, (DateTime?)null)
                     .SetProperty(user => user.modifiedDate, DateTime.UtcNow));
             return affectdRow == 1;
         }
