@@ -102,17 +102,17 @@ namespace Backend.Controllers
                 return BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors });
             }
 
-            var email = forgetPasswordDto.Email;
+            var email = forgetPasswordDto.email;
             var existUser = await _userService.GetUserByEmailAsync(email);
             if (existUser == null)
                 return NotFound(new { message = "No account found with this email address. Please check the email or register a new account." });
 
             existUser.GenerateOtp();
-            var isValid = await _userService.UserForgetPasswordAsync(email, existUser.opt);
+            var isValid = await _userService.UserForgetPasswordAsync(email, existUser.otp);
             if (!isValid)
                 return StatusCode(500, new { message = "An error occurred while processing your request. Please try again later." });
 
-            await _notificationService.SendOtpEmail(existUser.email, existUser.opt);
+            await _notificationService.SendOtpEmail(existUser.email, existUser.otp);
             return Ok(new { message = "A One-Time Password (OTP) has been sent to your email." });
         }
 
