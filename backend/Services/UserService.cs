@@ -40,11 +40,11 @@ namespace Backend.Services
             return await _userRepository.UserVerifiedAsync(verifiedToken);
         }
 
-        public async Task<bool> UserForgetPasswordAsync(string email, string opt){
-            return await _userRepository.UserForgetPasswordAsync(email, opt);
+        public async Task<bool> UserForgetPasswordAsync(string email, string otp){
+            return await _userRepository.UserForgetPasswordAsync(email, otp);
         }
-        public async Task<bool> UserResetPasswordAsync(string opt, string hashPassword){
-            return await _userRepository.UserResetPasswordAsync(opt, hashPassword);
+        public async Task<bool> UserResetPasswordAsync(string otp, string hashPassword){
+            return await _userRepository.UserResetPasswordAsync(otp, hashPassword);
         }
 
         public async Task<bool> BanUserAsync(int userId){
