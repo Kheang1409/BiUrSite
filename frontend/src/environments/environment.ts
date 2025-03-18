@@ -15,9 +15,10 @@ export const environment = {
         error: '**',
     },
     urlApi: {
-        baseUrl: 'http://localhost:5000/api/',
-        userUrl: 'users/',
-        postUrl: 'posts/',
+        baseUrl: 'http://localhost:5000/',
+        userUrl: 'api/users/',
+        postUrl: 'api/posts/',
+        notificationHub: 'notificationHub',
         subsetUrl: '/comments/',
         totalPost: 'total-post',
         query: {
