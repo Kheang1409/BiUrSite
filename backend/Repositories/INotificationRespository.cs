@@ -1,12 +1,9 @@
 using Backend.Models;
 
-namespace Backend.Services{
-    public interface INotificationService
+namespace Backend.Repositories
+{
+    public interface INotificationRepository
     {
-        // Email notification
-        Task SendOtpEmail(string recipientEmail, string? otp);
-        Task SendConfirmationEmail(string recipientEmail, string confirmationLink);
-        // Email notifications
         Task<Notification> AddNotificationAsync(Notification notification);
         Task<List<Notification>> GetUnreadNotificationsAsync(int userId);
         Task<Notification?> GetNotificationByIdAsync(int notificationId);

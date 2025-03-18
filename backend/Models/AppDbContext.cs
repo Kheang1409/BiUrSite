@@ -10,6 +10,7 @@ namespace Backend.Models
         public DbSet<User> Users { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -70,6 +71,11 @@ namespace Backend.Models
 
             modelBuilder.Entity<Comment>()
                 .Property(c => c.createdDate)
+                .HasDefaultValueSql("getutcdate()")
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Notification>()
+                .Property(n => n.createdDate)
                 .HasDefaultValueSql("getutcdate()")
                 .ValueGeneratedOnAdd();
         }
