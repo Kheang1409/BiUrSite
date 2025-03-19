@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Backend.Models;
 using Microsoft.Data.SqlClient;
+using Backend.Data;
 
 namespace Backend.Services
 {

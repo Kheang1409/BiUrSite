@@ -17,10 +17,16 @@ namespace Backend.Redis
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var sub = _redis.GetSubscriber();
-            await sub.SubscribeAsync("cache-invalidation", async (channel, message) =>
+            await sub.SubscribeAsync(RedisChannel.Literal("cache-invalidation"), async (channel, message) =>
             {
-                await _cache.RemoveDataAsync(message);
-                Console.WriteLine($"Cache invalidated for key: {message}");
+                if (message.IsNullOrEmpty)
+                {
+                    Console.WriteLine("Received invalid or empty message, skipping cache invalidation.");
+                    return;
+                }
+                string key = message.ToString();
+                await _cache.RemoveDataAsync(key);
+                Console.WriteLine($"Cache invalidated for key: {key}");
             });
         }
     }

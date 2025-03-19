@@ -14,15 +14,15 @@ namespace Backend.Controllers
     {
         private readonly IUserService _userService;
         private readonly IJwtService _jwtService;
-        private readonly INotificationService _notificationService;
+        private readonly IEmailService _emailService;
         private readonly IMapper _mapper;
         private readonly ICacheService _cache;
 
-        public UserController(IUserService userService, IJwtService jwtService, INotificationService notificationService, IMapper mapper, ICacheService cache, IConnectionMultiplexer redis)
+        public UserController(IUserService userService, IJwtService jwtService, IEmailService emailService, IMapper mapper, ICacheService cache)
         {
             _userService = userService;
             _jwtService = jwtService;
-            _notificationService = notificationService;
+            _emailService = emailService;
             _mapper = mapper;
             _cache = cache;
         }
@@ -73,7 +73,7 @@ namespace Backend.Controllers
 
             await Task.WhenAll(
                 _userService.AddUserAsync(user),
-                _notificationService.SendConfirmationEmail(user.email, verificationLink)
+                _emailService.SendConfirmationEmail(user.email, verificationLink)
             );
 
             return StatusCode(201, new { message = "Account created successfully. Please check your email to verify your account." });
@@ -112,7 +112,7 @@ namespace Backend.Controllers
             if (!isValid)
                 return StatusCode(500, new { message = "An error occurred while processing your request. Please try again later." });
 
-            await _notificationService.SendOtpEmail(existUser.email, existUser.otp);
+            await _emailService.SendOtpEmail(existUser.email, existUser.otp);
             return Ok(new { message = "A One-Time Password (OTP) has been sent to your email." });
         }
 

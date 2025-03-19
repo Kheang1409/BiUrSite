@@ -8,14 +8,9 @@ export class TimeAgoPipe implements PipeTransform {
   transform(value: string | Date): string {
     if (!value) return '';
 
-    // Ensure the value is treated as UTC
     const date = new Date(typeof value === 'string' ? value + 'Z' : value);
     const now = new Date();
 
-    console.log(`value (UTC): ${date.toISOString()}`);
-    console.log(`now (local): ${now.toISOString()}`);
-
-    // Calculate the absolute difference in seconds
     const seconds = Math.abs(Math.floor((now.getTime() - date.getTime()) / 1000));
 
     if (seconds < 60) {
@@ -43,7 +38,6 @@ export class TimeAgoPipe implements PipeTransform {
       }
     }
 
-    // Fallback for dates more than a year ago or in the future
     return date.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   }
 }

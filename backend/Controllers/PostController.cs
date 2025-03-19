@@ -1,10 +1,12 @@
 using System.Security.Claims;
 using AutoMapper;
 using Backend.DTOs;
+using Backend.Hubs;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Backend.Controllers
 {
@@ -16,13 +18,23 @@ namespace Backend.Controllers
         private readonly IPostService _postService;
         private readonly ICommentService _commentService;
         private readonly ICacheService _cache;
+        private readonly INotificationService _notificationService;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public PostController(IPostService postService, ICommentService commentService, IMapper mapper, ICacheService cache)
+        public PostController(
+            IPostService postService, 
+            ICommentService commentService, 
+            IMapper mapper, 
+            ICacheService cache,
+            INotificationService notificationService,
+            IHubContext<NotificationHub> hubContext)
         {
             _postService = postService;
             _commentService = commentService;
             _mapper = mapper;
             _cache = cache;
+            _notificationService = notificationService;
+            _hubContext = hubContext;
         }
 
         [HttpGet]
@@ -70,12 +82,12 @@ namespace Backend.Controllers
 
             var newPost = _mapper.Map<Post>(postDto);
             newPost.userId = GetAuthId();
-
-            var post = await _postService.AddPostAsync(newPost);
+            
+            var post =  await _postService.AddPostAsync(newPost);
             if (post == null)
                 return StatusCode(500, new { message = "An error occurred while attempting to create the post." });
-
-            return StatusCode(201, new { message = "Post published successfully.", data = _mapper.Map<PostDto>(post) });
+            await _hubContext.Clients.All.SendAsync("ReceivePost", post);
+            return StatusCode(201, new { message = "Post published successfully.", data = _mapper.Map<PostDto>(post)});
         }
 
         [Authorize]
@@ -149,18 +161,23 @@ namespace Backend.Controllers
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors)
-                                              .Select(e => e.ErrorMessage).ToList();
+                                            .Select(e => e.ErrorMessage).ToList();
                 return BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors });
             }
 
             var comment = _mapper.Map<Comment>(commentDto);
             comment.postId = post.postId;
             comment.userId = GetAuthId();
-
             var createdComment = await _commentService.AddCommentAsync(comment);
             if (createdComment == null)
                 return StatusCode(500, new { message = "An error occurred while attempting to create the comment." });
-
+            if(post.author != null && post.author.userId != comment.userId){
+                var notification = GenerateNotification(post, comment);
+                await Task.WhenAll(
+                    _notificationService.AddNotificationAsync(notification),
+                    _hubContext.Clients.User(post.userId.ToString()).SendAsync("ReceiveNotification", notification)
+                );
+            }
             return StatusCode(201, new { message = "Comment published successfully.", data = _mapper.Map<CommentDto>(createdComment) });
         }
 
@@ -204,6 +221,23 @@ namespace Backend.Controllers
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return int.Parse(userId ?? "0");
+        }
+
+        private string GetAuthUsername()
+        {
+            var username = User.FindFirst(ClaimTypes.GivenName)?.Value;
+            return username ?? "";
+        }
+
+        private Notification GenerateNotification(Post post, Comment comment){
+            var notification = new Notification
+            {
+                userId = post.author == null ? 0 : post.author.userId,
+                message = $"{GetAuthUsername()} comment on your post: {comment.description}",
+                postId = post.postId,
+                commentId = comment.commentId,
+            };
+            return notification;
         }
     }
 }
