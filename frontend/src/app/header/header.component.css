@@ -63,6 +63,21 @@
     position: relative;
 }
 
+.notification-icon .red-dot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 8px;
+    height: 8px;
+    background-color: red;
+    border-radius: 50%;
+    display: none;
+}
+
+.notification-icon.has-new-notifications .red-dot {
+    display: block;
+}
+
 .notification-dropdown, .profile-dropdown {
     position: absolute;
     top: 100%;

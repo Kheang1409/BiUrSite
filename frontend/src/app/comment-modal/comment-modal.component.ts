@@ -22,8 +22,8 @@ export class CommentModalComponent implements OnInit {
 
     login: string = environment.urlShared.login;
 
-    isError: boolean = false; // Track if an error occurred
-    errorMessage: string = ''; // Store the error message
+    isError: boolean = false; 
+    errorMessage: string = ''; 
 
     constructor(
         private dialogRef: MatDialogRef<CommentModalComponent>,

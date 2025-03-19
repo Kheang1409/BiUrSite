@@ -10,6 +10,7 @@ import { SearchService } from '../services/search.service';
 import { FormsModule } from '@angular/forms';
 import { User } from '../classes/user';
 import { Router } from '@angular/router';
+import { SignalRService } from '../services/signal-r.service';
 
 @Component({
   selector: 'app-feed',
@@ -23,7 +24,6 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   private pageNumberKey = environment.keys.pageNumberKey;
   login: string = environment.urlShared.login;
-
 
   page: number = 1;
 
@@ -42,12 +42,14 @@ export class FeedComponent implements OnInit, OnDestroy {
   private scrollDebounceTimeout: any;
 
   private searchSubscription!: Subscription;
+  private postsSubscription!: Subscription;
 
   constructor(
     private _authService: AuthService,
     private _postService: PostsDataService,
     private _searchService: SearchService,
-    private _router: Router
+    private _router: Router,
+    private _signalRService: SignalRService
   ) {
     this.page = sessionStorage.getItem(this.pageNumberKey) == null ? 1 : Number(sessionStorage.getItem(this.pageNumberKey));
     if (this._authService.isLoggedIn() && this._authService.getUserPayload()) {
@@ -56,21 +58,30 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.searchSubscription = this._searchService.searchKeyword$.subscribe(
-      (keyword) => {
-        this.keyword = keyword;
-        this.posts = []; 
-        this.page = 1;
-        this.hasMorePosts = true; 
-        this.getPosts(this.page, this.keyword);
-      }
-    );
+    this.searchSubscription = this._searchService.searchKeyword$.subscribe((keyword) => {
+      this.keyword = keyword;
+      this.posts = [];
+      this.page = 1;
+      this.hasMorePosts = true;
+      this.getPosts(this.page, this.keyword);
+    });
+
     this.getPosts(this.page, this.keyword);
+
+    this._signalRService.startConnection();
+    this._signalRService.addPostListener();
+
+    this.postsSubscription = this._signalRService.posts$.subscribe((posts) => {
+      this.posts = [...this.posts, ...posts];
+    });
   }
 
   ngOnDestroy(): void {
     if (this.searchSubscription) {
       this.searchSubscription.unsubscribe();
+    }
+    if (this.postsSubscription) {
+      this.postsSubscription.unsubscribe();
     }
     sessionStorage.removeItem(this.pageNumberKey);
   }
@@ -113,7 +124,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   }
 
   createPost() {
-    if(!this._authService.isLoggedIn()){
+    if (!this._authService.isLoggedIn()) {
       this._router.navigate([this.login]);
     }
     if (!this.newPostDescription.trim()) {
@@ -121,31 +132,24 @@ export class FeedComponent implements OnInit, OnDestroy {
       this.errorMessage = 'A Post Cannot Be Empty!';
       return;
     }
-    
+
     this.post.description = this.newPostDescription.trim();
-    
+
     this._postService.createPost(this.post).subscribe({
       next: (post) => {
-        post.author = new User();
-        post.author.profile = this.userPayload.profile;
-        post.author.username = this.userPayload.given_name;
-        this.posts.unshift(post);
         this.newPostDescription = '';
       },
       error: (error) => {
         this.isError = true;
         this.errorMessage = error.message;
       },
-      complete: () => {
-
-      },
     });
   }
 
-  deletePost(postId: number){
+  deletePost(postId: number) {
     this._postService.deletePost(postId).subscribe({
       next: () => {
-        this.posts = this.posts.filter(post => post.postId !== postId);
+        this.posts = this.posts.filter((post) => post.postId !== postId);
         console.log('Post deleted successfully');
       },
       error: (error) => {

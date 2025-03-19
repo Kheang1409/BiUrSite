@@ -12,12 +12,13 @@
     </div>
 
     <div class="header-icons" *ngIf="isLoggedIn()">
-        <div class="notification-icon" (click)="toggleNotificationDropdown($event)">
+        <div class="notification-icon" [ngClass]="{'has-new-notifications': hasNewNotifications}" (click)="toggleNotificationDropdown($event)">
             <i class="fas fa-bell"></i>
+            <div class="red-dot"></div>
             <div class="notification-dropdown" [ngClass]="{'show': showNotificationDropdown}">
                 <ul>
-                    <li>I know there's nothing much here 🤧!</li>
-                    <li>Gimme a chance 😁!</li>
+                    <li *ngFor="let notification of notifications">{{ notification.message }}</li>
+                    <li *ngIf="notifications.length === 0">No new notifications</li>
                 </ul>
             </div>
         </div>
@@ -34,6 +35,6 @@
     </div>
 
     <div class="auth-buttons" *ngIf="!isLoggedIn()">
-        <a href="/login" class="auth-button">Login</a>
+        <a href="{{login}}" class="auth-button">Login</a>
     </div>
 </header>

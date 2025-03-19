@@ -1,7 +1,8 @@
 using Backend.Models;
 
-namespace Backend.Services{
-    public interface INotificationService
+namespace Backend.Repositories
+{
+    public interface INotificationRepository
     {
         Task<Notification> AddNotificationAsync(Notification notification);
         Task<List<Notification>> GetUnreadNotificationsAsync(int userId);

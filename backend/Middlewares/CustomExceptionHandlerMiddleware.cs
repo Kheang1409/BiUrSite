@@ -1,5 +1,4 @@
-namespace Backend.Middllewares{
-
+namespace Backend.Middlewares{
     public class CustomExceptionHandlerMiddleware
     {
         private readonly RequestDelegate _next;
