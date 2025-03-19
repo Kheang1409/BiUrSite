@@ -18,7 +18,6 @@ SignalRConfiguration.ConfigureCorsForSignalR(builder.Services, allowedOrigins);
 SignalRConfiguration.ConfigureSignalR(builder.Services);
 
 builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
-builder.Services.AddSingleton<INotificationService, NotificationService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddSingleton<ICacheService, CacheService>();
@@ -34,6 +33,7 @@ builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddAutoMapper(typeof(Program), typeof(UserProfile), typeof(PostProfile), typeof(CommentProfile));
 
