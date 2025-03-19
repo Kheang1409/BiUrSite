@@ -1,3 +1,4 @@
+using Backend.Data;
 using Backend.Extensions;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -43,7 +44,7 @@ namespace Backend.Repositories
                 .AsNoTracking()
                 .Include(comment => comment.commenter)
                 .Include(comment => comment.post)
-                .ThenInclude(post => post.author)
+                    .ThenInclude(post => post.author)
                 .FilterAvailableComments()
                 .FirstOrDefaultAsync();
             

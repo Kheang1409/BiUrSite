@@ -1,34 +1,39 @@
 using Backend.Repositories;
 using Backend.Services;
 using Backend.Configurations;
-using Backend.Middllewares;
+using Backend.Middlewares;
 using Backend.AutoMapper;
 using Backend.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
-CorsConfiguration.ConfigureCors(builder.Services);
 
 // Configure SignalR and CORS for SignalR
-var allowedOrigins = new[] { "http://frontend:80", "http://localhost:4200" };
+var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Split(";") 
+                     ?? builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
+
+
+CorsConfiguration.ConfigureCors(builder.Services, allowedOrigins);
 SignalRConfiguration.ConfigureCorsForSignalR(builder.Services, allowedOrigins);
 SignalRConfiguration.ConfigureSignalR(builder.Services);
 
 builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
+builder.Services.AddSingleton<INotificationService, NotificationService>();
 builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddSingleton<IJwtService, JwtService>();
 builder.Services.AddSingleton<ICacheService, CacheService>();
-builder.Services.AddSingleton<IRedisService, RedisService>();
 
-builder.Services.AddScoped<IDatabaseService, DatabaseService>();
+builder.Services.AddSingleton<IRedisService, RedisService>();
+builder.Services.AddSingleton<IDatabaseService, DatabaseService>();
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
+
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
-builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
-builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddAutoMapper(typeof(Program), typeof(UserProfile), typeof(PostProfile), typeof(CommentProfile));
 

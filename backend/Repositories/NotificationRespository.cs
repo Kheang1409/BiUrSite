@@ -1,3 +1,4 @@
+using Backend.Data;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,10 +29,6 @@ namespace Backend.Repositories
         public async Task<Notification?> GetNotificationByIdAsync(int notificationId)
             => await _context.Notifications
                 .AsNoTracking()
-                .Include(notification => notification.comment)
-                    .ThenInclude(comment => comment.commenter)
-                .Include(notification => notification.post)
-                    .ThenInclude(post => post.author)
                 .Where(notification => notification.notificationId == notificationId)
                 .FirstOrDefaultAsync();
             

@@ -171,10 +171,13 @@ namespace Backend.Controllers
             var createdComment = await _commentService.AddCommentAsync(comment);
             if (createdComment == null)
                 return StatusCode(500, new { message = "An error occurred while attempting to create the comment." });
-
-            var notification = GenerateNotification(post, comment);
-            await _notificationService.AddNotificationAsync(notification);
-            await _hubContext.Clients.User(post.userId.ToString()).SendAsync("ReceiveNotification", notification);
+            if(post.author != null && post.author.userId != comment.userId){
+                var notification = GenerateNotification(post, comment);
+                await Task.WhenAll(
+                    _notificationService.AddNotificationAsync(notification),
+                    _hubContext.Clients.User(post.userId.ToString()).SendAsync("ReceiveNotification", notification)
+                );
+            }
             return StatusCode(201, new { message = "Comment published successfully.", data = _mapper.Map<CommentDto>(createdComment) });
         }
 
@@ -229,7 +232,7 @@ namespace Backend.Controllers
         private Notification GenerateNotification(Post post, Comment comment){
             var notification = new Notification
             {
-                userId = post.author.userId,
+                userId = post.author == null ? 0 : post.author.userId,
                 message = $"{GetAuthUsername()} comment on your post: {comment.description}",
                 postId = post.postId,
                 commentId = comment.commentId,
