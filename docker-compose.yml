@@ -31,6 +31,7 @@ services:
       - EmailSettings__Port=465
       - EmailSettings__SenderEmail=${SENDER_EMAIL}
       - EmailSettings__SenderPassword=${SMTP_PASSWORD}
+      - AllowedOrigins=${ALLOWED_ORIGINS}
     ports:
       - "5000:8080"
     depends_on:
