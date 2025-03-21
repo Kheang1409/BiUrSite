@@ -9,9 +9,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 // Configure SignalR and CORS for SignalR
-var allowedOrigins = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS")?.Split(";") 
+var allowedOrigins = Environment.GetEnvironmentVariable("AllowedOrigins")?.Split(";") 
                      ?? builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? [];
-
 
 CorsConfiguration.ConfigureCors(builder.Services, allowedOrigins);
 SignalRConfiguration.ConfigureCorsForSignalR(builder.Services, allowedOrigins);
