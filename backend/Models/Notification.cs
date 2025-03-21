@@ -15,5 +15,6 @@ namespace Backend.Models{
         public int commentId {get; set;}
         public DateTime? createdDate {get; set;}
         public bool isRead {get; set;}
+        public bool isDeleted {get; set;}
     }
 }

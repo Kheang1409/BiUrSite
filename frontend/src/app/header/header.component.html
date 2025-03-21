@@ -18,6 +18,7 @@
             <div class="notification-dropdown" [ngClass]="{'show': showNotificationDropdown}">
                 <ul>
                     <li *ngFor="let notification of notifications">{{ notification.message }}</li>
+                    <li *ngIf="isError">{{errorMessage}}</li>
                     <li *ngIf="notifications.length === 0">No new notifications</li>
                 </ul>
             </div>

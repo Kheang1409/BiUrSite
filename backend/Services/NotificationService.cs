@@ -17,9 +17,9 @@ namespace Backend.Services
             return await _notificationRepository.AddNotificationAsync(notification);
         }
 
-        public async Task<List<Notification>> GetUnreadNotificationsAsync(int userId)
+        public async Task<List<Notification>> GetNotificationsByUserIdAsync(int userId, bool? isRead)
         {
-            return await _notificationRepository.GetUnreadNotificationsAsync(userId);
+            return await _notificationRepository.GetNotificationsByUserIdAsync(userId, isRead);
         }
 
         public async Task<Notification?> GetNotificationByIdAsync(int notificationId)
@@ -27,9 +27,13 @@ namespace Backend.Services
             return await _notificationRepository.GetNotificationByIdAsync(notificationId);
         }
 
-        public async Task<bool> MarkNotificationAsReadAsync(int notificationId)
+        public async Task<bool> MarkNotificationsync(int notificationId, bool isRead)
         {
-            return await _notificationRepository.MarkNotificationAsReadAsync(notificationId);
+            return await _notificationRepository.MarkNotificationsync(notificationId, isRead);
+        }
+
+        public async Task<bool> SoftDeleteNotificationAsync(int notificationId){
+            return await _notificationRepository.SoftDeleteNotificationAsync(notificationId);
         }
 
         public async Task<bool> DeleteNotificationAsync(int notificationId)
