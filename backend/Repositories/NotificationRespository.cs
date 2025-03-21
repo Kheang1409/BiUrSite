@@ -16,20 +16,25 @@ namespace Backend.Repositories
             _limitItem = int.Parse(_configuration["Limit"] ?? "10")/2;
         }
 
-        public async Task<List<Notification>> GetUnreadNotificationsAsync(int userId){
+        public async Task<List<Notification>> GetNotificationsByUserIdAsync(int userId, bool? isRead){
 
             IQueryable<Notification> notifications = _context.Notifications
                 .AsNoTracking()
-                .Take(_limitItem);
-                
-            var commentList = await notifications.ToListAsync();
-            return commentList;
+                .OrderByDescending(notification => notification.createdDate)
+                .Where(notification => notification.userId == userId)
+                .Where(notification => notification.isDeleted == false);
+            if(isRead != null )
+                notifications = notifications.Where(notification => notification.isRead == isRead);
+            notifications = notifications.Take(_limitItem);
+            var notificationList = await notifications.ToListAsync();
+            return notificationList;
         }
 
         public async Task<Notification?> GetNotificationByIdAsync(int notificationId)
             => await _context.Notifications
                 .AsNoTracking()
                 .Where(notification => notification.notificationId == notificationId)
+                .Where(notification => notification.isDeleted == false)
                 .FirstOrDefaultAsync();
             
         public async Task<Notification> AddNotificationAsync(Notification notification){
@@ -38,13 +43,22 @@ namespace Backend.Repositories
             return newNotification.Entity;
         }
 
-        public async Task<bool> MarkNotificationAsReadAsync(int notificationId)
+        public async Task<bool> MarkNotificationsync(int notificationId, bool isRead)
         {
             var affectedRow = await _context.Notifications
                 .Where(notification => notification.notificationId == notificationId)
                 .ExecuteUpdateAsync(notification => notification
-                    .SetProperty(notification => notification.isRead, true));
+                    .SetProperty(notification => notification.isRead, isRead));
             return affectedRow == 1;
+        }
+
+        public async Task<bool> SoftDeleteNotificationAsync(int notificationId)
+        {
+            int affectRow = await _context.Notifications
+                .Where(notification => notification.notificationId == notificationId)
+                .ExecuteUpdateAsync(notification => notification
+                    .SetProperty(notification => notification.isDeleted, true));
+            return affectRow == 1;
         }
 
         public async Task<bool> DeleteNotificationAsync(int notificationId)

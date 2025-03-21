@@ -18,6 +18,7 @@ export const environment = {
         baseUrl: 'http://localhost:5000/',
         userUrl: 'api/users/',
         postUrl: 'api/posts/',
+        notificationUrl: 'api/notifications/',
         notificationHub: 'notificationHub',
         subsetUrl: '/comments/',
         totalPost: 'total-post',
@@ -25,6 +26,7 @@ export const environment = {
             pageNumber: 'pageNumber',
             keyword: 'keyword',
             userId: 'userId',
+            isRead: 'isRead'
         },
     },
     message: {
