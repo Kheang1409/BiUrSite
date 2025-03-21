@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { SignalRService } from '../services/signal-r.service';
 import { Subscription } from 'rxjs';
 import { Notification } from '../classes/notification';
+import { NotificationsDataService } from '../services/notifications-data.service';
 
 @Component({
   selector: 'app-header',
@@ -27,8 +28,12 @@ export class HeaderComponent implements OnInit {
   profile: string = environment.urlFrontend.profile;
   hasNewNotifications = false;
 
+  isError: boolean = false;
+  errorMessage: string = '';
+
   constructor(
     private _authService: AuthService,
+    private _notificationService: NotificationsDataService,
     private _router: Router,
     private _searchService: SearchService,
     private _signalRService: SignalRService
@@ -38,12 +43,12 @@ export class HeaderComponent implements OnInit {
     this.searchKeyword = sessionStorage.getItem('searchKeyword') || '';
     if (this._authService.isLoggedIn()) {
       this.userProfileImage = this._authService.getUserPayload().profile;
-
+      this.getNotifications();
       this._signalRService.startConnection();
       this._signalRService.addNotificationListener();
 
       this._signalRService.notifications$.subscribe((notifications) => {
-        this.notifications = [...notifications, ...this.notifications];
+        this.notifications = [...notifications, ...this.notifications].slice(0, 5);
         if(notifications.length > 0)
           this.hasNewNotifications = true;
         console.log('Notifications updated:', notifications);
@@ -84,6 +89,22 @@ export class HeaderComponent implements OnInit {
   logout(): void {
     this._authService.logout();
     this._router.navigate([this.login]);
+  }
+
+  getNotifications(){
+    this._notificationService.getNotifications(null).subscribe({
+      next: (notifications) => {
+        this.isError = false;
+        this.notifications = notifications;
+      },
+      error: (error) => {
+        this.isError = true;
+        this.errorMessage= error.message;
+      },
+      complete: () => {
+
+      },
+    });
   }
 
   @HostListener('document:click', ['$event'])
