@@ -86,7 +86,7 @@ export class PostModalComponent implements OnInit, AfterViewInit {
   }
 
   getComments(postId: number, pageNumber: number) {
-    this._postService.getComments(postId, pageNumber, null, null).subscribe({
+    this._postService.getComments(postId, pageNumber, null).subscribe({
       next: (comments) => {
         if (comments.length === 0) {
           this.hasMoreComments = false;

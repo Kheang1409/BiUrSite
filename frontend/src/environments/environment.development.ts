@@ -18,7 +18,7 @@ export const environment = {
         userUrl: 'users/',
         jobUrl: 'posts/',
         subsetUrl: '/comments/',
-        totalPost: 'total-post',
+        total: 'total',
         query: {
             pageNumber: 'pageNumber',
             keyword: 'keyword',
