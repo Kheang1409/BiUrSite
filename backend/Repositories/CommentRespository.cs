@@ -17,18 +17,15 @@ namespace Backend.Repositories
             _limitItem = int.Parse(_configuration["Limit"] ?? "10");
         }
 
-        public async Task<List<Comment>> GetCommentsAsync(int pageNumber, string? keyword, int ? userId, int ? postId){
+        public async Task<List<Comment>> GetCommentsAsync(int pageNumber, string? keyword, int ? postId){
 
             IQueryable<Comment> comments = _context.Comments
                 .AsNoTracking()
                 .Include(comment => comment.commenter)
                 .Include(comment => comment.post)
                     .ThenInclude(post => post.author);
-                
             if(keyword != null)
                 comments  = comments.Where(post => EF.Functions.Like(post.description, $"%{keyword}%"));
-            if(userId != null)
-                comments  = comments.Where(comment => comment.userId == userId);
             if(postId != null)
                 comments  = comments.Where(comment => comment.postId == postId);
             comments = comments
@@ -42,6 +39,8 @@ namespace Backend.Repositories
         public async Task<Comment?> GetCommentByIdAsync(int postId, int commentId)
             => await _context.Comments
                 .AsNoTracking()
+                .Where(comment => comment.postId == postId)
+                .Where(comment => comment.commentId == commentId)
                 .Include(comment => comment.commenter)
                 .Include(comment => comment.post)
                     .ThenInclude(post => post.author)

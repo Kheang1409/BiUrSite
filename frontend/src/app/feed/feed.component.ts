@@ -103,7 +103,7 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   getPosts(pageNumber: number, keyword: string): void {
     this.isLoading = true;
-    this._postService.getPosts(pageNumber, keyword, null).subscribe({
+    this._postService.getPosts(pageNumber, keyword).subscribe({
       next: (posts) => {
         if (posts.length === 0) {
           this.hasMorePosts = false;

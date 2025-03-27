@@ -8,7 +8,6 @@ import { Register } from '../classes/register';
 import { Login } from '../classes/login';
 import { ResetPassword } from '../classes/reset-password';
 
-
 @Injectable({
   providedIn: 'root'
 })
@@ -20,54 +19,55 @@ export class UsersDataService {
   private _forgotPassword = environment.urlShared.forgotPassword;
   private _resetPassword = environment.urlShared.resetPassword;
 
-
   constructor(private _httpClient: HttpClient) { }
-  getUsers(): Observable<User[]> {
-    const url: string = this._baseUrl;
-    return this._httpClient.get<User[]>(url).pipe(
+
+  getUsers(page: number = 1, username: string | null = null): Observable<User[]> {
+    let url: string = `${this._baseUrl}${this._userUrl}?page=${page}`;
+    if (username) {
+      url = `${url}&username=${username}`;
+    }
+
+    return this._httpClient.get<{ message: string, data: User[] }>(url).pipe(
+      map(response => response.data),
       catchError(this.handleError)
     );
   }
 
   getUser(userId: number): Observable<User> {
-    let url: string = `${this._baseUrl}${this._userUrl}`;
-    url = `${url}${userId}`;
-    return this._httpClient.get<User>(url).pipe(
+    let url: string = `${this._baseUrl}${this._userUrl}${userId}`;
+    return this._httpClient.get<{ message: string, data: User }>(url).pipe(
+      map(response => response.data),
       catchError(this.handleError)
     );
   }
 
   getToken(user: Login): Observable<Token> {
     let url: string = `${this._baseUrl}${this._userUrl}`;
-    url = `${url}${this._login}`
+    url =  `${url}${this._login}`
     return this._httpClient.post<Token>(url, user.jsonify()).pipe(
       catchError(this.handleError)
     );
   }
+
   createUser(user: Register): Observable<string> {
     let url: string = `${this._baseUrl}${this._userUrl}`;
-    return this._httpClient.post<{ message: string }>(url, user.jsonify())
-    .pipe(
+    return this._httpClient.post<{ message: string }>(url, user.jsonify()).pipe(
       map(response => response.message),
       catchError(this.handleError)
     );
   }
 
-  forgotPassword(email: string): Observable<string>{
-    let url: string = `${this._baseUrl}${this._userUrl}`;
-    url = `${url}${this._forgotPassword}`;
-    return this._httpClient.post<{ message: string }>(url, {email: email})
-    .pipe(
+  forgotPassword(email: string): Observable<string> {
+    let url: string = `${this._baseUrl}${this._userUrl}${this._forgotPassword}`;
+    return this._httpClient.post<{ message: string }>(url, { email: email }).pipe(
       map(response => response.message),
       catchError(this.handleError)
     );
   }
 
-  resetPassword(resetPassword: ResetPassword): Observable<string>{
-    let url: string = `${this._baseUrl}${this._userUrl}`;
-    url = `${url}${this._resetPassword}`;
-    return this._httpClient.post<{ message: string }>(url, resetPassword.jsonify())
-    .pipe(
+  resetPassword(resetPassword: ResetPassword): Observable<string> {
+    let url: string = `${this._baseUrl}${this._userUrl}${this._resetPassword}`;
+    return this._httpClient.post<{ message: string }>(url, resetPassword.jsonify()).pipe(
       map(response => response.message),
       catchError(this.handleError)
     );
@@ -75,7 +75,7 @@ export class UsersDataService {
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred.';
-  
+
     if (error.status === 400) {
       if (error.error.errors) {
         const userFriendlyErrors = [];
@@ -90,26 +90,27 @@ export class UsersDataService {
         errorMessage = error.error.message;
       }
     }
-  
+
     else if (error.status === 401) {
       errorMessage = error.error.message || 'Invalid email or password. Please try again.';
     }
+
     else if (error.status === 403) {
       errorMessage = error.error.message || 'You do not have permission to perform this action.';
     }
-  
+
     // Handle 404 Not Found (e.g., user not found)
     else if (error.status === 404) {
       errorMessage = error.error.message || 'The requested resource was not found.';
     }
-  
+
     // Handle 500 Internal Server Error
     else if (error.status === 500) {
       errorMessage = error.error.message || 'A server error occurred. Please try again later.';
     }
-  
+
     console.error('HTTP Error:', error);
-  
+
     return throwError(() => new Error(errorMessage));
   }
 }

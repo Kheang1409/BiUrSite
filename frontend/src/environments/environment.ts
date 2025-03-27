@@ -21,7 +21,7 @@ export const environment = {
         notificationUrl: 'api/notifications/',
         notificationHub: 'notificationHub',
         subsetUrl: '/comments/',
-        totalPost: 'total-post',
+        total: 'total',
         query: {
             pageNumber: 'pageNumber',
             keyword: 'keyword',

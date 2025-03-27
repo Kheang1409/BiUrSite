@@ -4,7 +4,6 @@ using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using StackExchange.Redis;
 
 namespace Backend.Controllers
 {
@@ -27,71 +26,71 @@ namespace Backend.Controllers
             _cache = cache;
         }
 
+        // Get list of users with pagination and optional filter by username
         [HttpGet]
-        public async Task<IActionResult> GetUsers([FromQuery] int? pageNumber = 1, [FromQuery] string? username = null)
+        public async Task<IActionResult> GetUsers([FromQuery] int? page = 1, [FromQuery] string? username = null)
         {
-            if (pageNumber < 1)
+            if (page < 1)
                 return BadRequest(new { message = "Page number must start from 1." });
 
-            var cacheKey = $"users_page_{pageNumber}_{username ?? "all"}";
-            int _pageNumber = (pageNumber ?? 1) - 1;
-            var users = await _cache.GetDataAsync<List<User>>(cacheKey) ?? await _userService.GetUsersAsync(_pageNumber, username);
+            var cacheKey = $"users_page_{page}_{username ?? "all"}";
+            var users = await _cache.GetDataAsync<List<User>>(cacheKey) ?? await _userService.GetUsersAsync(page.Value - 1, username);
             await _cache.SetDataAsync(cacheKey, users, TimeSpan.FromMinutes(5));
 
-            return Ok(new { message = "User data retrieved.", data = _mapper.Map<List<UserDto>>(users) });
+            return Ok(new { message = "Users retrieved successfully.", data = _mapper.Map<List<UserDto>>(users) });
         }
 
-        [HttpGet("{userId}")]
-        public async Task<IActionResult> GetUser(int userId)
+        // Get a single user by ID
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetUserById(int id)
         {
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
                 return NotFound(new { message = "User not found." });
 
-            return Ok(new { message = "User data retrieved.", data = _mapper.Map<UserDto>(user) });
+            return Ok(new { message = "User data retrieved successfully.", data = _mapper.Map<UserDto>(user) });
         }
 
+        // Register a new user
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterDto registerDto)
+        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
         {
             if (!ModelState.IsValid)
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors)
                                               .Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors });
+                return BadRequest(new { message = "Invalid input. Please check the provided data.", errors });
             }
 
-            var existUser = await _userService.GetUserByEmailAsync(registerDto.email);
-            if (existUser != null)
-                return BadRequest(new { message = "This email is already registered. Please use a different email or log in." });
+            var existingUser = await _userService.GetUserByEmailAsync(registerDto.email);
+            if (existingUser != null)
+                return BadRequest(new { message = "Email is already registered." });
 
-            var user = _mapper.Map<User>(registerDto).GenerateVerfiedToken();
+            var user = _mapper.Map<User>(registerDto).GenerateVerificationToken();
             user.password = Models.User.HashPassword(user.password);
 
-            var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}";
-            var verificationLink = $"{baseUrl}/api/users/verify-user?verificationToken={user.verificationToken}";
+            var verificationLink = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/v1/users/verify?token={user.verificationToken}";
 
             await Task.WhenAll(
                 _userService.AddUserAsync(user),
                 _emailService.SendConfirmationEmail(user.email, verificationLink)
             );
 
-            return StatusCode(201, new { message = "Account created successfully. Please check your email to verify your account." });
+            return CreatedAtAction(nameof(GetUserById), new { id = user.userId }, new { message = "Account created. Please verify your email." });
         }
 
-        [HttpGet("verify-user")]
-        public async Task<IActionResult> VerifyUser([FromQuery] string verificationToken)
+        // Verify user account with token
+        [HttpGet("verify")]
+        public async Task<IActionResult> VerifyUser([FromQuery] string token)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
-
-            var isVerified = await _userService.UserVerifiedAsync(verificationToken);
+            var isVerified = await _userService.UserVerifiedAsync(token);
             if (!isVerified)
-                return BadRequest(new { message = "The verification token is either invalid or has expired. Please request a new verification email." });
+                return BadRequest(new { message = "Invalid or expired token. Please request a new one." });
 
-            return Ok(new { message = "Account verified successfully." });
+            return Ok(new { message = "Account successfully verified." });
         }
 
+        // Request password reset (OTP sent via email)
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgetPasswordDto forgetPasswordDto)
         {
@@ -99,77 +98,77 @@ namespace Backend.Controllers
             {
                 var errors = ModelState.Values.SelectMany(v => v.Errors)
                                               .Select(e => e.ErrorMessage).ToList();
-                return BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors });
+                return BadRequest(new { message = "Invalid input. Please check the provided data.", errors });
             }
 
-            var email = forgetPasswordDto.email;
-            var existUser = await _userService.GetUserByEmailAsync(email);
-            if (existUser == null)
-                return NotFound(new { message = "No account found with this email address. Please check the email or register a new account." });
-            
-            existUser.GenerateOtp();
-            var isValid = await _userService.UserForgetPasswordAsync(email, existUser.otp);
-            if (!isValid)
-                return StatusCode(500, new { message = "An error occurred while processing your request. Please try again later." });
+            var user = await _userService.GetUserByEmailAsync(forgetPasswordDto.email);
+            if (user == null)
+                return NotFound(new { message = "No account found with this email." });
 
-            await _emailService.SendOtpEmail(existUser.email, existUser.otp);
-            return Ok(new { message = "A One-Time Password (OTP) has been sent to your email." });
+            user.GenerateOtp();
+            await _userService.UserForgetPasswordAsync(user.email, user.otp);
+            await _emailService.SendOtpEmail(user.email, user.otp);
+
+            return Ok(new { message = "OTP has been sent to your email for password reset." });
         }
 
+        // Reset password using OTP
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetPasswordDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new { message = "Invalid input. Please check the provided data and try again.", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
+                return BadRequest(new { message = "Invalid input. Please check the provided data.", errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList() });
 
-            var hashPassword = Models.User.HashPassword(resetPasswordDto.newPassword);
-            var isReset = await _userService.UserResetPasswordAsync(resetPasswordDto.otp, hashPassword);
+            var isReset = await _userService.UserResetPasswordAsync(resetPasswordDto.otp, Models.User.HashPassword(resetPasswordDto.newPassword));
             if (!isReset)
-                return BadRequest(new { message = "The OTP is either invalid or has expired. Please request a new OTP." });
+                return BadRequest(new { message = "Invalid or expired OTP. Please request a new OTP." });
 
-            return Ok(new { message = "Password has been reset successfully." });
+            return Ok(new { message = "Password reset successfully." });
         }
 
+        // User login (returns JWT token)
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             if (!ModelState.IsValid)
-                return BadRequest(new { message = "Invalid input. Please check the provided details and try again." });
+                return BadRequest(new { message = "Invalid input. Please check the provided data." });
 
             var user = await _userService.GetUserByEmailAsync(loginDto.email);
             if (user == null || !user.VerifyPassword(loginDto.password))
                 return Unauthorized(new { message = "Invalid email or password." });
 
             var token = _jwtService.GenerateToken(user);
-            return Ok(new { Token = token });
+            return Ok(new { message = "Login successful.", token });
         }
 
+        // Admin: Ban user
         [Authorize(Roles = "Admin")]
-        [HttpPost("{userId}/ban")]
-        public async Task<IActionResult> Ban(int userId)
+        [HttpPost("{id}/ban")]
+        public async Task<IActionResult> BanUser(int id)
         {
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
                 return NotFound(new { message = "User not found." });
 
-            var isBanned = await _userService.BanUserAsync(userId);
+            var isBanned = await _userService.BanUserAsync(id);
             if (!isBanned)
-                return StatusCode(500, new { message = "An error occurred while attempting to ban the user." });
+                return StatusCode(500, new { message = "An error occurred while banning the user." });
 
-            return Ok(new { message = $"User with ID {userId} has been banned successfully." });
+            return Ok(new { message = $"User with ID {id} has been banned." });
         }
 
+        // Admin: Soft delete user
         [Authorize(Roles = "Admin")]
-        [HttpDelete("{userId}")]
-        public async Task<IActionResult> Delete(int userId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
         {
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
                 return NotFound(new { message = "User not found." });
 
-            var isDeleted = await _userService.SoftDeleteUserAsync(userId);
+            var isDeleted = await _userService.SoftDeleteUserAsync(id);
             if (!isDeleted)
-                return StatusCode(500, new { message = "An error occurred while attempting to delete the user." });
+                return StatusCode(500, new { message = "An error occurred while deleting the user." });
 
             return NoContent();
         }

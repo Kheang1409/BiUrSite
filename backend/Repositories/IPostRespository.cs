@@ -4,7 +4,7 @@ namespace Backend.Repositories
 {
     public interface IPostRepository
     {
-        Task<List<Post>> GetPostsAsync(int pageNumber, string? keyword, int ? userId);
+        Task<List<Post>> GetPostsAsync(int pageNumber, string? keyword);
         Task<Post?> GetPostByIdAsync(int postId);
         Task<int> GetUserTotalPostAsync(int userId);
         Task<Post> AddPostAsync(Post post);
