@@ -39,7 +39,7 @@ namespace Backend.Models{
             otpExpiry = DateTime.UtcNow.AddMinutes(3);
         }
 
-        public User GenerateVerfiedToken()
+        public User GenerateVerificationToken()
         {
             verificationToken = Guid.NewGuid().ToString();
             verificationTokenExpiry = DateTime.UtcNow.AddHours(24);

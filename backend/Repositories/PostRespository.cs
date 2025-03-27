@@ -19,7 +19,7 @@ namespace Backend.Repositories
             _limitItem = int.Parse(_configuration["Limit"] ?? "10");
         }
         
-        public async Task<List<Post>> GetPostsAsync(int pageNumber, string? keyword, int ? userId)
+        public async Task<List<Post>> GetPostsAsync(int pageNumber, string? keyword)
         {
             IQueryable<Post> posts = _context.Posts
                 .AsNoTracking()
@@ -27,8 +27,6 @@ namespace Backend.Repositories
             if(keyword != null){
                 posts  = posts.Where(post => EF.Functions.Like(post.description, $"%{keyword}%"));
             }
-            if(userId != null)
-                posts = posts.Where(post => post.userId == userId);
             posts = posts
                 .OrderByDescending(post => post.createdDate)
                 .Skip(_limitItem*pageNumber)

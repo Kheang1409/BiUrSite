@@ -12,8 +12,8 @@ namespace Backend.Services
             _postRepository = postRepository;
         }
 
-        public async Task<List<Post>> GetPostsAsync(int pageNumber, string? keyword, int ? userId)
-            => await _postRepository.GetPostsAsync(pageNumber, keyword, userId);
+        public async Task<List<Post>> GetPostsAsync(int pageNumber, string? keyword)
+            => await _postRepository.GetPostsAsync(pageNumber, keyword);
 
         public async Task<Post?> GetPostByIdAsync(int postId)
              => await _postRepository.GetPostByIdAsync(postId);
