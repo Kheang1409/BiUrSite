@@ -6,15 +6,19 @@ import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Login } from '../classes/login';
+import { OAuthLoginComponent } from '../oauth-login/oauth-login.component';
+
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, OAuthLoginComponent],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css']
 })
+
 export class LoginComponent implements OnInit {
-  user:Login = new Login();
+  
+  user: Login = new Login();
   token!: string;
 
   unauthorizedMessage: string = '';
@@ -22,25 +26,27 @@ export class LoginComponent implements OnInit {
 
   feed: string = environment.urlFrontend.feed;
   forgetPassword: string = environment.urlShared.forgotPassword;
-  register : string = environment.urlFrontend.register;
+  register: string = environment.urlFrontend.register;
 
   constructor(
-    private _usersService: UsersDataService, 
-    private _authService: AuthService, 
-    private _router: Router) {
-    
-  }
+    private _usersService: UsersDataService,
+    private _authService: AuthService,
+    private _router: Router
+  ) {}
 
   ngOnInit(): void {
-    if(this._authService.isLoggedIn()){
+    if (this._authService.isLoggedIn()) {
       this._router.navigate([this.feed]);
+    } else {
+      this._authService.clearToken();
     }
   }
+
 
   login() {
     this.getToken();
   }
-  
+
   getToken() {
     this._usersService.getToken(this.user).subscribe(
       {
@@ -59,8 +65,9 @@ export class LoginComponent implements OnInit {
           }
         }
       }
-    )
+    );
   }
+
   onForgotPassword() {
     this._router.navigate([this.forgetPassword]);
   }

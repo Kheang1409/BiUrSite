@@ -16,6 +16,7 @@ export class UsersDataService {
   private _baseUrl = environment.urlApi.baseUrl;
   private _userUrl = environment.urlApi.userUrl;
   private _login = environment.urlShared.login;
+  private _oauth = environment.urlShared.oauth;
   private _forgotPassword = environment.urlShared.forgotPassword;
   private _resetPassword = environment.urlShared.resetPassword;
 
@@ -45,6 +46,14 @@ export class UsersDataService {
     let url: string = `${this._baseUrl}${this._userUrl}`;
     url =  `${url}${this._login}`
     return this._httpClient.post<Token>(url, user.jsonify()).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  loginWithOAuth(provider: 'google' | 'facebook', token: string): Observable<Token> {
+    let url: string = `${this._baseUrl}${this._userUrl}`;
+    url =  `${url}${this._oauth}`
+    return this._httpClient.post<Token>(url, {provider, token }).pipe(
       catchError(this.handleError)
     );
   }

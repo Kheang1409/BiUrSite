@@ -5,10 +5,11 @@ import { Register } from '../classes/register';
 import { UsersDataService } from '../services/users-data.service';
 import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
+import { OAuthLoginComponent } from '../oauth-login/oauth-login.component';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, OAuthLoginComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -31,7 +32,7 @@ export class RegisterComponent implements OnInit {
   onSubmit() {
     this.isPasswordMismatch = false;
     if (!this.user.isPasswordMatched()) {
-      this.createFailMessage = 'Passwords do not match!'
+      this.createFailMessage = environment.message.passwordMissedMatch;
       this.isPasswordMismatch = true;
       return;
     }
