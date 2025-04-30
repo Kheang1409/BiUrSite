@@ -127,8 +127,6 @@ hr {
     line-height: 1.5;
 }
 
-
-
 /* Responsive Design */
 @media (max-width: 768px) {
     .login-container {
@@ -178,3 +176,4 @@ hr {
         font-size: 0.9rem;
     }
 }
+
