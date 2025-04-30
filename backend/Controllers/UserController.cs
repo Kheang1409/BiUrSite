@@ -1,9 +1,11 @@
+using Google.Apis.Auth;
 using AutoMapper;
 using Backend.DTOs;
 using Backend.Models;
 using Backend.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace Backend.Controllers
 {
@@ -68,7 +70,6 @@ namespace Backend.Controllers
 
             var user = _mapper.Map<User>(registerDto).GenerateVerificationToken();
             user.password = Models.User.HashPassword(user.password);
-
             var verificationLink = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host}/api/v1/users/verify?token={user.verificationToken}";
 
             await Task.WhenAll(
@@ -171,6 +172,85 @@ namespace Backend.Controllers
                 return StatusCode(500, new { message = "An error occurred while deleting the user." });
 
             return NoContent();
+        }
+
+        [HttpPost("auth/external-login")]
+        public async Task<IActionResult> ExternalLogin([FromBody] SocialLoginRequest request)
+        {
+            if (string.IsNullOrEmpty(request.token))
+            {
+                return BadRequest(new { message = "Token is required." });
+            }
+
+            try
+            {
+                User existingUser = null;
+                string userEmail = null;
+                string userName = null;
+                string profilePicture = null;
+
+                if (request.provider == "google")
+                {
+                    // Handle Google OAuth login
+                    var googlePayload = await GoogleJsonWebSignature.ValidateAsync(request.token);
+                    userEmail = googlePayload.Email;
+                    userName = googlePayload.Name;
+                    profilePicture = googlePayload.Picture;
+                }
+                else if (request.provider == "facebook")
+                {
+                    // Handle Facebook OAuth login
+                    var fbClient = new HttpClient();
+                    var fbResponse = await fbClient.GetStringAsync($"https://graph.facebook.com/v10.0/me?access_token={request.token}&fields=id,name,email,picture");
+
+                    var fbUser = JsonSerializer.Deserialize<FacebookUserDto>(fbResponse);
+                    userEmail = fbUser?.email;
+                    userName = fbUser?.name;
+                    profilePicture = fbUser?.picture?.data?.url;
+                }
+                else
+                {
+                    return BadRequest(new { message = "Unsupported provider" });
+                }
+
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    return BadRequest(new { message = $"{request.provider} login error: email not found." });
+                }
+
+                existingUser = await _userService.GetUserByEmailAsync(userEmail);
+                if (existingUser == null)
+                {
+                    return await CreateUserAndGenerateToken(userEmail, userName, profilePicture, request.provider);
+                }
+
+                var jwtToken = _jwtService.GenerateToken(existingUser);
+                return Ok(new { message = "Login successful.", token = jwtToken });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Login error", error = ex.Message });
+            }
+        }
+
+        // Helper method to create user and generate token
+        private async Task<IActionResult> CreateUserAndGenerateToken(string email, string name, string profilePicture, string provider)
+        {
+            var user = new User
+            {
+                email = email,
+                username = name,
+                password = Models.User.HashPassword(Guid.NewGuid().ToString()), // Use GUID or other logic for default password
+                profile = profilePicture ?? "assets/img/profile-default.svg",
+                isActive = true,
+                status = Enums.Status.Verified,
+                role = Enums.Role.User,
+                userSource = provider
+            };
+
+            await _userService.AddUserAsync(user);
+            var token = _jwtService.GenerateToken(user);
+            return Ok(new { message = $"{provider} login successful.", token });
         }
     }
 }

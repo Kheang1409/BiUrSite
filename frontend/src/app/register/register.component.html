@@ -13,11 +13,11 @@
             <div *ngIf="isPasswordMismatch || isCreateFail" class="error-message">
                 {{createFailMessage}}
             </div>
-
-
             <button type="submit">Register</button>
             <hr class="register-hr">
             <a href="/login">Already have an account? Log In</a>
+            <app-oauth-login></app-oauth-login>
+
         </form>
         <div class="register-gradient-card">
             <h2>Why Join?</h2>

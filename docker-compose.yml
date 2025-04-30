@@ -42,9 +42,7 @@ services:
 
   frontend:
     build: ./frontend
-    environment:
-      - API_URL=http://backend:8080
     ports:
-      - "8080:80"
+      - "443:443"
     depends_on:
       - backend

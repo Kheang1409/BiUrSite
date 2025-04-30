@@ -7,7 +7,7 @@ namespace Backend.Models{
         [Key]
         public int userId {get; set;}
         [Required(ErrorMessage = "Username is required.")]
-        [StringLength(maximumLength: 15, MinimumLength = 2, ErrorMessage = "Username must be between 2 and 15 characters.")]
+        [StringLength(maximumLength: 50, MinimumLength = 2, ErrorMessage = "Username must be between 2 and 15 characters.")]
         public required string username {get; set;}
         [Required]
         [EmailAddress(ErrorMessage = "Invalid email address format.")]
@@ -26,6 +26,7 @@ namespace Backend.Models{
         public DateTime? otpExpiry { get; set; }
         public string? verificationToken  { get; set; }
         public DateTime? verificationTokenExpiry  { get; set; }
+        public string? userSource { get; set; } = "regular";
         public DateTime? createdDate {get; set;}
         public DateTime? modifiedDate {get; set;}
         public DateTime? deletedDate { get; set; }

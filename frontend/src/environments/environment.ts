@@ -1,11 +1,38 @@
 export const environment = {
+    oauth: {
+        google:{
+            clientId: '569718297749-17htkd89of3n8dqkt7f0oaval2220ic1.apps.googleusercontent.com' ,
+            authorizationUrl: 'https://oauth-provider.com/authorize',
+            tokenUrl: 'https://oauth-provider.com/token',
+            cookiepolicy: 'single_host_origin',
+            redirectUri: 'https://localhost:4200/callback',
+            scope: 'openid profile email',
+            responseType: 'code',
+            message: 'Google Auth initialized',
+            error: 'Error initializing Google Auth',
+        },
+        facebook:{
+            appId: '1016155900610040',
+            redirectUri: 'https://localhost:4200/callback',
+            scope: 'email public_profile',
+            responseType: 'token',
+            version: 'v22.0',
+            message: 'Facebook Auth initialized',
+            error: 'Error initializing Facebook Auth',
+            initialized : 'Facebook SDK initialized',
+            notInitialized: "Facebook SDK not initialized.",
+            urlSDK : 'https://connect.facebook.net/en_US/sdk.js'
+        }
+        
+    },
     params: {
         jobId: 'id'
     },
     urlShared: {
         login: 'login',
         forgotPassword: 'forgot-password',
-        resetPassword: 'reset-password'
+        resetPassword: 'reset-password',
+        oauth: 'auth/external-login'
     },
     urlFrontend: {
         feed: 'feed',
