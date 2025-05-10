@@ -27,7 +27,6 @@ export class PostsDataService {
     if (keyword) {
       url = `${url}&${this.queryKeyword}=${keyword}`;
     }
-
     return this._httpClient.get<Post[]>(url).pipe( // Directly map to the Post[] array
       catchError(this.handleError)
     );
@@ -35,7 +34,6 @@ export class PostsDataService {
 
   getPost(postId: number): Observable<Post> {
     let url: string = `${this._baseUrl}${this._postUrl}${postId}`;
-
     return this._httpClient.get<Post>(url).pipe( // Directly map to a single Post
       catchError(this.handleError)
     );
@@ -72,13 +70,9 @@ export class PostsDataService {
     );
   }
 
-  getComments(postId: number, pageNumber: number, keyword: string | null): Observable<Comment[]> {
+  getComments(postId: number, pageNumber: number): Observable<Comment[]> {
     let url: string = `${this._baseUrl}${this._postUrl}${postId}${this._subsetUrl}?${this.queryPageNumber}=${pageNumber}`;
-    if (keyword) {
-      url = `${url}&${this.queryKeyword}=${keyword}`;
-    }
-
-    return this._httpClient.get<Comment[]>(url).pipe( // Directly map to the Comment[] array
+    return this._httpClient.get<Comment[]>(url).pipe(
       catchError(this.handleError)
     );
   }

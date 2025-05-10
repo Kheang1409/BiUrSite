@@ -32,10 +32,13 @@ export const environment = {
         login: 'login',
         forgotPassword: 'forgot-password',
         resetPassword: 'reset-password',
-        oauth: 'auth/external-login'
+        signIn: 'signin',
+        google: 'google/',
+        facebook: 'facebook/',
     },
     urlFrontend: {
         feed: 'feed',
+        oauthCallback: 'oauth-callback',
         register: 'register',
         confirmationRequired: 'confirmation-required',
         profile: 'profile',
@@ -50,10 +53,8 @@ export const environment = {
         subsetUrl: '/comments/',
         total: 'total',
         query: {
-            pageNumber: 'pageNumber',
-            keyword: 'keyword',
-            userId: 'userId',
-            isRead: 'isRead'
+            pageNumber: 'PageNumber',
+            keyword: 'Keyword'
         },
     },
     message: {

@@ -8,10 +8,12 @@ import { ConfirmationRequiredComponent } from './confirmation-required/confirmat
 import { ProfileComponent } from './profile/profile.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './reset-password/reset-password.component';
+import { OAuthCallbackComponent } from './oauth-callback/oauth-callback.component';
 
 
 const feed = environment.urlFrontend.feed;
 const login = environment.urlShared.login;
+const oauthCallback = environment.urlFrontend.oauthCallback;
 const forgotPassword = environment.urlShared.forgotPassword;
 const resetPassword = environment.urlShared.resetPassword;
 const register = environment.urlFrontend.register;
@@ -28,6 +30,9 @@ export const routes: Routes = [
     },
     {
         path: login, component: LoginComponent
+    },
+    {
+        path: oauthCallback, component: OAuthCallbackComponent
     },
     {
         path: forgotPassword, component: ForgotPasswordComponent

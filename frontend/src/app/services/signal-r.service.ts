@@ -77,11 +77,9 @@ export class SignalRService implements OnDestroy {
   }
 
   public addPostListener(): void {
-    this.hubConnection.on('ReceivePost', (post: Post) => {
-      console.log('New post received:', post);
+    this.hubConnection.on('ReceivePost', (post: any) => {
       if (post) {
-        // Fetch additional post details if needed
-        this._postService.getPost(post.postId).subscribe({
+        this._postService.getPost(post.id).subscribe({
           next: (newPost) => {
             this.posts$.next([newPost]);
           },

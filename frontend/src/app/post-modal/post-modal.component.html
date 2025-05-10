@@ -19,9 +19,9 @@
                     </button>
                     <div class="dropdown-menu">
                         <ul>
-                            <li *ngIf="isOwner()" (click)="openEditPostModal($event)">Edit</li>
-                            <li *ngIf="isOwner()" (click)="delete($event)">Delete</li>
-                            <li *ngIf="!isOwner()" (click)="report($event)">Report</li>
+                            <li *ngIf="isOwner" (click)="openEditPostModal($event)">Edit</li>
+                            <li *ngIf="isOwner" (click)="delete($event)">Delete</li>
+                            <li *ngIf="!isOwner" (click)="report($event)">Report</li>
                         </ul>
                     </div>
                 </div>

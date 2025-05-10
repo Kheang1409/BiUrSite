@@ -136,7 +136,7 @@ export class FeedComponent implements OnInit, OnDestroy {
     this.post.description = this.newPostDescription.trim();
 
     this._postService.createPost(this.post).subscribe({
-      next: (post) => {
+      next: () => {
         this.newPostDescription = '';
       },
       error: (error) => {
@@ -149,7 +149,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   deletePost(postId: number) {
     this._postService.deletePost(postId).subscribe({
       next: () => {
-        this.posts = this.posts.filter((post) => post.postId !== postId);
+        this.posts = this.posts.filter((post) => post.id !== postId);
         console.log('Post deleted successfully');
       },
       error: (error) => {

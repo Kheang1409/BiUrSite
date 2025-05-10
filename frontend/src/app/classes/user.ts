@@ -1,13 +1,12 @@
 export class User {
-    #userId: number = 0;
+    #id: number = 0;
     #email: string = ''
     #username: string = ''
     #profile: string = ''
-    #password: string = ''
     
 
-    get userId(): number {
-        return this.#userId;
+    get id(): number {
+        return this.#id;
     }
     get email(): string {
         return this.#email;
@@ -18,11 +17,9 @@ export class User {
     get profile(): string{
         return this.#profile;
     }
-    get password(): string {
-        return this.#password;
-    }
-    set userId(userId: number) {
-        this.#userId = userId;
+    
+    set id(id: number) {
+        this.#id = id;
     }
     set email(email: string) {
         this.#email = email;
@@ -32,8 +29,5 @@ export class User {
     }
     set username(username: string) {
         this.#username = username
-    }
-    set password(passowrd: string) {
-        this.#password = passowrd
     }
 }

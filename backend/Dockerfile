@@ -1,25 +1,22 @@
 FROM mcr.microsoft.com/dotnet/sdk:latest AS build
 
-WORKDIR /app
+WORKDIR /src
 
-COPY *.csproj ./
-RUN dotnet restore
+COPY API/Api.csproj ./API/
+COPY Application/Application.csproj ./Application/
+COPY Domain/Domain.csproj ./Domain/
+COPY Infrastructure/Infrastructure.csproj ./Infrastructure/
 
-RUN dotnet tool install --global dotnet-ef
-ENV PATH="$PATH:/root/.dotnet/tools"
+RUN dotnet restore ./API/Api.csproj
 
-COPY . .
+COPY . ./
+RUN dotnet build ./API/Api.csproj -c Release -o /app/build
 
-RUN dotnet ef migrations add Initial
-
-RUN dotnet publish -c Release -o /app/publish
+RUN dotnet publish ./API/Api.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:latest
-
 WORKDIR /app
-
 COPY --from=build /app/publish .
 
 EXPOSE 8080
-
-ENTRYPOINT ["dotnet", "backend.dll"]
+ENTRYPOINT ["dotnet", "Api.dll"]

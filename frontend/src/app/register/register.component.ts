@@ -5,11 +5,10 @@ import { Register } from '../classes/register';
 import { UsersDataService } from '../services/users-data.service';
 import { environment } from '../../environments/environment';
 import { CommonModule } from '@angular/common';
-import { OAuthLoginComponent } from '../oauth-login/oauth-login.component';
 
 @Component({
   selector: 'app-register',
-  imports: [CommonModule, FormsModule, OAuthLoginComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.css'
 })
@@ -27,6 +26,14 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = new Register()
+  }
+
+  loginWithGoogle(){
+
+  }
+  
+  loginWithFacebook(){
+
   }
 
   onSubmit() {

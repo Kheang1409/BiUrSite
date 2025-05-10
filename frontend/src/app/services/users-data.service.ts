@@ -2,7 +2,6 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { User } from './../classes/user';
-import { Token } from './../classes/token';
 import { environment } from '../../environments/environment';
 import { Register } from '../classes/register';
 import { Login } from '../classes/login';
@@ -16,7 +15,7 @@ export class UsersDataService {
   private _baseUrl = environment.urlApi.baseUrl;
   private _userUrl = environment.urlApi.userUrl;
   private _login = environment.urlShared.login;
-  private _oauth = environment.urlShared.oauth;
+  private _signIn = environment.urlShared.signIn;
   private _forgotPassword = environment.urlShared.forgotPassword;
   private _resetPassword = environment.urlShared.resetPassword;
 
@@ -42,20 +41,34 @@ export class UsersDataService {
     );
   }
 
-  getToken(user: Login): Observable<Token> {
+  getToken(user: Login): Observable<string> {
     let url: string = `${this._baseUrl}${this._userUrl}`;
     url =  `${url}${this._login}`
-    return this._httpClient.post<Token>(url, user.jsonify()).pipe(
+    return this._httpClient.post<string>(url, user.jsonify()).pipe(
       catchError(this.handleError)
     );
   }
 
-  loginWithOAuth(provider: 'google' | 'facebook', token: string): Observable<Token> {
-    let url: string = `${this._baseUrl}${this._userUrl}`;
-    url =  `${url}${this._oauth}`
-    return this._httpClient.post<Token>(url, {provider, token }).pipe(
-      catchError(this.handleError)
-    );
+  getTokenOAuth(provider: string): void {
+    window.location.href = `${this._baseUrl}${this._userUrl}signin-${provider.toLowerCase()}`;
+  }
+
+  handleOAuthCallback(): Observable<string | null> {
+    return new Observable(observer => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const token = urlParams.get('token');
+      const error = urlParams.get('error');
+      
+      if (error) {
+        observer.error(error);
+      } else if (token) {
+        observer.next(token);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else {
+        observer.next(null);
+      }
+      observer.complete();
+    });
   }
 
   createUser(user: Register): Observable<string> {

@@ -127,6 +127,65 @@ hr {
     line-height: 1.5;
 }
 
+/* Google Login Button Styling */
+.google-login-btn button {
+    width: 100%;
+    padding: 14px;
+    background-color: #4285F4; /* Google Blue */
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between icon and text */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-sizing: border-box;
+}
+
+.google-login-btn button:hover {
+    background-color: #357AE8; /* Darker Google Blue */
+    transform: scale(1.05);
+}
+
+.google-login-btn button i {
+    font-size: 20px;
+}
+
+/* Facebook Login Button Styling */
+.facebook-login-btn button {
+    width: 100%;
+    padding: 14px;
+    background-color: #3b5998; /* Facebook Blue */
+    color: white;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between icon and text */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-sizing: border-box;
+}
+
+.facebook-login-btn button:hover {
+    background-color: #2d4373; /* Darker Facebook Blue */
+    transform: scale(1.05);
+}
+
+.facebook-login-btn button i {
+    font-size: 20px;
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .login-container {

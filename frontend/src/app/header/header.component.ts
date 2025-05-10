@@ -1,4 +1,4 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
@@ -6,59 +6,94 @@ import { FormsModule } from '@angular/forms';
 import { SearchService } from '../services/search.service';
 import { CommonModule } from '@angular/common';
 import { SignalRService } from '../services/signal-r.service';
-import { Subscription } from 'rxjs';
 import { Notification } from '../classes/notification';
 import { NotificationsDataService } from '../services/notifications-data.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-header',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css'],
+  styleUrls: ['./header.component.css']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   showNotificationDropdown = false;
   showProfileDropdown = false;
   searchKeyword: string = '';
   userProfileImage = '';
-  notifications: Notification[] = new Array<Notification>();;
-  
-  feed: string = environment.urlFrontend.feed;
-  login: string = environment.urlShared.login;
-  profile: string = environment.urlFrontend.profile;
+  notifications: Notification[] = [];
   hasNewNotifications = false;
+  isError = false;
+  errorMessage = '';
+  isLoggedIn = false;
 
-  isError: boolean = false;
-  errorMessage: string = '';
+  feed = environment.urlFrontend.feed;
+  login = environment.urlShared.login;
+  profile = environment.urlFrontend.profile;
+
+  private destroy$ = new Subject<void>();
 
   constructor(
-    private _authService: AuthService,
-    private _notificationService: NotificationsDataService,
-    private _router: Router,
-    private _searchService: SearchService,
-    private _signalRService: SignalRService
+    private authService: AuthService,
+    private notificationService: NotificationsDataService,
+    private router: Router,
+    private searchService: SearchService,
+    private signalRService: SignalRService,
+    private cdRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.searchKeyword = sessionStorage.getItem('searchKeyword') || '';
-    if (this._authService.isLoggedIn()) {
-      this.userProfileImage = this._authService.getUserPayload().profile;
-      this.getNotifications();
-      this._signalRService.startConnection();
-      this._signalRService.addNotificationListener();
 
-      this._signalRService.notifications$.subscribe((notifications) => {
-        this.notifications = [...notifications, ...this.notifications].slice(0, 5);
-        if(notifications.length > 0)
-          this.hasNewNotifications = true;
-        console.log('Notifications updated:', notifications);
-      });
+    this.authService.isLoggedIn$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(loggedIn => {
+      this.isLoggedIn = loggedIn;
+      setTimeout(() => this.cdRef.detectChanges(), 0);
+      this.cdRef.detectChanges();
+      if (loggedIn) {
+        this.initializeLoggedInState();
+      } else {
+        this.cleanUpLoggedOutState();
+      }
+    });
+  }
+
+  private initializeLoggedInState(): void {
+    const userPayload = this.authService.getUserPayload();
+    if (userPayload) {
+      this.userProfileImage = userPayload.profile;
     }
+
+    this.getNotifications();
+    this.setupSignalR();
+  }
+
+  private cleanUpLoggedOutState(): void {
+    this.notifications = [];
+    this.userProfileImage = '';
+    this.hasNewNotifications = false;
+    this.signalRService.stopConnection();
+  }
+
+  private setupSignalR(): void {
+    this.signalRService.startConnection();
+    this.signalRService.addNotificationListener();
+
+    this.signalRService.notifications$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(notifications => {
+      this.notifications = [...notifications, ...this.notifications].slice(0, 5);
+      this.hasNewNotifications = notifications.length > 0;
+      this.cdRef.detectChanges();
+    });
   }
 
   onSearch(): void {
     const keyword = this.searchKeyword.trim();
-    this._searchService.updateSearchKeyword(keyword);
+    this.searchService.updateSearchKeyword(keyword);
     sessionStorage.setItem('searchKeyword', keyword);
   }
 
@@ -79,31 +114,26 @@ export class HeaderComponent implements OnInit {
   }
 
   goToProfile(): void {
-    this._router.navigate([this.profile]);
-  }
-
-  isLoggedIn(): boolean {
-    return this._authService.isLoggedIn();
+    this.router.navigate([this.profile]);
   }
 
   logout(): void {
-    this._authService.logout();
-    this._router.navigate([this.login]);
+    this.authService.logout();
+    this.router.navigate([this.login]);
   }
 
-  getNotifications(){
-    this._notificationService.getNotifications(null).subscribe({
+  getNotifications(): void {
+    this.notificationService.getNotifications().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
       next: (notifications) => {
         this.isError = false;
         this.notifications = notifications;
       },
       error: (error) => {
         this.isError = true;
-        this.errorMessage= error.message;
-      },
-      complete: () => {
-
-      },
+        this.errorMessage = error.message;
+      }
     });
   }
 
@@ -111,20 +141,24 @@ export class HeaderComponent implements OnInit {
   onClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
 
-    // Close notification dropdown if clicked outside
-    const notificationIcon = target.closest('.notification-icon');
-    const notificationDropdown = target.closest('.notification-dropdown');
-    if (!notificationIcon && !notificationDropdown && this.showNotificationDropdown) {
+    if (!target.closest('.notification-icon') && 
+        !target.closest('.notification-dropdown') && 
+        this.showNotificationDropdown) {
       this.showNotificationDropdown = false;
-      this.notifications = []; // Clear notifications
-      this._signalRService.notifications$.next([]); // Clear notifications in the service
+      this.notifications = [];
+      this.signalRService.notifications$.next([]);
     }
 
-    // Close profile dropdown if clicked outside
-    const profileMenu = target.closest('.profile-menu');
-    const profileDropdown = target.closest('.profile-dropdown');
-    if (!profileMenu && !profileDropdown && this.showProfileDropdown) {
+    if (!target.closest('.profile-menu') && 
+        !target.closest('.profile-dropdown') && 
+        this.showProfileDropdown) {
       this.showProfileDropdown = false;
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.signalRService.stopConnection();
   }
 }

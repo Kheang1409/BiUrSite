@@ -62,6 +62,9 @@
 .notification-icon, .profile-menu {
     position: relative;
 }
+.profile-menu{
+    background-color: white;
+}
 
 .notification-icon .red-dot {
     position: absolute;
@@ -175,6 +178,7 @@
     object-fit: cover;
     border: 2px solid #fff;
     cursor: pointer;
+    background-color: white;
     transition: transform 0.3s ease, border-color 0.3s ease;
 }
 

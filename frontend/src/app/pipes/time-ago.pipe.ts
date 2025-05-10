@@ -12,7 +12,7 @@ export class TimeAgoPipe implements PipeTransform {
     const now = new Date();
 
     const seconds = Math.abs(Math.floor((now.getTime() - date.getTime()) / 1000));
-
+    
     if (seconds < 60) {
       return 'Just now';
     }
