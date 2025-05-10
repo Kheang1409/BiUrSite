@@ -1,16 +1,15 @@
 import { User } from "./user";
 
 export class Comment {
-    #commentId!: number;
+    #id!: number;
     #commenter!: User;
     #description!: string;
     #updatedDescription!: string;
     #createdDate!: Date;
-    #modifiedDate!: Date;
     #isEditing!: boolean;
 
-    get commentId(): number {
-        return this.#commentId
+    get id(): number {
+        return this.#id
     }
 
     get commenter(): User {
@@ -26,16 +25,13 @@ export class Comment {
     get createdDate(): Date {
         return this.#createdDate
     }
-    get modifiedDate(): Date {
-        return this.#modifiedDate;
-    }
 
     get isEditing(): boolean{
         return this.#isEditing;
     }
 
-    set commentId(commentId: number) {
-        this.#commentId = commentId;
+    set id(id: number) {
+        this.#id = id;
     }
     set commenter(commenter: User) {
         this.#commenter = commenter;
@@ -48,9 +44,6 @@ export class Comment {
     }
     set createdDate(createdDate: Date ){
         this.#createdDate = createdDate;
-    }
-    set modifiedDate(modifiedDate: Date ){
-        this.#modifiedDate = modifiedDate;
     }
     set isEditing(isEditing: boolean){
         this.#isEditing = isEditing;

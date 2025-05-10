@@ -54,7 +54,7 @@ export class EditPostModalComponent implements OnInit{
       this.errorMessage = "Post description cannot be empty.";
       return;
     }
-    this._postService.updatePost(this.post.postId, this.post).subscribe({
+    this._postService.updatePost(this.post.id, this.post).subscribe({
       next: () => {
         this.dialogRef.close(this.post);
       },

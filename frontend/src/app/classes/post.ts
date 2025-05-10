@@ -2,15 +2,14 @@ import { Comment } from "./comment";
 import { User } from "./user";
 
 export class Post {
-    #postId!: number;
+    #id!: number;
     #author!: User;
     #comments!: Comment[];
     #description!: string;
     #createdDate!: Date;
-    #modifiedDate!: Date;
 
-    get postId(): number {
-        return this.#postId
+    get id(): number {
+        return this.#id
     }
     get author(): User {
         return this.#author
@@ -24,12 +23,9 @@ export class Post {
     get createdDate(): Date {
         return this.#createdDate
     }
-    get modifiedDate(): Date {
-        return this.#modifiedDate;
-    }
 
-    set postId(postId: number) {
-        this.#postId = postId;
+    set id(id: number) {
+        this.#id = id;
     }
 
     set author(author: User) {
@@ -44,9 +40,6 @@ export class Post {
     }
     set createdDate(createdDate: Date ){
         this.#createdDate = createdDate;
-    }
-    set modifiedDate(modifiedDate: Date ){
-        this.#modifiedDate = modifiedDate;
     }
 
     jsonify(){

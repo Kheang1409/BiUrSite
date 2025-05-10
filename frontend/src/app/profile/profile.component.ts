@@ -50,7 +50,7 @@ export class ProfileComponent implements OnInit, OnDestroy  {
       next: (count) => {
         this.postCount =  count;
         this.username = this.userPayload.given_name;
-        this.profile = this.userPayload.profile;
+        this.profile = this.userPayload.profile || 'assets/img/profile-default.svg';
       },
       error: (error) => {
         console.error('Error fetching total posts:', error);

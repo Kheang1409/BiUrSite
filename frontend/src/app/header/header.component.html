@@ -11,7 +11,7 @@
         <i class="fas fa-search" (click)="onSearch()"></i>
     </div>
 
-    <div class="header-icons" *ngIf="isLoggedIn()">
+    <div class="header-icons" *ngIf="isLoggedIn">
         <div class="notification-icon" [ngClass]="{'has-new-notifications': hasNewNotifications}" (click)="toggleNotificationDropdown($event)">
             <i class="fas fa-bell"></i>
             <div class="red-dot"></div>
@@ -25,7 +25,7 @@
         </div>
 
         <div class="profile-menu" (click)="toggleProfileDropdown($event)">
-            <img class="user-profile-img" [src]="userProfileImage"/>
+            <img class="user-profile-img" [src]="userProfileImage || 'assets/img/profile-default.svg'"/>
             <div class="profile-dropdown" [ngClass]="{'show': showProfileDropdown}">
                 <ul>
                     <li (click)="goToProfile()"><a>View Profile</a></li>
@@ -35,7 +35,7 @@
         </div>
     </div>
 
-    <div class="auth-buttons" *ngIf="!isLoggedIn()">
-        <a href="{{login}}" class="auth-button">Login</a>
+    <div class="auth-buttons" *ngIf="!isLoggedIn">
+        <a href={{login}} class="auth-button">Login</a>
     </div>
 </header>
