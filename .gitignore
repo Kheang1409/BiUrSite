@@ -23,10 +23,37 @@ backend/*.db-shm
 backend/*.db-wal
 
 # Ignore object files in all layers
+backend/Api/bin/
 backend/Api/obj/
+backend/Api/.vs/
+backend/Api/*.user
+backend/Api/*.suo
+backend/Api/*.userprefs
+backend/Api/*.csproj.user
+
+backend/Application/bin/
 backend/Application/obj/
-backend/Domain/obj
+backend/Application/.vs/
+backend/Application/*.user
+backend/Application/*.suo
+backend/Application/*.userprefs
+backend/Application/*.csproj.user
+
+backend/Domain/bin/
+backend/Domain/obj/
+backend/Domain/.vs/
+backend/Domain/*.user
+backend/Domain/*.suo
+backend/Domain/*.userprefs
+backend/Domain/*.csproj.user
+
+backend/Infrastructure/bin/
 backend/Infrastructure/obj/
+backend/Infrastructure/.vs/
+backend/Infrastructure/*.user
+backend/Infrastructure/*.suo
+backend/Infrastructure/*.userprefs
+backend/Infrastructure/*.csproj.user
 
 # Ignore test build artifacts
 backendTests/bin/
