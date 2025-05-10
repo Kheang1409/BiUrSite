@@ -19,16 +19,21 @@ jobs:
         with:
           dotnet-version: '9.0'
 
-      # List directory contents for debugging
+      # List repository contents for debugging
+      - name: List repository contents (for debugging)
+        run: |
+          ls -la ./  # List contents in the root directory
+
+      # List backend directory contents for debugging
       - name: List backend directory contents
         run: |
-          ls -la ./backend
+          ls -la ./backend  # List contents of backend directory
 
-      # Restore dependencies (ensure you are in the correct directory)
+      # Restore dependencies
       - name: Restore dependencies
         run: |
           cd backend
-          dotnet restore ./BiUrSite.sln  # Or use ./API/API.csproj if no solution file is used
+          dotnet restore ./API/Api.csproj  # Directly use API.csproj if no solution file
 
       # Build the backend
       - name: Build backend
@@ -58,7 +63,4 @@ jobs:
       # Build and push Docker images
       - name: Build and push Docker images
         run: |
-          docker build -f backend/Dockerfile -t ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest ./  # Ensure correct build context
-          docker build -f frontend/Dockerfile -t ${{ secrets.DOCKER_HUB_USERNAME }}/frontend:latest ./frontend
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/frontend:latest
+          docker build -f backend/Dockerfile -t ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest ./
