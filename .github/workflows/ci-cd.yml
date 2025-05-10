@@ -11,20 +11,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0'
-      
+
+      - name: List backend directory contents
+        run: |
+          ls -la ./backend
+
       - name: Restore dependencies
         run: |
-          dotnet restore
-      
+          dotnet restore ./backend/API/Api.csproj
+
       - name: Build backend
         run: |
-          dotnet build --configuration Release --no-restore
-      
+          dotnet build ./backend/API/Api.csproj --configuration Release --no-restore
+
       - name: Build frontend
         run: |
           cd frontend
