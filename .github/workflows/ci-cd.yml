@@ -9,39 +9,26 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Set up .NET SDK
       - name: Set up .NET
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '9.0'
 
-      # List repository contents for debugging
-      - name: List repository contents (for debugging)
-        run: |
-          ls -la ./  # List contents in the root directory
-
-      # List backend directory contents for debugging
       - name: List backend directory contents
         run: |
-          ls -la ./backend  # List contents of backend directory
+          ls -la ./backend
 
-      # Restore dependencies
       - name: Restore dependencies
         run: |
-          cd backend
-          dotnet restore ./API/Api.csproj  # Directly use API.csproj if no solution file
+          dotnet restore ./backend/API/Api.csproj
 
-      # Build the backend
       - name: Build backend
         run: |
-          cd backend
-          dotnet build --configuration Release --no-restore
+          dotnet build ./backend/API/Api.csproj --configuration Release --no-restore
 
-      # Build the frontend
       - name: Build frontend
         run: |
           cd frontend
@@ -63,4 +50,7 @@ jobs:
       # Build and push Docker images
       - name: Build and push Docker images
         run: |
-          docker build -f backend/Dockerfile -t ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest ./
+          docker build -f backend/Dockerfile -t ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest ./  # Ensure correct build context
+          docker build -f frontend/Dockerfile -t ${{ secrets.DOCKER_HUB_USERNAME }}/frontend:latest ./frontend
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/backend:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/frontend:latest
