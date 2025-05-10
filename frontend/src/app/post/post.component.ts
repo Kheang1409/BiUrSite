@@ -27,7 +27,7 @@ export class PostComponent implements OnInit {
 
   ngOnInit(): void {
     if (this._authService.isLoggedIn()) {
-      this.isOwner = this.post.author.userId == this._authService.getUserPayload().sub;
+      this.isOwner = this.post.author.id == this._authService.getUserPayload().sub;
     }
   }
 
@@ -51,7 +51,7 @@ export class PostComponent implements OnInit {
     event.stopPropagation();
     const dialogRef = this._dialog.open(EditPostModalComponent, {
       width: '600px',
-      data: { postId: this.post.postId }
+      data: { postId: this.post.id }
     });
 
     dialogRef.afterClosed().subscribe((updatedPost: Post) => {
@@ -65,7 +65,7 @@ export class PostComponent implements OnInit {
     event.stopPropagation();
     this._dialog.open(CommentModalComponent, {
       width: '400px',
-      data: { postId: this.post.postId }
+      data: { postId: this.post.id }
     });
   }
 
@@ -83,13 +83,13 @@ export class PostComponent implements OnInit {
   
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
-        this.deletePost.emit(this.post.postId); 
+        this.deletePost.emit(this.post.id); 
       }
     });
   }
 
   onReport(event: Event): void {
     event.stopPropagation();
-    console.log('Reported post:', this.post.postId);
+    console.log('Reported post:', this.post.id);
   }
 }

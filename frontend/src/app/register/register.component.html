@@ -16,7 +16,19 @@
             <button type="submit">Register</button>
             <hr class="register-hr">
             <a href="/login">Already have an account? Log In</a>
-            <app-oauth-login></app-oauth-login>
+            <!-- Google Login Button --> 
+            <div class="google-login-btn">
+                <button type="button" (click)="loginWithGoogle()">
+                    <i class="fab fa-google"></i> Login with Google
+                </button>
+            </div>
+
+            <!-- Facebook Login Button -->
+            <div class="facebook-login-btn">
+                <button type="button" (click)="loginWithFacebook()">
+                    <i class="fab fa-facebook-f"></i> Login with Facebook
+                </button>
+            </div>
 
         </form>
         <div class="register-gradient-card">

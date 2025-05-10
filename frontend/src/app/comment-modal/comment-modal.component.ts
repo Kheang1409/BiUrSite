@@ -64,8 +64,7 @@ export class CommentModalComponent implements OnInit {
 
         // Submit the comment
         this._postService.createComment(this.postId, newComment).subscribe({
-            next: (comment) => {
-                alert("Comment submitted successfully!");
+            next: () => {
                 this.dialogRef.close(this.newComment); // Close the modal and return the new comment
             },
             error: (error) => {

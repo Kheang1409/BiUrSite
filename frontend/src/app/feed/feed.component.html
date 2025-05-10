@@ -12,7 +12,7 @@
         <app-post 
             *ngFor="let post of posts" 
             [post]="post" 
-            (deletePost)="deletePost(post.postId)"
+            (deletePost)="deletePost(post.id)"
         ></app-post>
     </div>
 

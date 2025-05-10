@@ -1,7 +1,7 @@
 # Ignore .NET build artifacts
 backend/bin/
 backend/obj/
-backend/Migrations/*
+backend/Infrastructure/Migrations/*
 backend/.vs/
 backend/*.user
 backend/*.suo
@@ -21,6 +21,12 @@ backend/*.db
 backend/*.opendb
 backend/*.db-shm
 backend/*.db-wal
+
+# Ignore object files in all layers
+backend/Api/obj/
+backend/Application/obj/
+backend/Domain/obj
+backend/Infrastructure/obj/
 
 # Ignore test build artifacts
 backendTests/bin/
@@ -83,5 +89,20 @@ Thumbs.db
 *.log
 *.sqlite
 
-# Ignore .env
+# Ignore .env files
 .env
+
+# Ignore generated files from Docker
+backend/docker-compose.override.yml
+backend/.docker/
+
+# Ignore files for NuGet package manager
+backend/packages.config
+backend/nuget.config
+
+# Ignore JetBrains Rider files
+.idea/
+
+# Ignore build and dependency artifacts
+frontend/node_modules/
+frontend/.vscode/

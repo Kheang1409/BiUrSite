@@ -6,12 +6,11 @@ import { AuthService } from '../services/auth.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Login } from '../classes/login';
-import { OAuthLoginComponent } from '../oauth-login/oauth-login.component';
 
 
 @Component({
   selector: 'app-login',
-  imports: [CommonModule, FormsModule, OAuthLoginComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
@@ -37,8 +36,6 @@ export class LoginComponent implements OnInit {
   ngOnInit(): void {
     if (this._authService.isLoggedIn()) {
       this._router.navigate([this.feed]);
-    } else {
-      this._authService.clearToken();
     }
   }
 
@@ -47,22 +44,25 @@ export class LoginComponent implements OnInit {
     this.getToken();
   }
 
+  loginWithGoogle(){
+    this._usersService.getTokenOAuth('google');
+  }
+
+  loginWithFacebook() {
+    this._usersService.getTokenOAuth('facebook');
+  }
+
   getToken() {
     this._usersService.getToken(this.user).subscribe(
       {
         next: (token) => {
           this.isUnauthorized = false;
           this._authService.setToken(token);
+          this._router.navigate([this.feed]);
         },
         error: (error) => {
           this.unauthorizedMessage = error.message;
           this.isUnauthorized = true;
-        },
-        complete: () => {
-          if (!this.isUnauthorized) {
-            this.isUnauthorized = false;
-            this._router.navigate([this.feed]);
-          }
         }
       }
     );

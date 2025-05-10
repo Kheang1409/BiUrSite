@@ -14,8 +14,21 @@
             <a href={{forgetPassword}}>Forgot password?</a>
             <hr>
             <a href="{{register}}">Create new account</a>
+            <!-- Google Login Button --> 
+            <div class="google-login-btn">
+                <button type="button" (click)="loginWithGoogle()">
+                    <i class="fab fa-google"></i> Login with Google
+                </button>
+            </div>
+
+            <!-- Facebook Login Button -->
+            <div class="facebook-login-btn">
+                <button type="button" (click)="loginWithFacebook()">
+                    <i class="fab fa-facebook-f"></i> Login with Facebook
+                </button>
+            </div>
         </form>
-        <app-oauth-login></app-oauth-login>
+        
         <div class="gradient-card">
             <h2>Key Features</h2>
             <p>

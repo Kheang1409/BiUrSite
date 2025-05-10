@@ -11,16 +11,12 @@ export class NotificationsDataService {
   private _baseUrl = environment.urlApi.baseUrl;
   private _notificationsUrl = environment.urlApi.notificationUrl;
 
-  private queryIsRead = environment.urlApi.query.isRead;
-
   constructor(private _httpClient: HttpClient) { }
 
-  getNotifications(isRead: boolean | null): Observable<Notification[]> {
+  getNotifications(): Observable<Notification[]> {
     let url: string = `${this._baseUrl}${this._notificationsUrl}`;
-    if (isRead)
-      url = `${url}&${this.queryIsRead}=${isRead}`;
-    return this._httpClient.get<{ message: string, data: Notification[] }>(url).pipe(
-      map(response => response.data),
+    console.log(`url: ${url}`);
+    return this._httpClient.get<Notification[]>(url).pipe(
       catchError(this.handleError)
     );
   }
@@ -29,8 +25,7 @@ export class NotificationsDataService {
     let url: string = `${this._baseUrl}${this._notificationsUrl}`;
     url = `${url}${notificationId}`;
 
-    return this._httpClient.get<{ message: string, data: Notification }>(url).pipe(
-      map(response => response.data), // Extract the `data` property
+    return this._httpClient.get<Notification>(url).pipe(
       catchError(this.handleError)
     );
   }
@@ -39,8 +34,7 @@ export class NotificationsDataService {
     let url: string = `${this._baseUrl}${this._notificationsUrl}`;
     url = `${url}${notificationId}`;
 
-    return this._httpClient.patch<{ message: string, data: Notification }>(url, {}).pipe(
-      map(response => response.data),
+    return this._httpClient.patch<Notification>(url, {}).pipe(
       catchError(this.handleError)
     );
   }
@@ -49,8 +43,7 @@ export class NotificationsDataService {
     let url: string = `${this._baseUrl}${this._notificationsUrl}`;
     url = `${url}${notificationId}`;
 
-    return this._httpClient.delete<{ message: string }>(url).pipe(
-      map(() => {}),
+    return this._httpClient.delete<void>(url).pipe(
       catchError(this.handleError)
     );
   }
@@ -59,7 +52,6 @@ export class NotificationsDataService {
     let errorMessage = 'An unknown error occurred.';
     if (error.status === 400) {
       if (error.error.errors) {
-        // Extract and format validation errors
         const userFriendlyErrors = [];
         for (const field in error.error.errors) {
           if (error.error.errors.hasOwnProperty(field)) {
