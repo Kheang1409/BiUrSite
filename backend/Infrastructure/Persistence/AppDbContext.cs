@@ -1,72 +1,50 @@
-using Backend.Domain.Comments.Entities;
-using Backend.Domain.Notifications.Entities;
-using Backend.Domain.Posts.Entities;
-using Backend.Domain.Users.Entities;
+using Backend.Application.Data;
+using Backend.Domain.Users;
+using Domain.Primitive;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 
 namespace Backend.Infrastructure.Persistence
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : DbContext, IAppDbContext, IUnitOfWork
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        private readonly IPublisher _publisher;
 
         public DbSet<User> Users { get; set; }
-        public DbSet<Post> Posts { get; set; }
-        public DbSet<Comment> Comments { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
+
+        public AppDbContext(DbContextOptions<AppDbContext> options, IPublisher publisher)
+            : base(options)
+        {
+            _publisher = publisher;
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer();
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        }
 
-            modelBuilder.Entity<User>()
-                .Property(user => user.Role)
-                .HasConversion<string>();
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken() )
+        {
+            var domainEvents = ChangeTracker.Entries<Entity>()
+                .Select(e => e.Entity)
+                .Where(e => e.GetDomainEvents().Any())
+                .SelectMany(e => e.GetDomainEvents());
+            /*
+                Before saving: domain events are just intentions, not facts; failures could roll back changes unintentionally.
+                After saving: changes are persisted, events represent actual facts; failures affect only the events, not the saved data.
+            */
+            var result = await base.SaveChangesAsync(cancellationToken);
 
-            modelBuilder.Entity<User>()
-                .Property(user => user.Status)
-                .HasConversion<string>();
-
-            modelBuilder.Entity<User>()?
-                .ToTable("Users", userTable => userTable.HasCheckConstraint("CK_User_Status", "status IN ('Active', 'Deactivated', 'Unverified', 'Banned', 'Deleted')"));
-
-            modelBuilder.Entity<User>()?
-                .ToTable("Users", userTable => userTable.HasCheckConstraint("CK_User_Role", "role IN ('User', 'Admin')"));
-
-            modelBuilder.Entity<Comment>()
-                .HasOne(c => c.Commenter)
-                .WithMany(u => u.Comments)
-                .OnDelete(DeleteBehavior.Restrict);
-            
-            modelBuilder.Entity<Post>()
-                .HasOne(p => p.Author)
-                .WithMany(u => u.Posts)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<Comment>()
-                .HasOne(c => c.Post)
-                .WithMany(p => p.Comments)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<User>()
-                .Property(u => u.CreatedDate)
-                .HasDefaultValueSql("getutcdate()")
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<Post>()
-                .Property(p => p.CreatedDate)
-                .HasDefaultValueSql("getutcdate()")
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<Comment>()
-                .Property(c => c.CreatedDate)
-                .HasDefaultValueSql("getutcdate()")
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<Notification>()
-                .Property(n => n.CreatedDate)
-                .HasDefaultValueSql("getutcdate()")
-                .ValueGeneratedOnAdd();
+            foreach (var domainEvent in domainEvents)
+            {
+                await _publisher.Publish(domainEvent, cancellationToken);
+            }
+            return result;
         }
     }
 }

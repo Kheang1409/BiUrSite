@@ -39,6 +39,14 @@ backend/Application/*.suo
 backend/Application/*.userprefs
 backend/Application/*.csproj.user
 
+backend/SharedKernel/bin/
+backend/SharedKernel/obj/
+backend/SharedKernel/.vs/
+backend/SharedKernel/*.user
+backend/SharedKernel/*.suo
+backend/SharedKernel/*.userprefs
+backend/SharedKernel/*.csproj.use
+
 backend/Domain/bin/
 backend/Domain/obj/
 backend/Domain/.vs/

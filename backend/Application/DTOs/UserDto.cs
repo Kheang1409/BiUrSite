@@ -1,24 +1,29 @@
-using Backend.Domain.Users.Entities;
+using Backend.Domain.Users;
 
 namespace Backend.Application.DTOs;
 
 public class UserDto
 {
-    public int Id { get; set; }
-    public string Username { get; set; }
-    public string Email { get; set; }
-    public string Profile { get; set; }
+    public Guid Id { get; private set; }
+    public string Username { get; private set; } = string.Empty;
+    public string Email { get; private set; }  = string.Empty;
+    public string Profile { get; private set; }  = string.Empty;
+    public string Bio { get; private set; } = string.Empty;
+    public DateTime CreatedDate { get; private set; }
+    public DateTime? ModifiedDate { get; private set; }
 
-    public static UserDto FromUser(User user)
+
+    public static explicit operator UserDto(User user)
     {
-        if (user == null) 
-            return null;
         return new UserDto
         {
-            Id = user.Id,
+            Id = user.Id.Value,
             Username = user.Username,
             Email = user.Email,
             Profile = user.Profile,
+            Bio = user.Bio,
+            CreatedDate = user.CreatedDate,
+            ModifiedDate = user.ModifiedDate,
         };
     }
 }
