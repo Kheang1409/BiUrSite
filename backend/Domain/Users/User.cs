@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using Backend.Domain.Enums;
-using Domain.Primitive;
+using Backend.Domain.Primitive;
 
 namespace Backend.Domain.Users;
 
@@ -110,7 +110,7 @@ public class User : Entity
             if(string.IsNullOrWhiteSpace(Password) && string.IsNullOrWhiteSpace(AuthProvider))
                 throw new InvalidOperationException("Password cannot be empty.");
             var user = new User(this);
-            user.Raise(new UserCreatedDomainEvent(Guid.NewGuid(), user.Id));
+            user.AddDomainEvent(new UserCreatedDomainEvent(Guid.NewGuid(), user.Id));
             return user;
         }
     }
@@ -134,13 +134,13 @@ public class User : Entity
         }
     }
 
-    public void IsExistingNotActivated(string username, string plainPassword)
-    {
-        Username = username;
-        Password = HashPassword(plainPassword);
-        Token = Token.Generate();
-        Raise(new UserCreatedDomainEvent(Guid.NewGuid(), Id));
-    }
+        public void IsExistingNotActivated(string username, string plainPassword)
+        {
+            Username = username;
+            Password = HashPassword(plainPassword);
+            Token = Token.Generate();
+            AddDomainEvent(new UserCreatedDomainEvent(Guid.NewGuid(), Id));
+        }
 
     public User ResetUsername(string username)
     {
@@ -150,7 +150,7 @@ public class User : Entity
 
     public void ReCreate()
     {
-        Raise(new UserCreatedDomainEvent(Guid.NewGuid(), Id));
+        AddDomainEvent(new UserCreatedDomainEvent(Guid.NewGuid(), Id));
     }
 
     public void Update(string username, string bio)
@@ -175,7 +175,7 @@ public class User : Entity
     public void ForgotPassword()
     {
         Otp = Otp.Generate();
-        Raise(new UserForgotPasswordDomainEvent(Guid.NewGuid(), Id));
+        AddDomainEvent(new UserForgotPasswordDomainEvent(Guid.NewGuid(), Id));
     }
 
     public bool VerifyPassword(string plainPassword, string hashedPassword)
