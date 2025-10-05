@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Infrastructure.Authentication.Providers;
+namespace Backend.Infrastructure.Authentication.Providers;
 
 public class FacebookAuthenticationConfigurator : IAuthenticationProviderConfigurator
 {

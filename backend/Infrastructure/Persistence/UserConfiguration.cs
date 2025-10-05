@@ -2,7 +2,7 @@ using Backend.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Infrastructure.Persistence.Configurations;
+namespace Backend.Infrastructure.Persistence.Configurations;
 
 internal class UserConfiguration : IEntityTypeConfiguration<User>
 {

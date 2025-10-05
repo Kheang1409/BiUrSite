@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
-namespace Infrastructure.Swagger;
+namespace Backend.Infrastructure.Swagger;
 
 public static class SwaggerServiceConfiguration
 {

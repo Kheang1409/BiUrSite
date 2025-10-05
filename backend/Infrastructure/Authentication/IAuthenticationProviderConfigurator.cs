@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 
-namespace Infrastructure.Authentication;
+namespace Backend.Infrastructure.Authentication;
 
 public interface IAuthenticationProviderConfigurator
 {

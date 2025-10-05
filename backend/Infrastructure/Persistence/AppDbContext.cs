@@ -1,6 +1,6 @@
 using Backend.Application.Data;
 using Backend.Domain.Users;
-using Domain.Primitive;
+using Backend.Domain.Primitive;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,11 +18,6 @@ namespace Backend.Infrastructure.Persistence
             _publisher = publisher;
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer();
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
@@ -32,8 +27,9 @@ namespace Backend.Infrastructure.Persistence
         {
             var domainEvents = ChangeTracker.Entries<Entity>()
                 .Select(e => e.Entity)
-                .Where(e => e.GetDomainEvents().Any())
-                .SelectMany(e => e.GetDomainEvents());
+                .Where(e => e.DomainEvents.Any())
+                .SelectMany(e => e.DomainEvents)
+                .ToList();
             /*
                 Before saving: domain events are just intentions, not facts; failures could roll back changes unintentionally.
                 After saving: changes are persisted, events represent actual facts; failures affect only the events, not the saved data.
@@ -43,6 +39,12 @@ namespace Backend.Infrastructure.Persistence
             foreach (var domainEvent in domainEvents)
             {
                 await _publisher.Publish(domainEvent, cancellationToken);
+            }
+
+            // Clear domain events from tracked entities after publishing
+            foreach (var entry in ChangeTracker.Entries<Entity>())
+            {
+                entry.Entity.ClearDomainEvents();
             }
             return result;
         }
