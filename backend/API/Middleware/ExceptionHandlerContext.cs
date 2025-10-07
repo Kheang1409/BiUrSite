@@ -13,12 +13,14 @@ public class ExceptionHandlerContext
         var unauthorized = new UnauthorizedAccessExceptionHandler();
         var conflict = new ConflictExceptionHandler();
         var notFound = new NotFoundExceptionHandler();
+        var forbidden = new ForbiddenHandler();
         var fallback = new DefaultExceptionHandler();
 
         validation
             .SetNext(unauthorized)
             .SetNext(conflict)
             .SetNext(notFound)
+            .SetNext(forbidden)
             .SetNext(fallback);
 
         _chain = validation;

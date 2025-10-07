@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace Backend.Application.Users.Update;
 
-public class UpdateProfileCommandValidate: AbstractValidator<UpdateProfileCommand>
+public class UpdateProfileCommandValidator: AbstractValidator<UpdateProfileCommand>
 {
-    public UpdateProfileCommandValidate()
+    public UpdateProfileCommandValidator()
     {
         RuleFor(x => x.Username)
             .NotEmpty().WithMessage("Username is required.");

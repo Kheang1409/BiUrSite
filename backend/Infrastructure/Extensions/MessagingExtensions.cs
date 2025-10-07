@@ -1,3 +1,5 @@
+using Backend.Application.Posts.Create;
+using Backend.Application.Posts.Delete;
 using Backend.Application.Users.Create;
 using Backend.Application.Users.ForgotPassword;
 using Microsoft.Extensions.Configuration;
@@ -43,6 +45,8 @@ internal static class MessagingExtensions
             configure.Routing(r => r.TypeBased()
                 .Map<UserCreatedEvent>("queue-notify")
                 .Map<UserForgotPasswordEvent>("queue-notify")
+                .Map<PostCreatedEvent>("queue-notify")
+                .Map<PostDeletedEvent>("queue-notify")
             );
 
             configure.Options(o =>

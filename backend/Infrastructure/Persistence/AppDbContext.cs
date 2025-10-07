@@ -23,12 +23,11 @@ namespace Backend.Infrastructure.Persistence
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken() )
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             var domainEvents = ChangeTracker.Entries<Entity>()
                 .Select(e => e.Entity)
-                .Where(e => e.DomainEvents.Any())
-                .SelectMany(e => e.DomainEvents)
+                .SelectMany(e => e.GetDomainEvents())
                 .ToList();
             /*
                 Before saving: domain events are just intentions, not facts; failures could roll back changes unintentionally.

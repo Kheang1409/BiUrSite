@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Backend.Application.Users.CreateUser;
+using Backend.Application.Users.Create;
 using Backend.Application.Users.CreateByOAuth;
 using FluentValidation;
 using MediatR;
@@ -10,6 +10,10 @@ using Rebus.Handlers;
 using Backend.Application.Users.VerifyUser;
 using Backend.Application.Users.ForgotPassword;
 using Backend.Application.Users.Update;
+using Backend.Application.Posts.GetPost;
+using Backend.Application.Posts.Create;
+using Backend.Application.Posts.GetPosts;
+using Backend.Application.Posts.Delete;
 
 namespace Backend.Application;
 public static class DependencyInjection
@@ -36,11 +40,22 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssembly(typeof(VerifyUserCommand).Assembly);
 
             cfg.RegisterServicesFromAssembly(typeof(UpdateProfileCommandHandler).Assembly);
+
+            cfg.RegisterServicesFromAssembly(typeof(GetPostByIdQueryHandler).Assembly);
+
+            cfg.RegisterServicesFromAssembly(typeof(CreatePostCommandHandler).Assembly);
+
+            cfg.RegisterServicesFromAssembly(typeof(GetPostsQueryHandler).Assembly);
+
         });
 
         services.AddValidatorsFromAssembly(typeof(CreateUserCommandHandler).Assembly);
+        services.AddValidatorsFromAssembly(typeof(CreatePostCommandHandler).Assembly);
         services.AddTransient<IHandleMessages<UserCreatedEvent>, SendUserVerificationEmailHandler>();
+        services.AddTransient<IHandleMessages<PostCreatedEvent>, UploadImageHandler>();
+        services.AddTransient<IHandleMessages<PostCreatedEvent>, SendPostToFeedHandler>();
         services.AddTransient<IHandleMessages<UserForgotPasswordEvent>, SendUserOTPEmailHandler>();
+        services.AddTransient<IHandleMessages<PostDeletedEvent>, DeleteImageHandler>();
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         return services;
     }

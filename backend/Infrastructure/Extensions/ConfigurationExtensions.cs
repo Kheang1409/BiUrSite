@@ -1,4 +1,6 @@
 using Backend.Application.Configuration;
+using Backend.Application.Storage;
+using Backend.Infrastructure.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,9 +18,9 @@ internal static class ConfigurationExtensions
         {
             options.BaseUrl = appBaseUrl;
         });
-
+        services.AddHttpClient();
+        services.AddScoped<IImageStorageService, GitHubImageStorageService>();
         services.AddSingleton<IAppOptions, Configuration.AppOptionsAdapter>();
-
         return services;
     }
 }

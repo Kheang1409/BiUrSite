@@ -38,6 +38,7 @@ internal static class PersistenceExtensions
 
         services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AppDbContext>());
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
 
         services.AddHttpContextAccessor();
 

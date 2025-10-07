@@ -2,7 +2,7 @@ using Backend.Domain.Users;
 using MediatR;
 using Rebus.Bus;
 
-namespace Backend.Application.Users.CreateUser;
+namespace Backend.Application.Users.Create;
 
 internal sealed class UserCreatedDomainEventHandler : INotificationHandler<UserCreatedDomainEvent>
 {

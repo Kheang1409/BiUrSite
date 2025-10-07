@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Rebus.Handlers;
 
-namespace Backend.Application.Users.CreateUser;
+namespace Backend.Application.Users.Create;
 
 internal sealed class SendUserVerificationEmailHandler : IHandleMessages<UserCreatedEvent>
 {

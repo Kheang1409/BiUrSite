@@ -4,7 +4,7 @@ using Backend.Domain.Users;
 using Backend.SharedKernel.Exceptions;
 using MediatR;
 
-namespace Backend.Application.Users.CreateUser;
+namespace Backend.Application.Users.Create;
 
 internal sealed class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, User>
 {

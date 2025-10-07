@@ -1,6 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Backend.Application.Users.CreateUser;
+using Backend.Application.Users.Create;
 using Backend.Application.Users.GetUser;
 using Backend.Application.DTOs;
 using Backend.Application.Users.VerifyUser;
@@ -74,11 +74,11 @@ public class UserController : ControllerBase
         return NoContent();
     }
     
-    // [HttpGet("me-test")]
-    // [Authorize]
-    // public IActionResult MeTest()
-    // {
-    //     var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
-    //     return Ok(claims);
-    // }
+    [HttpGet("me-test")]
+    [Authorize]
+    public IActionResult MeTest()
+    {
+        var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+        return Ok(claims);
+    }
 }

@@ -1,15 +1,13 @@
 using System.Text;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
-using Infrastructure.Authentication.Providers;
+using Backend.Infrastructure.Authentication.Providers;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace Infrastructure.Authentication;
+namespace Backend.Infrastructure.Authentication;
 
 public static class AuthenticationServiceConfiguration
 {
@@ -55,11 +53,14 @@ public static class AuthenticationServiceConfiguration
             };
 
             var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-                            ?? configuration["JWT:SecretKey"];
+                            ?? configuration["JWT:SecretKey"]
+                            ?? throw new InvalidOperationException("JWT SecretKey is not configured.");
             var issuer = Environment.GetEnvironmentVariable("JWT_ISSUER")
-                        ?? configuration["JWT:Issuer"];
+                        ?? configuration["JWT:Issuer"]
+                        ?? throw new InvalidOperationException("JWT Issuer is not configured.");
             var audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE")
-                        ?? configuration["JWT:Audience"];
+                        ?? configuration["JWT:Audience"]
+                        ?? throw new InvalidOperationException("JWT Audience is not configured.");
 
             var key = Encoding.UTF8.GetBytes(secretKey);
 

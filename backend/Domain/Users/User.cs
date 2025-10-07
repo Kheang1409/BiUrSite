@@ -40,15 +40,15 @@ public class User : Entity
 
     public class Builder
     {
-        public UserId? Id { get; private set; }
-        public string Username { get; private set; } = string.Empty;
-        public string Email { get; private set; } = string.Empty; 
-        public string Bio { get; private set; } = string.Empty;
-        public string Password { get; private set; } = string.Empty;
-        public string AuthProvider { get; private set; } = string.Empty;
-        public Status Status { get; private set; }
-        public Role Role { get; private set; }
-        public Token? Token { get; private set; }
+        internal UserId? Id;
+        internal string Username  = string.Empty;
+        internal string Email  = string.Empty; 
+        internal string Bio  = string.Empty;
+        internal string Password  = string.Empty;
+        internal string AuthProvider  = string.Empty;
+        internal Status Status; 
+        internal Role Role;
+        internal Token? Token; 
 
         public Builder SetId(UserId? id)
         {

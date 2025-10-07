@@ -7,7 +7,6 @@ using Backend.Application.Services;
 using Backend.Application.Users.Login;
 using Backend.Application.Users.ForgotPassword;
 using Backend.Application.Users.ResetPassword;
-using Backend.Domain.Enums;
 
 namespace Backend.Api.Controllers;
 

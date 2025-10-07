@@ -1,5 +1,5 @@
 
-namespace Backend.Application.Users.CreateUser;
+namespace Backend.Application.Users.Create;
 
 public record UserCreatedEvent(
     Guid Id);
