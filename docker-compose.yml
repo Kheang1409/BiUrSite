@@ -1,12 +1,4 @@
 services:
-  sql_server_container:
-    image: mcr.microsoft.com/mssql/server
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=${DB_PASSWORD}
-    ports:
-      - "1433:1433"
-
   backend:
     build: ./backend
     env_file:
@@ -14,11 +6,7 @@ services:
     environment:
       - MONGODB_CONNECTION_STRING=${MONGODB_CONNECTION_STRING}
       - MONGODB_NAME=${MONGODB_NAME}
-      - DB_SERVER=${DB_SERVER}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USER_ID=${DB_USER_ID}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - REBUS_QUEUE_NAME=${REBUS_QUEUE_NAME}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ISSUER=${JWT_ISSUER}
       - JWT_AUDIENCE=${JWT_AUDIENCE}
@@ -39,8 +27,6 @@ services:
       - GIT_REPO=${GIT_REPO}
     ports:
       - "5000:8080"
-    depends_on:
-      - sql_server_container
 
   # frontend:
   #   build: ./frontend
