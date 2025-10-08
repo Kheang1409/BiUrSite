@@ -8,7 +8,7 @@ public static class MongoDbExtensions
 {
     public static IServiceCollection AddMongoDb(this IServiceCollection services, IConfiguration configuration)
     {
-        var mongoConnectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRINGS")
+        var mongoConnectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING")
                                     ?? configuration["MongoDB:ConnectionString"]
                                     ?? throw new ArgumentException("MongoDB ConnectionString is not configured.");
         var databaseName = Environment.GetEnvironmentVariable("MONGODB_NAME")

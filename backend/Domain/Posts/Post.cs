@@ -1,3 +1,4 @@
+using Backend.Domain.Comments;
 using Backend.Domain.Enums;
 using Backend.Domain.Primitive;
 using Backend.Domain.Users;
@@ -20,9 +21,12 @@ public class Post : Entity
         get => UserId.Value;
         private set => UserId = new UserId(value);
     }
-    public string Username { get; private set; }
-    public string Text { get; private set; }
-    public Image Image { get; private set; }
+    public string Username { get; private set; } = string.Empty;
+    public string Text { get; private set; } = string.Empty;
+    public Image? Image { get; private set; }
+    [BsonElement("Comments")]
+    private List<Comment> _comments = new();
+    public IEnumerable<Comment> Comments => _comments;
     public Status Status { get; private set; }
     public DateTime CreatedDate { get; private set; }
     public DateTime? ModifiedDate { get; private set; }
@@ -35,7 +39,7 @@ public class Post : Entity
         UserId = builder.UserId;
         Username = builder.Username;
         Text = builder.Text;
-        Status =  Status.Active;
+        Status = Status.Active;
         CreatedDate = DateTime.UtcNow;
     }
 
@@ -104,6 +108,15 @@ public class Post : Entity
     {
         Text = content;
         ModifiedDate = DateTime.UtcNow;
+    }
+
+
+    public Comment AddComment(UserId userId, string username, string text)
+    {
+        var comment = Comment.Create(userId, username, text);
+        _comments.Add(comment);
+        this.AddDomainEvent(new CommentAddedDomainEvent(Guid.NewGuid(), this.Id, comment.Id, userId));
+        return comment;
     }
 
 }

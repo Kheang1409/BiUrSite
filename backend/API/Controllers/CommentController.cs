@@ -1,22 +1,22 @@
 using System.Security.Claims;
 using Backend.API.Helpers;
-using Backend.Application.DTOs.Posts;
-using Backend.Application.Posts.Create;
-using Backend.Application.Posts.Delete;
-using Backend.Application.Posts.Edit;
-using Backend.Application.Posts.GetPost;
-using Backend.Application.Posts.GetPosts;
+using Backend.Application.Comments.Create;
+using Backend.Application.Comments.Delete;
+using Backend.Application.Comments.Edit;
+using Backend.Application.Comments.GetComment;
+using Backend.Application.Comments.GetComments;
+using Backend.Application.DTOs.Comments;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace Backend.Api.Controllers;
 
 [ApiController]
-[Route("api/posts")]
-public class PostController : ControllerBase
+[Route("api/posts/{postId}/comments")]
+public class CommentController : ControllerBase
 {
     private readonly IMediator _mediator;
-    public PostController(
+    public CommentController(
         IMediator mediator)
     {
         _mediator = mediator;
@@ -24,8 +24,12 @@ public class PostController : ControllerBase
 
 
     [HttpGet]
-    public async Task<IActionResult> GetPosts([FromQuery] GetPostsQuery query)
+    public async Task<IActionResult> GetComments(string postId, [FromQuery] int pageNumber = 1)
     {
+        var query = new GetCommentsQuery(
+            PostId: postId,
+            PageNumber: pageNumber
+        );
         var posts = await _mediator.Send(query);
         return Ok(new
         {
@@ -35,9 +39,11 @@ public class PostController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetPost(string id)
+    public async Task<IActionResult> GetComment(string postId, string id)
     {
-        var query = new GetPostByIdQuery(id);
+        var query = new GetCommentByIdQuery(
+            PostId: postId,
+            Id: id);
         var post = await _mediator.Send(query);
         return Ok(new
         {
@@ -48,30 +54,32 @@ public class PostController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Upload([FromBody] PostCreateDTOs dto)
+    public async Task<IActionResult> Comment(string postId, [FromBody] CommentCreateDTO dto)
     {
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
         var username = User.FindFirstValue(ClaimTypes.Name) ?? throw new UnauthorizedAccessException();
-        var command = new CreatePostCommand(
+        var command = new CreateCommentCommand(
+            PostId: postId,
             UserId: Utility.StringToGuid(ownerId),
             Username: username,
-            Text: dto.Text,  
-            Data: dto.Data);
-        var post = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetPost), new { id = post.Id }, new
+            Text: dto.Text
+        );
+        var comment = await _mediator.Send(command);
+        return CreatedAtAction(nameof(GetComment), new { postId = postId, id = comment.Id }, new
         {
             success = true,
-            message = "Post uploaded successfully"
+            message = "Comment uploaded successfully"
         });
     }
 
     [Authorize]
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] EditPostDto dto)
+    public async Task<IActionResult> Update(string postId, string id, [FromBody] EditCommentDto dto)
     {
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
-        var command = new EditPostCommand(
+        var command = new EditCommentCommand(
             Id: id,
+            PostId: postId,
             UserId : Utility.StringToGuid(ownerId),
             Text: dto.Text
         );
@@ -81,10 +89,11 @@ public class PostController : ControllerBase
 
     [Authorize]
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    public async Task<IActionResult> Delete(string postId, string id)
     {
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
-        var command = new DeletePostCommand(
+        var command = new DeleteCommentCommand(
+            PostId: postId,
             Id: id,
             UserId : Utility.StringToGuid(ownerId)
         );

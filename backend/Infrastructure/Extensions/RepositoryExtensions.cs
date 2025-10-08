@@ -4,6 +4,7 @@ using Backend.Domain.Posts;
 using Backend.Infrastructure.Notifications;
 using Backend.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
+using Backend.Domain.Comments;
 
 namespace Backend.Infrastructure.Extensions;
 
@@ -17,12 +18,14 @@ internal static class RepositoryExtensions
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IPostFactory, PostFactory>();
         services.AddScoped<IPostRepository, PostRepository>();
+        services.AddScoped<ICommentRepository, CommentRepository>();
 
         // Application services
         services.AddScoped<ITokenService, JwtTokenService>();
         services.AddSingleton<IEmailService, EmailService>();
         // Notifications
         services.AddSingleton<IFeedNotifier, FeedNotifier>();
+        services.AddSingleton<INotificationNotifier, NotificationNotifier>();
 
         return services;
     }

@@ -1,3 +1,4 @@
+using Backend.Application.Comments.Create;
 using Backend.Application.Posts.Create;
 using Backend.Application.Posts.Delete;
 using Backend.Application.Users.Create;
@@ -47,6 +48,7 @@ internal static class MessagingExtensions
                 .Map<UserForgotPasswordEvent>("queue-notify")
                 .Map<PostCreatedEvent>("queue-notify")
                 .Map<PostDeletedEvent>("queue-notify")
+                .Map<CommentCreatedEvent>("queue-notify")
             );
 
             configure.Options(o =>

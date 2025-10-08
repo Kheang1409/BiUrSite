@@ -14,6 +14,11 @@ using Backend.Application.Posts.GetPost;
 using Backend.Application.Posts.Create;
 using Backend.Application.Posts.GetPosts;
 using Backend.Application.Posts.Delete;
+using Backend.Application.Comments.GetComments;
+using Backend.Application.Comments.GetComment;
+using Backend.Application.Comments.Create;
+using Backend.Application.Comments.Edit;
+using Backend.Application.Comments.Delete;
 
 namespace Backend.Application;
 public static class DependencyInjection
@@ -47,6 +52,16 @@ public static class DependencyInjection
 
             cfg.RegisterServicesFromAssembly(typeof(GetPostsQueryHandler).Assembly);
 
+            cfg.RegisterServicesFromAssembly(typeof(GetCommentsQueryHandler).Assembly);
+
+            cfg.RegisterServicesFromAssembly(typeof(GetCommentByIdQueryHandler).Assembly);
+
+            cfg.RegisterServicesFromAssembly(typeof(CreateCommentCommandHandler).Assembly);
+
+            cfg.RegisterServicesFromAssembly(typeof(EditCommentCommandHandler).Assembly);
+
+            cfg.RegisterServicesFromAssembly(typeof(DeleteCommentCommandHandler).Assembly);
+
         });
 
         services.AddValidatorsFromAssembly(typeof(CreateUserCommandHandler).Assembly);
@@ -56,6 +71,7 @@ public static class DependencyInjection
         services.AddTransient<IHandleMessages<PostCreatedEvent>, SendPostToFeedHandler>();
         services.AddTransient<IHandleMessages<UserForgotPasswordEvent>, SendUserOTPEmailHandler>();
         services.AddTransient<IHandleMessages<PostDeletedEvent>, DeleteImageHandler>();
+        services.AddTransient<IHandleMessages<CommentCreatedEvent>, SendNotificationPostOwnerHandler>();
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         return services;
     }

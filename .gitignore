@@ -23,6 +23,7 @@ backend/*.db-shm
 backend/*.db-wal
 
 # Ignore object files in all layers
+backend/API/appsettings.Development.json
 backend/Api/bin/
 backend/Api/obj/
 backend/Api/.vs/

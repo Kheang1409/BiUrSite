@@ -2,11 +2,11 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Backend.Application.Users.Create;
 using Backend.Application.Users.GetUser;
-using Backend.Application.DTOs;
 using Backend.Application.Users.VerifyUser;
 using Microsoft.AspNetCore.Authorization;
 using Backend.Application.Users.Update;
 using System.Security.Claims;
+using Backend.Application.DTOs.Users;
 
 namespace Backend.Api.Controllers;
 

@@ -42,13 +42,18 @@ public class PostRepository : IPostRepository
 
         var skip = (pageNumber - 1) * LIMIT;
 
-        return await _posts.Find(finalFilter).Skip(skip).Limit(LIMIT).ToListAsync();
+        return await _posts.Find(finalFilter)
+                            .SortByDescending(p => p.CreatedDate)
+                            .Skip(skip)
+                            .Limit(LIMIT)
+                            .ToListAsync();
     }
 
-    public async Task<Post> GetPostById(string id)
+    public async Task<Post?> GetPostById(string id)
     {
-        var post = await _posts.Find(p => p.Id == id && p.Status == Status.Active).SingleOrDefaultAsync();
-        return post;
+        return await _posts
+            .Find(p => p.Id == id && p.Status == Status.Active)
+            .SingleOrDefaultAsync();
     }
 
     public async Task<Post> Create(Post post)
