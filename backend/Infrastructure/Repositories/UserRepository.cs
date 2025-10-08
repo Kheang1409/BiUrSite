@@ -1,39 +1,59 @@
 using Backend.Domain.Users;
 using Backend.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Repositories;
 
 public class UserRepository : IUserRepository
 {
-    private readonly AppDbContext _context;
+    private readonly IMongoCollection<User> _users;
     private const int LIMIT_ITEM = 10;
 
-    public UserRepository(AppDbContext context)
+    public UserRepository(MongoDbContext context)
     {
-        _context = context;
+        _users = context.Users;
     }
 
-    public Task<User?> GetUserById(UserId id)
+    public async Task<User?> GetUserById(UserId id)
     {
-        return _context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == id);
+        return await _users
+            .Find(u => u.Id == id)
+            .FirstOrDefaultAsync();
     }
-    public Task<User?> GetUserByEmail(string email)
+    public async Task<User?> GetUserByEmail(string email)
     {
-        return _context.Users.SingleOrDefaultAsync(u => u.Email.Equals(email));
+        return await _users
+            .Find(u => u.Email == email)
+            .FirstOrDefaultAsync();
     }
 
-    public Task<User?> GetUserByEmailWithOtp(string email, string otp)
+    public async Task<User?> GetUserByEmailWithOtp(string email, string otp)
     {
-        return _context.Users.SingleOrDefaultAsync(u => u.Email.Equals(email) && u.Otp!.Value.Equals(otp) && u.Otp!.ExpireAt >= DateTime.UtcNow);
+        var now = DateTime.UtcNow;
+        return await _users
+            .Find(u => u.Email == email &&
+                       u.Otp != null &&
+                       u.Otp.Value == otp &&
+                       u.Otp.ExpireAt >= now)
+            .FirstOrDefaultAsync();
     }
 
-    public Task<User?> GetUserByToken(string token)
+    public async Task<User?> GetUserByToken(string token)
     {
-        return _context.Users.SingleOrDefaultAsync(u => u.Token!.Value.Equals(token) && u.Token.ExpireAt >= DateTime.UtcNow);
+        var now = DateTime.UtcNow;
+        return await _users
+            .Find(u => u.Token != null &&
+                       u.Token.Value == token &&
+                       u.Token.ExpireAt >= now)
+            .FirstOrDefaultAsync();
     }
-    public void Create(User user)
+    public async Task Create(User user)
     {
-        _context.Users.AddAsync(user);
+        await _users.InsertOneAsync(user); ;
+    }
+    public async Task Update(User user)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+        await _users.ReplaceOneAsync(filter, user);
     }
 }

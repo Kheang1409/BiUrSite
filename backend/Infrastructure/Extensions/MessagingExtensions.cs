@@ -5,6 +5,7 @@ using Backend.Application.Users.Create;
 using Backend.Application.Users.ForgotPassword;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
 using Rebus.Config;
 using Rebus.Routing.TypeBased;
 
@@ -14,48 +15,53 @@ internal static class MessagingExtensions
 {
     public static IServiceCollection AddMessagingServices(this IServiceCollection services, IConfiguration configuration)
     {
-        var server = Environment.GetEnvironmentVariable("DB_SERVER")
-                                ?? configuration["DB:Server"]
-                                ?? throw new InvalidOperationException("DB Server is not configured.");
-                                
-        var port = Environment.GetEnvironmentVariable("DB_PORT")
-                                ?? configuration["DB:Port"]
-                                ?? throw new InvalidOperationException("DB Port is not configured.");
-        var dbName = Environment.GetEnvironmentVariable("DB_NAME")
-                                ?? configuration["DB:Name"]
-                                ?? throw new InvalidOperationException("DB Name is not configured.");
+        var mongoConnectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION_STRING")
+                                    ?? configuration["MongoDB:ConnectionString"]
+                                    ?? throw new ArgumentException("MongoDB ConnectionString is not configured.");
 
-        var userId = Environment.GetEnvironmentVariable("DB_USER_ID")
-                                ?? configuration["DB:UserId"]
-                                ?? throw new InvalidOperationException("DB UserId is not configured.");
-        
-        var password = Environment.GetEnvironmentVariable("DB_PASSWORD")
-                                ?? configuration["DB:Password"]
-                                ?? throw new InvalidOperationException("DB Password is not configured.");
+        var databaseName = Environment.GetEnvironmentVariable("MONGODB_NAME")
+                           ?? configuration["MongoDB:Name"]
+                           ?? throw new ArgumentException("MongoDB Name is not configured.");
 
-        var connectionString = $"Server={server},{port};Database={dbName};User Id={userId};Password={password};TrustServerCertificate=True;";
+        var queueName = Environment.GetEnvironmentVariable("REBUS_QUEUE_NAME")
+                        ?? configuration["Rebus:QueueName"]
+                        ?? throw new ArgumentException("Rebus QueueName is not configured.");
+        try
+        {
+            var builder = new MongoUrlBuilder(mongoConnectionString);
+            if (string.IsNullOrWhiteSpace(builder.DatabaseName))
+            {
+                builder.DatabaseName = databaseName;
+                mongoConnectionString = builder.ToString();
+            }
+        }
+        catch
+        {
+            mongoConnectionString = mongoConnectionString.TrimEnd('/') + "/" + databaseName;
+        }
+
+        services.AddSingleton<IMongoClient>(_ => new MongoClient(mongoConnectionString));
+        services.AddScoped(sp => sp.GetRequiredService<IMongoClient>().GetDatabase(databaseName));
 
         services.AddRebus(configure =>
         {
-            // UseSqlServer overload is currently obsolete in Rebus package used by this project.
-            // Keep current call for compatibility; suppress obsolete warning in this file.
-            #pragma warning disable 618
-            configure.Transport(t => t.UseSqlServer(connectionString, "queue-notify", ensureTablesAreCreated: true));
-            #pragma warning restore 618
+            var transportCollectionName = queueName;
+            var mongoOptions = new MongoDbTransportOptions(mongoConnectionString, transportCollectionName);
 
-            configure.Routing(r => r.TypeBased()
-                .Map<UserCreatedEvent>("queue-notify")
-                .Map<UserForgotPasswordEvent>("queue-notify")
-                .Map<PostCreatedEvent>("queue-notify")
-                .Map<PostDeletedEvent>("queue-notify")
-                .Map<CommentCreatedEvent>("queue-notify")
-            );
-
-            configure.Options(o =>
-            {
-                o.SetNumberOfWorkers(1);
-                o.SetMaxParallelism(1);
-            });
+            configure
+                .Transport(t => t.UseMongoDb(mongoOptions, queueName))
+                .Routing(r => r.TypeBased()
+                    .Map<UserCreatedEvent>(queueName)
+                    .Map<UserForgotPasswordEvent>(queueName)
+                    .Map<PostCreatedEvent>(queueName)
+                    .Map<PostDeletedEvent>(queueName)
+                    .Map<CommentCreatedEvent>(queueName)
+                )
+                .Options(o =>
+                {
+                    o.SetNumberOfWorkers(1);
+                    o.SetMaxParallelism(1);
+                });
 
             return configure;
         });

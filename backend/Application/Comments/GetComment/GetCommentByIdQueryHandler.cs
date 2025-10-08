@@ -15,6 +15,6 @@ internal sealed class GetCommentByIdQueryHandler : IRequestHandler<GetCommentByI
 
     public async Task<Comment?> Handle(GetCommentByIdQuery request, CancellationToken cancellationToken)
     {
-        return await _commentRepository.GetCommentById(request.PostId, request.Id);;
+        return await _commentRepository.GetCommentById(new PostId(request.PostId), new CommentId(request.Id));
     }
 }

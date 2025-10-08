@@ -32,16 +32,17 @@ internal sealed class CreateUserCommandHandler : IRequestHandler<CreateUserComma
         {
             var factory = _factories.OfType<UserFactory>().First();
             user = factory.Create(null, request.Username, request.Email, request.Password, string.Empty);
-            _userRepository.Create(user);
+            await _userRepository.Create(user);
         }
         else if (user.Status != Status.Active)  // Exisiting in DB & Inactive
         {
             user.ResetUsername(request.Username)
                 .ResetPassword(request.Password)
                 .ReCreate();
+            await _userRepository.Update(user);
         }
 
-        await _unitOfWord.SaveChangesAsync(cancellationToken);
+        await _unitOfWord.SaveChangesAsync(user,cancellationToken);
         return user;
     }
 }

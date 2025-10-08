@@ -5,14 +5,17 @@ using Backend.Infrastructure.Authentication;
 using Backend.Infrastructure.Configuration;
 using Backend.Infrastructure.Hubs;
 using Backend.Infrastructure.Swagger;
+using Backend.Infrastructure.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
+StronglyTypedIdSerializationRegistry.Register();
+
 builder.Services.AddControllers();
 builder.Services.ConfigureAuthenticationServices(builder.Configuration);
+builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCorsPolicy(builder.Configuration);
-builder.Services.AddApplicationServices();
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddSignalR();
 

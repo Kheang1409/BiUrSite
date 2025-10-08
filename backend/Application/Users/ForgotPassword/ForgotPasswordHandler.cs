@@ -27,7 +27,8 @@ internal sealed class ForgotPasswordCommandHandler : IRequestHandler<ForgotPassw
         if (user.Status != Domain.Enums.Status.Active)
             throw new UnauthorizedAccessException($"User is {user.Status}.");
         user.ForgotPassword();
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync(user, cancellationToken);
 
     }
 }

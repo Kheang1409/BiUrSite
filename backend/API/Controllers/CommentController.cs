@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Backend.Api.Controllers;
 
 [ApiController]
-[Route("api/posts/{postId}/comments")]
+[Route("api/posts/{postId:guid}/comments")]
 public class CommentController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -24,7 +24,7 @@ public class CommentController : ControllerBase
 
 
     [HttpGet]
-    public async Task<IActionResult> GetComments(string postId, [FromQuery] int pageNumber = 1)
+    public async Task<IActionResult> GetComments(Guid postId, [FromQuery] int pageNumber = 1)
     {
         var query = new GetCommentsQuery(
             PostId: postId,
@@ -38,8 +38,8 @@ public class CommentController : ControllerBase
         });
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetComment(string postId, string id)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetComment(Guid postId, Guid id)
     {
         var query = new GetCommentByIdQuery(
             PostId: postId,
@@ -54,7 +54,7 @@ public class CommentController : ControllerBase
 
     [Authorize]
     [HttpPost]
-    public async Task<IActionResult> Comment(string postId, [FromBody] CommentCreateDTO dto)
+    public async Task<IActionResult> Comment(Guid postId, [FromBody] CommentCreateDTO dto)
     {
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
         var username = User.FindFirstValue(ClaimTypes.Name) ?? throw new UnauthorizedAccessException();
@@ -65,7 +65,7 @@ public class CommentController : ControllerBase
             Text: dto.Text
         );
         var comment = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetComment), new { postId = postId, id = comment.Id }, new
+        return CreatedAtAction(nameof(GetComment), new { postId = postId, id = comment.Id.Value }, new
         {
             success = true,
             message = "Comment uploaded successfully"
@@ -73,8 +73,8 @@ public class CommentController : ControllerBase
     }
 
     [Authorize]
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string postId, string id, [FromBody] EditCommentDto dto)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid postId, Guid id, [FromBody] EditCommentDto dto)
     {
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
         var command = new EditCommentCommand(
@@ -88,8 +88,8 @@ public class CommentController : ControllerBase
     } 
 
     [Authorize]
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string postId, string id)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid postId, Guid id)
     {
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
         var command = new DeleteCommentCommand(

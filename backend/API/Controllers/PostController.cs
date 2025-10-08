@@ -30,12 +30,12 @@ public class PostController : ControllerBase
         return Ok(new
         {
             success = true,
-            data = posts
+            data = posts.Select(post => (PostDto)post)
         });
     }
 
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetPost(string id)
+    [HttpGet("{id:guid}")]
+    public async Task<IActionResult> GetPost(Guid id)
     {
         var query = new GetPostByIdQuery(id);
         var post = await _mediator.Send(query);
@@ -58,7 +58,7 @@ public class PostController : ControllerBase
             Text: dto.Text,  
             Data: dto.Data);
         var post = await _mediator.Send(command);
-        return CreatedAtAction(nameof(GetPost), new { id = post.Id }, new
+        return CreatedAtAction(nameof(GetPost), new { id = post.Id.Value }, new
         {
             success = true,
             message = "Post uploaded successfully"
@@ -66,8 +66,8 @@ public class PostController : ControllerBase
     }
 
     [Authorize]
-    [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] EditPostDto dto)
+    [HttpPut("{id:guid}")]
+    public async Task<IActionResult> Update(Guid id, [FromBody] EditPostDto dto)
     {
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
         var command = new EditPostCommand(
@@ -80,8 +80,8 @@ public class PostController : ControllerBase
     } 
 
     [Authorize]
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    [HttpDelete("{id:guid}")]
+    public async Task<IActionResult> Delete(Guid id)
     {
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
         var command = new DeletePostCommand(

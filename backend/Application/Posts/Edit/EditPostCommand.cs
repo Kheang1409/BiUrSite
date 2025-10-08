@@ -3,6 +3,6 @@ using MediatR;
 namespace Backend.Application.Posts.Edit;
 
 public record EditPostCommand(
-    string Id,
+    Guid Id,
     Guid UserId,
     string Text) : IRequest;

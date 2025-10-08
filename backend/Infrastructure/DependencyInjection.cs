@@ -16,7 +16,6 @@ public static class DependencyInjection
             .AddConfigurationServices(configuration)
             .AddPersistenceServices(configuration)
             .AddMessagingServices(configuration)
-            .AddMongoDb(configuration)
             .AddRepositoryServices();
 
         return services;

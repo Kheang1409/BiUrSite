@@ -3,5 +3,5 @@ using MediatR;
 namespace Backend.Application.Posts.Delete;
 
 public record DeletePostCommand(
-    string Id,
+    Guid Id,
     Guid UserId) : IRequest;

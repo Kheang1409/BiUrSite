@@ -25,7 +25,8 @@ internal sealed class ResetPasswordCommandHandler : IRequestHandler<ResetPasswor
         if(user.Status != Domain.Enums.Status.Active)
             throw new UnauthorizedAccessException($"User is {user.Status}.");
         user.ResetPassword(request.Password);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync(user, cancellationToken);
         return user;
     }
 }

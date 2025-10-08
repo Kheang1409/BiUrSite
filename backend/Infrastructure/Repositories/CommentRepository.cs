@@ -1,27 +1,26 @@
+using Backend.Domain.Comments;
 using Backend.Domain.Enums;
 using Backend.Domain.Posts;
+using Backend.Infrastructure.Persistence;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace Backend.Domain.Comments;
+namespace Backend.Infrastructure.Repositories;
 
 public class CommentRepository : ICommentRepository
 {
     private readonly IMongoCollection<Post> _posts;
-    private const string DB_NAME = "bi_ur_site";
-    private const string COLLECTION_NAME = "posts";
     private const int LIMIT = 10;
     private const string SUB_DOCUMENT_NAME = "Comments";
 
     public CommentRepository(
-        IMongoClient mongoClient
+        MongoDbContext context
         )
     {
-        var database = mongoClient.GetDatabase(DB_NAME);
-        _posts = database.GetCollection<Post>(COLLECTION_NAME);
+        _posts = context.Posts;
     }
 
-    public async Task<IEnumerable<Comment>> GetComments(string postId, int pageNumber)
+    public async Task<IEnumerable<Comment>> GetComments(PostId postId, int pageNumber)
     {
         var skip = (pageNumber - 1) * LIMIT;
 
@@ -49,7 +48,7 @@ public class CommentRepository : ICommentRepository
         return comments;
     }
 
-    public async Task<Comment?> GetCommentById(string postId, string commentId)
+    public async Task<Comment?> GetCommentById(PostId postId, CommentId commentId)
     {
         var filter = Builders<Post>.Filter.And(
             Builders<Post>.Filter.Eq(p => p.Id, postId),
@@ -68,7 +67,7 @@ public class CommentRepository : ICommentRepository
     }
 
 
-    public async Task<Comment> Create(string postId, Comment comment)
+    public async Task<Comment> Create(PostId postId, Comment comment)
     {
         var update = Builders<Post>.Update.Push(SUB_DOCUMENT_NAME, comment);
         await _posts.UpdateOneAsync(
@@ -78,30 +77,30 @@ public class CommentRepository : ICommentRepository
         return comment;
     }
 
-    public async Task Update(string postId, Comment comment)
+    public async Task Update(PostId postId, Comment comment)
     {
         var filter = Builders<Post>.Filter.And(
             Builders<Post>.Filter.Eq(p => p.Id, postId),
-            Builders<Post>.Filter.ElemMatch(p => p.Comments, c => c.Id == comment.Id)
+            Builders<Post>.Filter.ElemMatch(SUB_DOCUMENT_NAME, Builders<Comment>.Filter.Eq("Id", comment.Id))
         );
 
         var update = Builders<Post>.Update
-            .Set("Comments.$.Text", comment.Text)
-            .Set("Comments.$.ModifiedDate", comment.ModifiedDate);
+            .Set($"{SUB_DOCUMENT_NAME}.$.Text", comment.Text)
+            .Set($"{SUB_DOCUMENT_NAME}.$.ModifiedDate", comment.ModifiedDate);
 
         await _posts.UpdateOneAsync(filter, update);
     }
 
-    public async Task Delete(string postId, Comment comment)
+    public async Task Delete(PostId postId, Comment comment)
     {
         var filter = Builders<Post>.Filter.And(
             Builders<Post>.Filter.Eq(p => p.Id, postId),
-            Builders<Post>.Filter.ElemMatch(p => p.Comments, c => c.Id == comment.Id)
+            Builders<Post>.Filter.ElemMatch(SUB_DOCUMENT_NAME, Builders<Comment>.Filter.Eq("Id", comment.Id))
         );
 
         var update = Builders<Post>.Update
-            .Set("Comments.$.Status", comment.Status)
-            .Set("Comments.$.DeletedDate", comment.DeletedDate);
+            .Set($"{SUB_DOCUMENT_NAME}.$.Status", comment.Status)
+            .Set($"{SUB_DOCUMENT_NAME}.$.DeletedDate", comment.DeletedDate);
 
         await _posts.UpdateOneAsync(filter, update);
     }

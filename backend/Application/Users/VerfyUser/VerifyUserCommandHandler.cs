@@ -27,6 +27,7 @@ internal sealed class VerifyUserCommandHandler : IRequestHandler<VerifyUserComma
         if (user.Status != Status.Unverified)
             return;
         user.Verify();
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync(user, cancellationToken);
     }
 }

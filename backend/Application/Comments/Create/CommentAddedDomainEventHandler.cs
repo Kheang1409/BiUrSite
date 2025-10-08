@@ -15,6 +15,6 @@ internal sealed class CommentAddedDomainEventHandler : INotificationHandler<Comm
 
     public async Task Handle(CommentAddedDomainEvent request, CancellationToken cancellationToken)
     {
-        await _bus.Send(new CommentCreatedEvent(request.PostId, request.CommentId, request.UserId.Value));
+        await _bus.Send(new CommentCreatedEvent(request.PostId.Value, request.CommentId.Value, request.UserId.Value));
     }
 }

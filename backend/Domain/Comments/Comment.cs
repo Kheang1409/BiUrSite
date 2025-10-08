@@ -1,25 +1,13 @@
 using Backend.Domain.Enums;
 using Backend.Domain.Primitive;
 using Backend.Domain.Users;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace Backend.Domain.Comments;
 
 public class Comment : Entity
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; private set; }
-    [BsonIgnore]
+    public CommentId Id { get; private set; }
     public UserId UserId { get; private set; }
-    [BsonElement("UserId")]
-    [BsonRepresentation(BsonType.String)]
-    public Guid UserIdValue
-    {
-        get => UserId.Value;
-        private set => UserId = new UserId(value);
-    }
     public string Username { get; private set; }
     public string Text { get; private set; }
     public Status Status { get; private set; }
@@ -31,7 +19,7 @@ public class Comment : Entity
     private Comment() { }
     private Comment(UserId userId, string username, string text)
     {
-        Id = ObjectId.GenerateNewId().ToString();
+        Id = new CommentId(Guid.NewGuid());
         UserId = userId;
         Username = username;
         Text = text;

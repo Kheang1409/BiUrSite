@@ -1,9 +1,11 @@
+using Backend.Domain.Posts;
 using Backend.Domain.Users;
-using Microsoft.EntityFrameworkCore;
+using MongoDB.Driver;
 
 namespace Backend.Application.Data;
 
 public interface IAppDbContext
 {
-    DbSet<User> Users { get; set; }
+    IMongoCollection<User> Users { get;}
+    IMongoCollection<Post> Posts  { get;}
 }

@@ -6,5 +6,5 @@ public interface INotificationNotifier
         Guid postOwnerUserId,
         string commenterUsername,
         string commentText,
-        string postId);
+        Guid postId);
 }

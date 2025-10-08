@@ -14,6 +14,6 @@ internal sealed class GetPostByIdQueryHandler : IRequestHandler<GetPostByIdQuery
 
     public async Task<Post?> Handle(GetPostByIdQuery request, CancellationToken cancellationToken)
     {
-        return await _postRepository.GetPostById(request.Id);;
+        return await _postRepository.GetPostById(new PostId(request.Id));;
     }
 }

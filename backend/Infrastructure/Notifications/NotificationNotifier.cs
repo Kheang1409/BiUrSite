@@ -14,7 +14,7 @@ public class NotificationNotifier : INotificationNotifier
     }
 
     
-    public async Task NotifyPostOwnerOfComment(Guid postOwnerUserId, string commenterUsername, string commentText, string postId)
+    public async Task NotifyPostOwnerOfComment(Guid postOwnerUserId, string commenterUsername, string commentText, Guid postId)
     {
         await _hubContext.Clients
             .User(postOwnerUserId.ToString())

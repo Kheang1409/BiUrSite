@@ -15,7 +15,7 @@ public record EditPostCommandHandler : IRequestHandler<EditPostCommand>
     }
     public async Task Handle(EditPostCommand request, CancellationToken cancellationToken)
     {
-        var post = await _postRepository.GetPostById(request.Id);
+        var post = await _postRepository.GetPostById(new PostId(request.Id));
         if (post is null)
             throw new NotFoundException("Post is not found.");
         if(!post.UserId.Value.Equals(request.UserId))

@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Backend.Application.Posts.GetPost;
 
-public record GetPostByIdQuery(string Id) : IRequest<Post?>;
+public record GetPostByIdQuery(Guid Id) : IRequest<Post?>;

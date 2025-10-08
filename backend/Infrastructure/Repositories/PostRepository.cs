@@ -1,22 +1,23 @@
 using Backend.Domain.Enums;
+using Backend.Domain.Posts;
+using Backend.Infrastructure.Persistence;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace Backend.Domain.Posts;
+namespace Backend.Infrastructure.Repositories;
 
 public class PostRepository : IPostRepository
 {
     private readonly IMongoCollection<Post> _posts;
-    private const string DB_NAME = "bi_ur_site";
-    private const string COLLECTION_NAME = "posts";
+    private const string SUB_DOCUMENT_NAME = "Comments";
+
     private const int LIMIT = 10;
 
     public PostRepository(
-        IMongoClient mongoClient
+        MongoDbContext context
         )
     {
-        var database = mongoClient.GetDatabase(DB_NAME);
-        _posts = database.GetCollection<Post>(COLLECTION_NAME);
+        _posts = context.Posts;
     }
 
     public async Task<IEnumerable<Post>> GetPosts(string? username, string? keywords, int pageNumber)
@@ -31,7 +32,7 @@ public class PostRepository : IPostRepository
         }
         if (!string.IsNullOrWhiteSpace(username))
         {
-            filters.Add(filterBuilder.Regex(u => u.Username, new BsonRegularExpression(keywords, "i")));
+            filters.Add(filterBuilder.Regex(u => u.Username, new BsonRegularExpression(username, "i")));
         }
 
         filters.Add(filterBuilder.Where(p => p.Status == Status.Active));
@@ -43,17 +44,32 @@ public class PostRepository : IPostRepository
         var skip = (pageNumber - 1) * LIMIT;
 
         return await _posts.Find(finalFilter)
+                            .Project<Post>(Builders<Post>.Projection
+                                .Exclude(SUB_DOCUMENT_NAME))
                             .SortByDescending(p => p.CreatedDate)
                             .Skip(skip)
                             .Limit(LIMIT)
                             .ToListAsync();
     }
 
-    public async Task<Post?> GetPostById(string id)
+    public async Task<Post?> GetPostById(PostId id)
     {
-        return await _posts
-            .Find(p => p.Id == id && p.Status == Status.Active)
-            .SingleOrDefaultAsync();
+        var filter = Builders<Post>.Filter.And(
+            Builders<Post>.Filter.Eq(p => p.Id, id),
+            Builders<Post>.Filter.Eq(p => p.Status, Status.Active)
+        );
+        var projection = Builders<Post>.Projection
+            .Slice(SUB_DOCUMENT_NAME, -LIMIT/2);
+        var post = await _posts
+                            .Find(filter)
+                            .Project<Post>(projection)
+                            .SingleOrDefaultAsync();
+        if (post == null)
+            return null;
+        var sortedComments = post.Comments.OrderByDescending(c => c.CreatedDate).ToList();
+        var commentsField = typeof(Post).GetField("_comments", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        commentsField?.SetValue(post, sortedComments);
+        return post;
     }
 
     public async Task<Post> Create(Post post)

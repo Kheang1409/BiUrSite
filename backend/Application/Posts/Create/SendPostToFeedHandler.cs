@@ -19,7 +19,7 @@ internal sealed class SendPostToFeedHandler : IHandleMessages<PostCreatedEvent>
 
     public async Task Handle(PostCreatedEvent message)
     {
-        var post = await _postRepository.GetPostById(message.Id);
+        var post = await _postRepository.GetPostById(new PostId(message.Id));
         if (post == null)
             throw new NotFoundException("Post not found.");
         await _feedNotifier.BroadcastPost(post);

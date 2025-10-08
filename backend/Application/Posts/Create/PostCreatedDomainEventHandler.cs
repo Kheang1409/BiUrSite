@@ -15,6 +15,6 @@ internal sealed class PostCreatedDomainEventHandler : INotificationHandler<PostC
 
     public async Task Handle(PostCreatedDomainEvent request, CancellationToken cancellationToken)
     {
-        await _bus.Send(new PostCreatedEvent(request.PostId, request.Data));
+        await _bus.Send(new PostCreatedEvent(request.PostId.Value, request.Data));
     }
 }

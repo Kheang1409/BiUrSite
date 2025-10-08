@@ -6,5 +6,6 @@ public interface IUserRepository
     Task<User?> GetUserByEmail(string email);
     Task<User?> GetUserByEmailWithOtp(string email, string otp);
     Task<User?> GetUserByToken(string token);
-    void Create(User user);
+    Task Create(User user);
+    Task Update(User user);
 }

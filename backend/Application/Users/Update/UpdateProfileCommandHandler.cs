@@ -26,6 +26,7 @@ public record UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand
         if (user.Status != Status.Active)
             throw new UnauthorizedAccessException($"User is {user.Status}.");
         user.Update(request.Username, request.Bio);
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync(user, cancellationToken);
     }
 }

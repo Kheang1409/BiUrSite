@@ -9,18 +9,8 @@ namespace Backend.Domain.Posts;
 
 public class Post : Entity
 {
-    [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
-    public string Id { get; private set; }
-    [BsonIgnore]
+    public PostId Id { get; private set; }
     public UserId UserId { get; private set; }
-    [BsonElement("UserId")]
-    [BsonRepresentation(BsonType.String)]
-    public Guid UserIdValue
-    {
-        get => UserId.Value;
-        private set => UserId = new UserId(value);
-    }
     public string Username { get; private set; } = string.Empty;
     public string Text { get; private set; } = string.Empty;
     public Image? Image { get; private set; }
@@ -35,7 +25,7 @@ public class Post : Entity
 
     private Post(Builder builder)
     {
-        Id = ObjectId.GenerateNewId().ToString();
+        Id = new PostId(Guid.NewGuid());
         UserId = builder.UserId;
         Username = builder.Username;
         Text = builder.Text;

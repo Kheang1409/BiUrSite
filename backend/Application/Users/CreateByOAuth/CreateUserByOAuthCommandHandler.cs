@@ -28,8 +28,7 @@ internal sealed class CreateUserByOAuthCommandHandler : IRequestHandler<CreateUs
         }
         var factory = _factories.OfType<OAuthUserFactory>().First();
         var user = factory.Create(new UserId(request.Id), request.Username, request.Email, "", request.AuthProvider);
-
-            _userRepository.Create(user);
-        await _unitOfWord.SaveChangesAsync(cancellationToken);
+        await _userRepository.Create(user);
+        await _unitOfWord.SaveChangesAsync(user, cancellationToken);
     }
 }

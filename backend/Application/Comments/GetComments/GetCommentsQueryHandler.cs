@@ -15,6 +15,6 @@ internal sealed class GetCommentsQueryHandler : IRequestHandler<GetCommentsQuery
 
     public async Task<IEnumerable<Comment>> Handle(GetCommentsQuery request, CancellationToken cancellationToken)
     {
-        return await _commentRepository.GetComments(request.PostId, request.PageNumber);;
+        return await _commentRepository.GetComments(new PostId(request.PostId), request.PageNumber);;
     }
 }

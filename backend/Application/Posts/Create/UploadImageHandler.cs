@@ -1,5 +1,6 @@
 using Backend.Application.Storage;
 using Backend.Domain.Posts;
+using Backend.SharedKernel.Exceptions;
 using MongoDB.Bson;
 using Rebus.Handlers;
 
@@ -19,14 +20,16 @@ internal sealed class UploadImageHandler : IHandleMessages<PostCreatedEvent>
 
     public async Task Handle(PostCreatedEvent message)
     {
-        var post = await _postRepository.GetPostById(message.Id);
+        var post = await _postRepository.GetPostById(new PostId(message.Id));
+        if (post is null)
+            throw new NotFoundException("Post is not found.");
         if (message.Data is not null && message.Data.Length > 0)
-        {
-            var id = ObjectId.GenerateNewId().ToString();
-            var fileName = $"posts/{id}.jpg";   
-            var url = await _imageStorageService.UploadImageAsync(fileName, message.Data);
-            post.SetImage(id, url);
-        }
+            {
+                var id = ObjectId.GenerateNewId().ToString();
+                var fileName = $"posts/{id}.jpg";
+                var url = await _imageStorageService.UploadImageAsync(fileName, message.Data);
+                post.SetImage(id, url);
+            }
         await _postRepository.Update(post);
     }
 }

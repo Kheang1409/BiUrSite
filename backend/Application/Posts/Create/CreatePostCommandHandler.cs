@@ -9,16 +9,16 @@ internal sealed class CreatePostCommandHandler : IRequestHandler<CreatePostComma
 {
     private readonly IPostRepository _postRepository;
     private readonly IPostFactory _postFactory;
-    private readonly IDomainEventDispatcher _domainEventDispatcher;
+    private readonly IUnitOfWork _unitOfWord;
 
     public CreatePostCommandHandler(
         IPostRepository postRepository,
         IPostFactory postFactory,
-        IDomainEventDispatcher domainEventDispatcher)
+        IUnitOfWork unitOfWord)
     {
         _postRepository = postRepository;
         _postFactory = postFactory;
-        _domainEventDispatcher = domainEventDispatcher;
+        _unitOfWord = unitOfWord;
     }
 
     public async Task<Post> Handle(CreatePostCommand request, CancellationToken cancellationToken)
@@ -29,8 +29,7 @@ internal sealed class CreatePostCommandHandler : IRequestHandler<CreatePostComma
             request.Text,
             request.Data
         );
-        await _postRepository.Create(post);
-        await _domainEventDispatcher.DispatchAsync(post, cancellationToken);
+        await Task.WhenAll(_postRepository.Create(post), _unitOfWord.SaveChangesAsync(post, cancellationToken));
         return post;
     }
 }

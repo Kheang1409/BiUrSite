@@ -4,5 +4,5 @@ namespace Backend.Domain.Posts;
 
 public record PostDeletedDomainEvent(
     Guid Id,
-    string PostId,
+    PostId PostId,
     Image Image) : DomainEvent(Id, DateTime.UtcNow);
