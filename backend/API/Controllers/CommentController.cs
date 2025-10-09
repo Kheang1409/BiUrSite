@@ -30,11 +30,11 @@ public class CommentController : ControllerBase
             PostId: postId,
             PageNumber: pageNumber
         );
-        var posts = await _mediator.Send(query);
+        var comments = await _mediator.Send(query);
         return Ok(new
         {
             success = true,
-            data = posts
+            data = comments.Select(c =>(CommentDto)c)
         });
     }
 
@@ -44,11 +44,11 @@ public class CommentController : ControllerBase
         var query = new GetCommentByIdQuery(
             PostId: postId,
             Id: id);
-        var post = await _mediator.Send(query);
+        var comment = await _mediator.Send(query);
         return Ok(new
         {
             success = true,
-            data = post!
+            data = (CommentDto)comment!
         });
     }
 
@@ -60,7 +60,7 @@ public class CommentController : ControllerBase
         var username = User.FindFirstValue(ClaimTypes.Name) ?? throw new UnauthorizedAccessException();
         var command = new CreateCommentCommand(
             PostId: postId,
-            UserId: Utility.StringToGuid(ownerId),
+            UserId: new Guid(ownerId),
             Username: username,
             Text: dto.Text
         );
@@ -80,7 +80,7 @@ public class CommentController : ControllerBase
         var command = new EditCommentCommand(
             Id: id,
             PostId: postId,
-            UserId : Utility.StringToGuid(ownerId),
+            UserId : new Guid(ownerId),
             Text: dto.Text
         );
         await _mediator.Send(command);
@@ -95,7 +95,7 @@ public class CommentController : ControllerBase
         var command = new DeleteCommentCommand(
             PostId: postId,
             Id: id,
-            UserId : Utility.StringToGuid(ownerId)
+            UserId : new Guid(ownerId)
         );
         await _mediator.Send(command);
         return NoContent();

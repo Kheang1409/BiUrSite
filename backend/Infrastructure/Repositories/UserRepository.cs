@@ -16,40 +16,40 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetUserById(UserId id)
     {
-        return await _users
-            .Find(u => u.Id == id)
-            .FirstOrDefaultAsync();
+        var filter = Builders<User>.Filter.Eq(u => u.Id, id);
+        return await _users.Find(filter).FirstOrDefaultAsync();
     }
     public async Task<User?> GetUserByEmail(string email)
     {
-        return await _users
-            .Find(u => u.Email == email)
-            .FirstOrDefaultAsync();
+        var filter = Builders<User>.Filter.Eq(u => u.Email, email);
+        return await _users.Find(filter).FirstOrDefaultAsync();
     }
 
     public async Task<User?> GetUserByEmailWithOtp(string email, string otp)
     {
         var now = DateTime.UtcNow;
-        return await _users
-            .Find(u => u.Email == email &&
-                       u.Otp != null &&
-                       u.Otp.Value == otp &&
-                       u.Otp.ExpireAt >= now)
-            .FirstOrDefaultAsync();
+        var filter = Builders<User>.Filter.And(
+            Builders<User>.Filter.Eq(u => u.Email, email),
+            Builders<User>.Filter.Eq(u => u.Otp!.Value, otp),
+            Builders<User>.Filter.Gte(u => u.Otp!.ExpireAt, now)
+        );
+
+        return await _users.Find(filter).FirstOrDefaultAsync();
     }
 
     public async Task<User?> GetUserByToken(string token)
     {
         var now = DateTime.UtcNow;
-        return await _users
-            .Find(u => u.Token != null &&
-                       u.Token.Value == token &&
-                       u.Token.ExpireAt >= now)
-            .FirstOrDefaultAsync();
+        var filter = Builders<User>.Filter.And(
+            Builders<User>.Filter.Eq(u => u.Token!.Value, token),
+            Builders<User>.Filter.Gte(u => u.Token!.ExpireAt, now)
+        );
+
+        return await _users.Find(filter).FirstOrDefaultAsync();
     }
     public async Task Create(User user)
     {
-        await _users.InsertOneAsync(user); ;
+        await _users.InsertOneAsync(user);
     }
     public async Task Update(User user)
     {

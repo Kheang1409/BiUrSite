@@ -42,7 +42,7 @@ public class PostController : ControllerBase
         return Ok(new
         {
             success = true,
-            data = post!
+            data = (PostDetailDto)post!
         });
     }
 
@@ -53,7 +53,7 @@ public class PostController : ControllerBase
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
         var username = User.FindFirstValue(ClaimTypes.Name) ?? throw new UnauthorizedAccessException();
         var command = new CreatePostCommand(
-            UserId: Utility.StringToGuid(ownerId),
+            UserId: new Guid(ownerId),
             Username: username,
             Text: dto.Text,  
             Data: dto.Data);
@@ -72,7 +72,7 @@ public class PostController : ControllerBase
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
         var command = new EditPostCommand(
             Id: id,
-            UserId : Utility.StringToGuid(ownerId),
+            UserId : new Guid(ownerId),
             Text: dto.Text
         );
         await _mediator.Send(command);
@@ -86,7 +86,7 @@ public class PostController : ControllerBase
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
         var command = new DeletePostCommand(
             Id: id,
-            UserId : Utility.StringToGuid(ownerId)
+            UserId : new Guid(ownerId)
         );
         await _mediator.Send(command);
         return NoContent();

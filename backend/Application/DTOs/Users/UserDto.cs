@@ -20,7 +20,7 @@ public class UserDto
             Id = user.Id.Value,
             Username = user.Username,
             Email = user.Email,
-            Profile = user.Profile,
+            Profile = user.Profile.Url,
             Bio = user.Bio,
             CreatedDate = user.CreatedDate,
             ModifiedDate = user.ModifiedDate,

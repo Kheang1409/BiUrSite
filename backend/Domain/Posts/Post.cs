@@ -1,6 +1,7 @@
 using Backend.Domain.Comments;
 using Backend.Domain.Enums;
 using Backend.Domain.Primitive;
+using Backend.Domain.Shared;
 using Backend.Domain.Users;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;

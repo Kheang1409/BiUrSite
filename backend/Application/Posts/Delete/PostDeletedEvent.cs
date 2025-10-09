@@ -1,5 +1,5 @@
 
-using Backend.Domain.Posts;
+using Backend.Domain.Shared;
 
 namespace Backend.Application.Posts.Delete;
 

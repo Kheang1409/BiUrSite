@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Backend.Application.Users.Update;
 using System.Security.Claims;
 using Backend.Application.DTOs.Users;
+using Backend.API.Helpers;
 
 namespace Backend.Api.Controllers;
 
@@ -57,6 +58,20 @@ public class UserController : ControllerBase
         });
     }
 
+    [HttpGet("me")]
+    [Authorize]
+    public async Task<IActionResult> Profile()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
+        
+        var user = await _mediator.Send(new GetUserByIdQuery(new Guid(userId)));
+        return Ok(new
+        {
+            success = true,
+            data = (UserDto)user!
+        });
+    }
+
     [HttpPut("me")]
     [Authorize]
     public async Task<IActionResult> Update([FromBody] UpdateProfileDto dto)
@@ -69,7 +84,7 @@ public class UserController : ControllerBase
                     success = false,
                     message = "User ID claim not found."
                 });
-        var command = new UpdateProfileCommand(emailClaim.Value, dto.Username, dto.Bio);
+        var command = new UpdateProfileCommand(emailClaim.Value, dto.Username, dto.Bio, dto.Data);
         await _mediator.Send(command);
         return NoContent();
     }

@@ -3,16 +3,17 @@ using System.Security.Cryptography;
 using System.Text;
 using Backend.Domain.Enums;
 using Backend.Domain.Primitive;
+using Backend.Domain.Shared;
 
 namespace Backend.Domain.Users;
 
 public class User : Entity
 {
-    private const string DEFAULT_PROFILE = "assets/img/profile-default.svg";
+    private const string DEFAULT_PROFILE = "https://raw.githubusercontent.com/Kheang1409/images/refs/heads/main/profile/profile-default.webp";
     public UserId Id { get; private set; }
     public string Username { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
-    public string Profile { get; private set; } = DEFAULT_PROFILE;
+    public Image? Profile { get; private set; }
     public string Bio { get; private set; } = string.Empty;
     public string Password { get; private set; } = string.Empty;
     public string AuthProvider { get; private set; } = string.Empty;
@@ -35,6 +36,7 @@ public class User : Entity
         AuthProvider = builder.AuthProvider;
         Bio = builder.Bio;
         Token = builder.Token;
+        Profile = new Image(Guid.NewGuid().ToString(), DEFAULT_PROFILE);
         CreatedDate = DateTime.UtcNow;
     }
 

@@ -1,12 +1,10 @@
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace Backend.Domain.Posts;
+namespace Backend.Domain.Shared;
 
 public record Image
 {
     [BsonId]
-    [BsonRepresentation(BsonType.ObjectId)]
     public string Id { get; private set; }
     public string Url { get; private set; }
 

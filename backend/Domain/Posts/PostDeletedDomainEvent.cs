@@ -1,4 +1,5 @@
 using Backend.Domain.Primitive;
+using Backend.Domain.Shared;
 
 namespace Backend.Domain.Posts;
 
