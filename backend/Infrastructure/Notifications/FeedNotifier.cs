@@ -1,3 +1,4 @@
+using Backend.Application.DTOs.Posts;
 using Backend.Application.Services;
 using Backend.Domain.Posts;
 using Backend.Infrastructure.Hubs;
@@ -16,6 +17,6 @@ public class FeedNotifier : IFeedNotifier
 
     public async Task BroadcastPost(Post post)
     {
-        await _hubContext.Clients.All.SendAsync("ReceivePost", post);
+        await _hubContext.Clients.All.SendAsync("ReceivePost", (PostDto)post);
     }
 }
