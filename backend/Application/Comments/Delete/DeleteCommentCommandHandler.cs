@@ -28,9 +28,9 @@ public record DeleteCommentCommandHandler : IRequestHandler<DeleteCommentCommand
         var comment = await _commentRepository.GetCommentById(postId, commentId);
         if (comment is null)
             throw new NotFoundException("Comment is not found.");
-        if (!comment.UserId.Value.Equals(request.UserId))
+        if (!comment.UserId.Value.Equals(request.UserId) && !post.UserId.Value.Equals(request.UserId))
             throw new ForbiddenException("You are not authorized to delete this comment.");
-        post.Delete();
+        comment.Delete();
         await _commentRepository.Delete(post.Id, comment);
     }
 }

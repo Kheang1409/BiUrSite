@@ -3,6 +3,7 @@ using Backend.Domain.Users;
 using Backend.Infrastructure.Serialization;
 using Backend.Domain.Posts;
 using Backend.Domain.Comments;
+using Backend.Domain.Images;
 
 namespace Backend.Infrastructure.Configurations
 {
@@ -25,6 +26,11 @@ namespace Backend.Infrastructure.Configurations
             ));
             BsonSerializer.RegisterSerializer(new StronglyTypedIdSerializer<CommentId>(
                 guid => new CommentId(guid),
+                id => id.Value
+            ));
+
+            BsonSerializer.RegisterSerializer(new StronglyTypedIdSerializer<ImageId>(
+                guid => new ImageId(guid),
                 id => id.Value
             ));
             _isRegistered = true;

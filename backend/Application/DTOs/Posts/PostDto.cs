@@ -6,6 +6,7 @@ public record PostDto(
     string Id,
     string UserId,
     string Username,
+    string UserProfile,
     string Text,
     string? ImageUrl,
     DateTime CreatedDate
@@ -17,6 +18,7 @@ public record PostDto(
             post.Id.Value.ToString(),
             post.UserId.Value.ToString(),
             post.Username,
+            post.UserProfile,
             post.Text,
             post.Image?.Url,
             post.CreatedDate

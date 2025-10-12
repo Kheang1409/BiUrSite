@@ -1,7 +1,7 @@
 
-using Backend.Domain.Shared;
+using Backend.Domain.Images;
 
 namespace Backend.Application.Posts.Delete;
 
 public record PostDeletedEvent(
-    Guid Id, Image Image);
+    Guid Id, Image? Image);

@@ -1,5 +1,4 @@
 using Backend.Application.DTOs.Comments;
-using Backend.Domain.Comments;
 using Backend.Domain.Posts;
 
 namespace Backend.Application.DTOs.Posts;
@@ -8,6 +7,7 @@ public record PostDetailDto(
     string Id,
     string UserId,
     string Username,
+    string UserProfile,
     string Text,
     string? ImageUrl,
     IEnumerable<CommentDto> Comments,
@@ -20,9 +20,10 @@ public record PostDetailDto(
             post.Id.Value.ToString(),
             post.UserId.Value.ToString(),
             post.Username,
+            post.UserProfile,
             post.Text,
             post.Image?.Url,
-            post.Comments.Select(c => (CommentDto)c ),
+            post.Comments.Select(c => (CommentDto)c),
             post.CreatedDate
         );
     }

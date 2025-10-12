@@ -6,6 +6,7 @@ public record CommentDto(
     string Id,
     string UserId,
     string Username,
+    string UserProfile,
     string Text,
     DateTime CreatedDate
 )
@@ -16,6 +17,7 @@ public record CommentDto(
             post.Id.Value.ToString(),
             post.UserId.Value.ToString(),
             post.Username,
+            post.UserProfile,
             post.Text,
             post.CreatedDate
         );

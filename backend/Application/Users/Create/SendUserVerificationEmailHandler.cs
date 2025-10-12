@@ -4,14 +4,12 @@ using Backend.Application.Services;
 using Backend.Domain.Users;
 using Backend.SharedKernel.Exceptions;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Rebus.Handlers;
 
 namespace Backend.Application.Users.Create;
 
 internal sealed class SendUserVerificationEmailHandler : IHandleMessages<UserCreatedEvent>
 {
-
     private readonly IUserRepository _userRepository;
     private readonly IEmailService _emailService;
     private readonly IAppOptions _options;
@@ -32,8 +30,9 @@ internal sealed class SendUserVerificationEmailHandler : IHandleMessages<UserCre
         var user = await _userRepository.GetUserById(new UserId(message.Id));
         if (user is null)
             throw new NotFoundException("User not found.");
-
-        var encodedToken = Uri.EscapeDataString(user.Token!.Value);
+        if (user.Token is null)
+            return;
+        var encodedToken = Uri.EscapeDataString(user.Token.Value);
         var verificationUrl = $"{_options.BaseUrl}/api/users/verify?token={encodedToken}";
 
         var email = VerificationEmail.Create(user.Email, SUBJECT, user.Username, verificationUrl);

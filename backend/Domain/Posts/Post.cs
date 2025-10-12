@@ -1,7 +1,7 @@
 using Backend.Domain.Comments;
 using Backend.Domain.Enums;
+using Backend.Domain.Images;
 using Backend.Domain.Primitive;
-using Backend.Domain.Shared;
 using Backend.Domain.Users;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
@@ -10,9 +10,11 @@ namespace Backend.Domain.Posts;
 
 public class Post : Entity
 {
+    private const string BASE_PROFILE_URL = "https://github.com/Kheang1409/images/blob/main/profiles/";
     public PostId Id { get; private set; }
     public UserId UserId { get; private set; }
     public string Username { get; private set; } = string.Empty;
+    public string UserProfile { get; private set; }
     public string Text { get; private set; } = string.Empty;
     public Image? Image { get; private set; }
     [BsonElement("Comments")]
@@ -29,6 +31,7 @@ public class Post : Entity
         Id = new PostId(Guid.NewGuid());
         UserId = builder.UserId;
         Username = builder.Username;
+        UserProfile = $"{BASE_PROFILE_URL}{builder.UserId.Value}.jpg?raw=true";
         Text = builder.Text;
         Status = Status.Active;
         CreatedDate = DateTime.UtcNow;
@@ -82,9 +85,9 @@ public class Post : Entity
         }
     }
 
-    public void SetImage(string id, string url)
+    public void SetImage(string url)
     {
-        Image = new Image(id, url);
+        Image = new Image(url);
         ModifiedDate = DateTime.UtcNow;
     }
 
@@ -92,7 +95,7 @@ public class Post : Entity
     {
         Status = Status.Deleted;
         DeletedDate = DateTime.UtcNow;
-        AddDomainEvent(new PostDeletedDomainEvent(Guid.NewGuid(), this.Id, this.Image));
+        AddDomainEvent(new PostDeletedDomainEvent(Guid.NewGuid(), Id, Image));
     }
 
     public void UpdateContent(string content)

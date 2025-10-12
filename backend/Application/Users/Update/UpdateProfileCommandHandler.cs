@@ -25,8 +25,7 @@ public record UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand
             throw new NotFoundException("User is not found.");
         if (user.Status != Status.Active)
             throw new UnauthorizedAccessException($"User is {user.Status}.");
-        user.Update(request.Username, request.Bio);
-        await _userRepository.Update(user);
-        await _unitOfWork.SaveChangesAsync(user, cancellationToken);
+        user.Update(request.Username, request.Bio ?? string.Empty, request.Data);
+        await Task.WhenAll(_userRepository.Update(user), _unitOfWork.SaveChangesAsync(user, cancellationToken));
     }
 }

@@ -3,6 +3,7 @@ using Backend.Application.Posts.Create;
 using Backend.Application.Posts.Delete;
 using Backend.Application.Users.Create;
 using Backend.Application.Users.ForgotPassword;
+using Backend.Application.Users.Update;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
@@ -53,6 +54,7 @@ internal static class MessagingExtensions
                 .Routing(r => r.TypeBased()
                     .Map<UserCreatedEvent>(queueName)
                     .Map<UserForgotPasswordEvent>(queueName)
+                    .Map<UpdatedProfileEvent>(queueName)
                     .Map<PostCreatedEvent>(queueName)
                     .Map<PostDeletedEvent>(queueName)
                     .Map<CommentCreatedEvent>(queueName)

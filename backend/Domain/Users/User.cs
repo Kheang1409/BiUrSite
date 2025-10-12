@@ -2,14 +2,14 @@
 using System.Security.Cryptography;
 using System.Text;
 using Backend.Domain.Enums;
+using Backend.Domain.Images;
 using Backend.Domain.Primitive;
-using Backend.Domain.Shared;
 
 namespace Backend.Domain.Users;
 
 public class User : Entity
 {
-    private const string DEFAULT_PROFILE = "https://raw.githubusercontent.com/Kheang1409/images/refs/heads/main/profile/profile-default.webp";
+    private const string DEFAULT_PROFILE = "https://raw.githubusercontent.com/Kheang1409/images/refs/heads/main/profiles/profile-default.webp";
     public UserId Id { get; private set; }
     public string Username { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
@@ -36,7 +36,7 @@ public class User : Entity
         AuthProvider = builder.AuthProvider;
         Bio = builder.Bio;
         Token = builder.Token;
-        Profile = new Image(Guid.NewGuid().ToString(), DEFAULT_PROFILE);
+        Profile = new Image(DEFAULT_PROFILE);
         CreatedDate = DateTime.UtcNow;
     }
 
@@ -155,10 +155,11 @@ public class User : Entity
         AddDomainEvent(new UserCreatedDomainEvent(Guid.NewGuid(), Id));
     }
 
-    public void Update(string username, string bio)
+    public void Update(string username, string bio, byte[] data)
     {
         Username = username;
         Bio = bio;
+        AddDomainEvent(new UpdatedProfileDomainEvent(Guid.NewGuid(), Id, data));
     }
 
     public void Verify()
@@ -197,5 +198,11 @@ public class User : Entity
 
             return hashBytes.SequenceEqual(computedHash);
         }
+    }
+
+    public void SetImage(string url)
+    {
+        Profile = new Image(url);
+        ModifiedDate = DateTime.UtcNow;
     }
 }

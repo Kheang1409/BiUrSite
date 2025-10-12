@@ -68,6 +68,7 @@ public class CommentController : ControllerBase
         return CreatedAtAction(nameof(GetComment), new { postId = postId, id = comment.Id.Value }, new
         {
             success = true,
+            data = (CommentDto)comment!,
             message = "Comment uploaded successfully"
         });
     }

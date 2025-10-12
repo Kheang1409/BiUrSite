@@ -39,6 +39,7 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssembly(typeof(ForgotPasswordCommandHandler).Assembly);
             cfg.RegisterServicesFromAssembly(typeof(SendUserOTPEmailHandler).Assembly);
 
+            cfg.RegisterServicesFromAssembly(typeof(UploadProfileImageHandler).Assembly);
 
             cfg.RegisterServicesFromAssembly(typeof(GetUserByIdQueryHandler).Assembly);
 
@@ -70,9 +71,13 @@ public static class DependencyInjection
         services.AddTransient<IHandleMessages<PostCreatedEvent>, UploadImageHandler>();
         services.AddTransient<IHandleMessages<PostCreatedEvent>, SendPostToFeedHandler>();
         services.AddTransient<IHandleMessages<UserForgotPasswordEvent>, SendUserOTPEmailHandler>();
+        
+        services.AddTransient<IHandleMessages<UpdatedProfileEvent>, UploadProfileImageHandler>();
+
         services.AddTransient<IHandleMessages<PostDeletedEvent>, DeleteImageHandler>();
         services.AddTransient<IHandleMessages<CommentCreatedEvent>, SendNotificationPostOwnerHandler>();
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+        
         return services;
     }
 }

@@ -3,6 +3,7 @@ using Backend.Domain.Enums;
 using Backend.Domain.Posts;
 using Backend.Infrastructure.Persistence;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Repositories;
@@ -43,7 +44,8 @@ public class CommentRepository : ICommentRepository
 
         var comments = bsonResult[SUB_DOCUMENT_NAME]
             .AsBsonArray
-            .Select(c => MongoDB.Bson.Serialization.BsonSerializer.Deserialize<Comment>(c.AsBsonDocument));
+            .Select(c => BsonSerializer.Deserialize<Comment>(c.AsBsonDocument))
+            .Where(c => c.Status == Status.Active);
 
         return comments;
     }
@@ -63,7 +65,8 @@ public class CommentRepository : ICommentRepository
             .Project<Post>(projection)
             .SingleOrDefaultAsync();
 
-        return post?.Comments?.FirstOrDefault(c => c.Id == commentId);
+        var comment = post?.Comments?.FirstOrDefault(c => c.Id == commentId);
+        return comment?.Status == Status.Active ? comment : null;
     }
 
 
