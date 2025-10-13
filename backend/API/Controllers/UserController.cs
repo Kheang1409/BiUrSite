@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Backend.Application.Users.Update;
 using System.Security.Claims;
 using Backend.Application.DTOs.Users;
-using Backend.API.Helpers;
 
 namespace Backend.Api.Controllers;
 

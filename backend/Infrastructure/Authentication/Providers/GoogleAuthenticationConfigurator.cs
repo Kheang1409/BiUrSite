@@ -20,7 +20,7 @@ public class GoogleAuthenticationConfigurator : IAuthenticationProviderConfigura
         {
             options.ClientId = clientId;
             options.ClientSecret = clientSecret;
-            options.CallbackPath = "/users/signin-google";
+            options.CallbackPath = "/signin-google";
             options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         });
     }
