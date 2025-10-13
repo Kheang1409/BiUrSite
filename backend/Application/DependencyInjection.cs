@@ -19,6 +19,7 @@ using Backend.Application.Comments.GetComment;
 using Backend.Application.Comments.Create;
 using Backend.Application.Comments.Edit;
 using Backend.Application.Comments.Delete;
+using Backend.Application.Users.Delete;
 
 namespace Backend.Application;
 public static class DependencyInjection
@@ -46,6 +47,8 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssembly(typeof(VerifyUserCommand).Assembly);
 
             cfg.RegisterServicesFromAssembly(typeof(UpdateProfileCommandHandler).Assembly);
+
+            cfg.RegisterServicesFromAssembly(typeof(DeleteUserCommandHandler).Assembly);
 
             cfg.RegisterServicesFromAssembly(typeof(GetPostByIdQueryHandler).Assembly);
 
