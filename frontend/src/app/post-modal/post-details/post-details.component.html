@@ -1,6 +1,12 @@
 <div class="post">
   <div class="post-header">
-    <img [src]="post.userProfile" class="user-avatar" />
+    <img
+      [src]="post.userProfile"
+      class="user-avatar"
+      width="40"
+      height="40"
+      loading="lazy"
+    />
     <div class="user-info">
       <h3>{{ post.username }}</h3>
       <p>{{ post.createdDate | timeAgo }}</p>

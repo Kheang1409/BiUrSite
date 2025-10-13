@@ -4,6 +4,8 @@
       [src]="post.userProfile"
       alt="User Avatar"
       class="user-avatar"
+      width="40"
+      height="40"
       loading="lazy"
     />
     <div class="user-info">
@@ -26,7 +28,12 @@
   <div class="post-content">
     <p>{{ post.text }}</p>
     <div *ngIf="post.imageUrl" class="post-image">
-      <img [src]="post.imageUrl" alt="post image" loading="lazy" />
+      <img
+        class="post-img"
+        [src]="post.imageUrl"
+        alt="post image"
+        loading="lazy"
+      />
     </div>
   </div>
   <div class="post-actions">

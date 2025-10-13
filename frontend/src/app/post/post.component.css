@@ -59,14 +59,19 @@
   border-radius: 6px;
   position: relative;
   max-height: 520px;
+  /* Reserve vertical space to reduce CLS while the image loads. Use a sensible aspect ratio fallback. */
+  min-height: 200px;
+  background-color: rgba(255, 255, 255, 0.02);
 }
 
 .post-image img {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
   object-fit: cover;
   border-radius: 6px;
+  /* Use aspect-ratio so browser can reserve space before image loads (supported in modern browsers). */
+  aspect-ratio: 16 / 9;
 }
 
 /* Actions */
@@ -107,13 +112,18 @@
   color: transparent;
 }
 
+/* Reserve space for button text to avoid layout shift when it appears/disappears. */
 .button-text {
-  display: none;
+  display: inline-block; /* keep the element in flow */
+  visibility: hidden; /* hide text visually but keep layout space */
+  width: 3.5rem; /* reserve approximate width for short labels like 'Comment' */
+  text-align: left;
 }
 
 @media (min-width: 768px) {
   .button-text {
-    display: inline;
+    visibility: visible; /* show text on larger screens */
+    width: auto;
   }
 }
 

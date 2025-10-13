@@ -38,7 +38,13 @@
               alt="Preview"
             />
             <ng-template #currentImage>
-              <img [src]="user.profile" alt="Current" />
+              <img
+                [src]="user.profile"
+                alt="Current"
+                width="80"
+                height="80"
+                loading="lazy"
+              />
             </ng-template>
           </div>
 

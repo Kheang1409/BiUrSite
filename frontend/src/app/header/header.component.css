@@ -4,6 +4,8 @@
   left: 0;
   z-index: 1100;
   width: 100%;
+  /* Reserve a stable height to prevent layout shift when header children change */
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;

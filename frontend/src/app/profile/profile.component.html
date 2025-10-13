@@ -1,7 +1,15 @@
 <div class="profile-container fb-style">
   <!-- Cover photo area -->
   <div class="cover-wrap">
-    <img class="cover-image" [src]="user.profile" alt="Cover" />
+    <!-- Reserve cover image dimensions to prevent layout shifts. Adjust sizes if different in design -->
+    <img
+      class="cover-image"
+      [src]="user.profile"
+      alt="Cover"
+      width="1200"
+      height="300"
+      loading="lazy"
+    />
   </div>
 
   <!-- Main content with overlapping avatar -->

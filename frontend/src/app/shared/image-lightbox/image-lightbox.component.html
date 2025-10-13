@@ -2,5 +2,10 @@
   <button class="close-btn" aria-label="Close" (click)="close($event)">
     ×
   </button>
-  <img [src]="data.src" alt="image preview" />
+  <!-- Lightbox preview: keep image display but browsers can't know intrinsic size; use CSS to center and max-size -->
+  <img
+    [src]="data.src"
+    alt="image preview"
+    style="max-width: 90vw; max-height: 80vh"
+  />
 </div>

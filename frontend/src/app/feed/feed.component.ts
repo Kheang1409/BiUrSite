@@ -34,13 +34,14 @@ export class FeedComponent implements OnInit, OnDestroy {
   isError: boolean = false;
   errorMessage: string = '';
 
-  username: string = '';
   keyword: string = '';
   newPostDescription: string = '';
   isLoading: boolean = false;
   hasMorePosts: boolean = true;
 
   userPayload: any;
+
+  isLoggedIn!: boolean;
 
   private scrollDebounceTimeout: any;
   private intersectionObserver?: IntersectionObserver;
@@ -68,6 +69,10 @@ export class FeedComponent implements OnInit, OnDestroy {
       const token = this.extractToken(urlFragment);
       this._authService.setToken(token);
     }
+
+    _authService.isLoggedIn$.subscribe((isLoggedIn) => {
+      this.isLoggedIn = isLoggedIn;
+    });
 
     _authService.userPayload$.subscribe((userPayload) => {
       this.userPayload = userPayload;

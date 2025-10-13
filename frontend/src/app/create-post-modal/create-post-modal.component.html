@@ -44,7 +44,10 @@
     <img
       [src]="selectedImagePreview"
       alt="preview"
+      width="800"
+      height="450"
       (click)="openImagePreview($event, selectedImagePreview)"
+      loading="lazy"
     />
   </div>
 

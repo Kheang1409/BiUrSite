@@ -1,10 +1,13 @@
 <div class="app-container layout-with-sides">
   <nav class="side-menu left" aria-label="Left side menu">
     <ul>
-      <li>
+      <li *ngIf="isLoggedIn">
         <button class="menu-btn" (click)="toProfilePage()">
           <i class="fas fa-user"></i> Profile
         </button>
+      </li>
+      <li>
+        <button class="menu-btn"><i class="fas fa-star"></i> What's New</button>
       </li>
     </ul>
   </nav>
@@ -42,7 +45,7 @@
       <li>
         <button class="menu-btn"><i class="fas fa-users"></i> People</button>
       </li>
-      <li>
+      <li *ngIf="isLoggedIn">
         <button class="menu-btn">
           <i class="fas fa-bell"></i> Notifications
         </button>
