@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using Backend.API.Helpers;
 using Backend.Application.DTOs.Posts;
 using Backend.Application.Posts.Create;
 using Backend.Application.Posts.Delete;
