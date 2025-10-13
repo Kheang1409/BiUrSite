@@ -181,6 +181,12 @@ public class User : Entity
         AddDomainEvent(new UserForgotPasswordDomainEvent(Guid.NewGuid(), Id));
     }
 
+    public void Delete()
+    {
+        Status = Status.Deleted;
+        DeletedDate = DateTime.UtcNow;
+    }
+
     public bool VerifyPassword(string plainPassword, string hashedPassword)
     {
         byte[] hashWithSalt = Convert.FromBase64String(hashedPassword);

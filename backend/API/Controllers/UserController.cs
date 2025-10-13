@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Backend.Application.Users.Update;
 using System.Security.Claims;
 using Backend.Application.DTOs.Users;
+using Backend.Application.Users.Delete;
 
 namespace Backend.Api.Controllers;
 
@@ -75,8 +76,8 @@ public class UserController : ControllerBase
     [Authorize]
     public async Task<IActionResult> Update([FromBody] UpdateProfileDto dto)
     {
-        var emailClaim  = User.FindFirst(ClaimTypes.Email);
-        if (emailClaim  is null || string.IsNullOrEmpty(emailClaim .Value))
+        var emailClaim = User.FindFirst(ClaimTypes.Email);
+        if (emailClaim is null || string.IsNullOrEmpty(emailClaim.Value))
             return Unauthorized(
                 new
                 {
@@ -86,6 +87,19 @@ public class UserController : ControllerBase
         var command = new UpdateProfileCommand(emailClaim.Value, dto.Username, dto.Bio, dto.Data);
         await _mediator.Send(command);
         return NoContent();
+    }
+    
+    [HttpDelete("me")]
+    [Authorize]
+    public async Task<IActionResult> Delete()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
+        await _mediator.Send(new DeleteUserCommand(new Guid(userId)));
+        return Ok(new
+        {
+            success = true,
+            message = "Your account has been deleted successfully."
+        });
     }
     
     [HttpGet("me-test")]
