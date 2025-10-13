@@ -1,0 +1,83 @@
+<div class="modal-backdrop">
+  <div
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="editProfileTitle"
+  >
+    <header class="modal-header">
+      <h3 id="editProfileTitle">Edit Profile</h3>
+      <button class="modal-close" (click)="cancelEdit()" aria-label="Close">
+        &times;
+      </button>
+    </header>
+
+    <div class="modal-body">
+      <div class="form-row">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          [(ngModel)]="username"
+          name="username"
+        />
+      </div>
+
+      <div class="form-row">
+        <label for="bio">Bio</label>
+        <textarea id="bio" rows="3" [(ngModel)]="bio" name="bio"></textarea>
+      </div>
+
+      <div class="form-row">
+        <label>Profile image</label>
+        <div class="image-picker">
+          <div class="image-preview">
+            <img
+              *ngIf="selectedImagePreview; else currentImage"
+              [src]="selectedImagePreview"
+              alt="Preview"
+            />
+            <ng-template #currentImage>
+              <img [src]="user.profile" alt="Current" />
+            </ng-template>
+          </div>
+
+          <div class="image-actions">
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="fileInputRef.nativeElement.click()"
+            >
+              Choose Image
+            </button>
+            <button
+              *ngIf="selectedImagePreview || user.profile"
+              type="button"
+              class="btn-danger"
+              (click)="removeImage()"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+        <input
+          #fileInput
+          class="file-input"
+          type="file"
+          accept="image/*"
+          (change)="onFileSelected($event)"
+        />
+        <p class="error" *ngIf="isError">{{ errorMessage }}</p>
+      </div>
+    </div>
+
+    <footer class="modal-footer">
+      <button class="btn-primary" [disabled]="isSaving" (click)="saveProfile()">
+        {{ isSaving ? "Saving..." : "Save" }}
+      </button>
+      <button class="btn-danger" (click)="cancelEdit()" [disabled]="isSaving">
+        Cancel
+      </button>
+    </footer>
+  </div>
+</div>

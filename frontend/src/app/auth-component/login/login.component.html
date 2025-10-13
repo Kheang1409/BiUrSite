@@ -1,0 +1,39 @@
+<app-auth-form-wrapper>
+  <form (ngSubmit)="login()">
+    <input
+      type="text"
+      placeholder="Email"
+      [(ngModel)]="user.email"
+      name="email"
+      required
+    />
+    <input
+      type="password"
+      placeholder="Password"
+      [(ngModel)]="user.password"
+      name="password"
+      required
+    />
+
+    <div class="error-message" *ngIf="isUnauthorized">
+      {{ unauthorizedMessage }}
+    </div>
+
+    <button type="submit">Log In</button>
+
+    <a [routerLink]="'/forgot-password'">Forgot password?</a>
+    <hr />
+    <a [routerLink]="'/register'">Create new account</a>
+    <app-third-party-login></app-third-party-login>
+
+    <div class="gradient-card">
+      <h2>Key Features</h2>
+      <p>
+        <strong>Anonymous:</strong> Post freely without revealing your
+        identity.<br />
+        <strong>Verified User:</strong> Comment, report, and interact.<br />
+        <strong>Admin:</strong> Manage users, posts, and announcements.
+      </p>
+    </div>
+  </form>
+</app-auth-form-wrapper>

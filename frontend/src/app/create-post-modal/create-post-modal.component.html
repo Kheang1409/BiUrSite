@@ -1,0 +1,59 @@
+<div class="create-post-modal">
+  <h2>Create Post</h2>
+
+  <div class="textarea-wrap">
+    <textarea
+      class="post-textarea"
+      [class.large]="isBigTextarea"
+      [class.compact]="rows === 1"
+      [(ngModel)]="text"
+      (input)="onTextInput()"
+      data-gramm="false"
+      data-gramm_editor="false"
+      data-enable-grammarly="false"
+      spellcheck="false"
+      placeholder="What's on your mind?"
+      [rows]="rows"
+    ></textarea>
+    <label
+      *ngIf="!selectedImagePreview"
+      class="image-icon-label"
+      title="Add image"
+    >
+      <input
+        #fileInput
+        class="file-input"
+        type="file"
+        accept="image/*"
+        (change)="onImageSelected($event)"
+      />
+      <i class="fas fa-image"></i>
+    </label>
+  </div>
+
+  <div *ngIf="selectedImagePreview" class="image-preview">
+    <button
+      type="button"
+      class="discard-btn"
+      title="Remove image"
+      aria-label="Remove image"
+      (click)="removeImage()"
+    >
+      &times;
+    </button>
+    <img
+      [src]="selectedImagePreview"
+      alt="preview"
+      (click)="openImagePreview($event, selectedImagePreview)"
+    />
+  </div>
+
+  <div class="actions">
+    <button class="btn-secondary" (click)="cancel()">Cancel</button>
+    <button class="btn-primary" (click)="save()" [disabled]="isSaving">
+      {{ isSaving ? "Posting..." : "Post" }}
+    </button>
+  </div>
+
+  <div *ngIf="isError" class="error">{{ errorMessage }}</div>
+</div>

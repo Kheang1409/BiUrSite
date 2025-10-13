@@ -1,0 +1,102 @@
+.side-menu.left {
+  width: 220px;
+  padding: 12px;
+  box-sizing: border-box;
+  background: var(--card, #ffffff);
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+  font-family: inherit;
+  /* make full-height under the header; header height can be provided via --header-height */
+  position: sticky;
+  top: var(--header-height, 56px);
+  height: calc(100vh - var(--header-height, 116px));
+  overflow-y: auto;
+  padding-bottom: 24px; /* ensure space for last item */
+}
+.side-menu.left ul {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.menu-btn {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: none;
+  background: transparent;
+  color: var(--text, #111);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.14s ease, transform 0.08s ease, color 0.12s ease;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+.menu-btn i {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted, #6b7280);
+  transition: color 0.14s ease, transform 0.12s ease;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 8px;
+}
+
+.menu-btn .label {
+  /* optional wrapper if you want to style text separately */
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.menu-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+}
+.menu-btn:focus-visible {
+  outline: 3px solid rgba(66, 183, 42, 0.14);
+  outline-offset: 2px;
+}
+
+.menu-btn:hover i,
+.menu-btn:focus i {
+  color: var(--primary-1, #42b72a);
+  transform: translateX(2px) scale(1.02);
+  background: rgba(66, 183, 42, 0.06);
+}
+
+/* left accent for active state */
+.menu-btn.active {
+  background: rgba(66, 183, 42, 0.06);
+  color: var(--primary-1, #42b72a);
+  position: relative;
+}
+.menu-btn.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 4px;
+  background: var(--primary-1, #42b72a);
+  border-radius: 4px;
+}
+.menu-btn.active i {
+  color: var(--primary-1, #42b72a);
+}
+
+/* subtle separators via gap; ensure adequate touch target on mobile */
+@media (max-width: 900px) {
+  .side-menu.left {
+    display: none;
+  }
+}

@@ -1,0 +1,31 @@
+<div class="comments-list">
+  <app-comment-item
+    *ngFor="let comment of comments"
+    [comment]="comment"
+    [postOwnerId]="post.userId"
+    [userPayload]="userPayload"
+    (edited)="onCommentEdited($event)"
+    (deleted)="onCommentDeleted($event)"
+  ></app-comment-item>
+
+  <div *ngIf="isLoadingComments" class="loading-indicator">
+    Loading more comments...
+  </div>
+  <div #infiniteAnchor style="min-height: 8px; width: 100%"></div>
+</div>
+
+<div class="comment-input" *ngIf="isLoggedIn">
+  <textarea
+    [(ngModel)]="newComment"
+    [disabled]="isSending"
+    placeholder="Comment as {{ username }}"
+  ></textarea>
+
+  <button
+    class="submit-button"
+    (click)="postComment()"
+    [disabled]="isSending || isNoComment()"
+  >
+    <i class="fa fa-paper-plane"></i>
+  </button>
+</div>

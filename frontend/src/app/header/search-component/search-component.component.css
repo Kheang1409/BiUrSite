@@ -1,0 +1,193 @@
+/* === Base Layout === */
+.search-bar {
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 8px 12px;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border-radius: 999px;
+  padding: 10px 14px;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-input:hover,
+.search-input:focus-within {
+  background: var(--card-hover, rgba(255, 255, 255, 0.05));
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.1);
+}
+
+.search-input i {
+  color: var(--muted);
+  font-size: 1rem;
+}
+
+.search-input input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #fff;
+}
+
+/* === Mobile Search Overlay === */
+.mobile-search {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 16px;
+  z-index: 1500;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.mobile-search.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-search-inner {
+  width: min(92%, 680px); /* auto-shrinks under 680px */
+  background: var(--card);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transition: width 0.3s ease, transform 0.3s ease;
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.mobile-search-inner input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 1rem;
+}
+
+.mobile-search-inner input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.btn-cancel {
+  background: none;
+  border: none;
+  color: var(--primary-1);
+  font-weight: 500;
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-cancel:hover {
+  opacity: 0.8;
+}
+
+/* === Mobile Toggle Button === */
+.icon-btn.search-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  border: none;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--muted);
+  transition: background 0.2s, transform 0.1s, color 0.2s;
+}
+
+.icon-btn.search-toggle:hover {
+  background: var(--primary-0);
+  color: var(--primary-1);
+  transform: scale(1.05);
+}
+
+.icon-btn.search-toggle:active {
+  transform: scale(0.95);
+}
+
+/* === Responsive Layouts === */
+@media (max-width: 1024px) {
+  .search-bar {
+    max-width: 600px;
+  }
+  .mobile-search-inner {
+    width: min(94%, 600px);
+  }
+}
+
+@media (max-width: 768px) {
+  .icon-btn.search-toggle {
+    display: inline-flex;
+  }
+
+  .search-bar.desktop-only {
+    display: none;
+  }
+
+  .mobile-search-inner {
+    width: min(96%, 540px);
+    top: 56px;
+  }
+}
+
+@media (max-width: 600px) {
+  .mobile-search-inner {
+    width: 94%;
+    flex-direction: row;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobile-search-inner {
+    width: 92%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+    top: 48px;
+  }
+
+  .mobile-search-inner input {
+    width: 100%;
+    font-size: 0.95rem;
+  }
+
+  .btn-cancel {
+    align-self: flex-end;
+    padding: 6px 8px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .search-bar {
+    max-width: 960px;
+  }
+
+  .search-input input {
+    font-size: 1.05rem;
+  }
+  .mobile-search-inner {
+    width: min(85%, 800px);
+  }
+}

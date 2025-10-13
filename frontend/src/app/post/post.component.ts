@@ -1,11 +1,18 @@
-import { Component, HostListener, Input, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  Input,
+  OnInit,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { PostModalComponent } from '../post-modal/post-modal.component';
 import { CommonModule } from '@angular/common';
-import { CommentModalComponent } from '../comment-modal/comment-modal.component';
-import { Post } from '../classes/post';
+import { Post } from '../models/posts/post';
 import { AuthService } from '../services/auth.service';
-import { EditPostModalComponent } from '../edit-post-modal/edit-post-modal.component';
+import { EditPostModalComponent } from '../shared/edit-post-modal/edit-post-modal.component';
 import { TimeAgoPipe } from '../pipes/time-ago.pipe';
 import { ConfirmDeletionDialogComponent } from '../shared/confirm-deletion-dialog/confirm-deletion-dialog.component';
 
@@ -13,23 +20,23 @@ import { ConfirmDeletionDialogComponent } from '../shared/confirm-deletion-dialo
   selector: 'app-post',
   imports: [CommonModule, TimeAgoPipe],
   templateUrl: './post.component.html',
-  styleUrls: ['./post.component.css']
+  styleUrls: ['./post.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
 export class PostComponent implements OnInit {
   @Input() post!: Post;
-  @Output() deletePost = new EventEmitter<number>(); 
+  @Output() deletePost = new EventEmitter<string>();
 
-  isOwner: boolean = false;
   isMenuOpen: boolean = false;
+  userPayload: any;
 
-  constructor(private _dialog: MatDialog, private _authService: AuthService) {}
-
-  ngOnInit(): void {
-    if (this._authService.isLoggedIn()) {
-      this.isOwner = this.post.author.id == this._authService.getUserPayload().sub;
-    }
+  constructor(private _dialog: MatDialog, private _authService: AuthService) {
+    _authService.userPayload$.subscribe((userPayload) => {
+      this.userPayload = userPayload;
+    });
   }
+
+  ngOnInit(): void {}
 
   @HostListener('document:click', ['$event'])
   onClick(event: MouseEvent): void {
@@ -40,32 +47,33 @@ export class PostComponent implements OnInit {
     }
   }
 
+  isOwner(): boolean {
+    return this.userPayload && this.post.userId === this.userPayload.sub;
+  }
+
   openPostModal(): void {
     this._dialog.open(PostModalComponent, {
-      width: '600px',
-      data: { post: this.post }
+      width: '680px',
+      panelClass: 'custom-post-dialog',
+      data: { post: this.post, userPayload: this.userPayload },
     });
   }
 
   openEditPostModal(event: Event): void {
     event.stopPropagation();
     const dialogRef = this._dialog.open(EditPostModalComponent, {
-      width: '600px',
-      data: { postId: this.post.id }
+      width: '560px',
+      panelClass: 'custom-edit-post-dialog',
+      data: {
+        post: this.post,
+        userPayload: this.userPayload,
+      },
     });
 
     dialogRef.afterClosed().subscribe((updatedPost: Post) => {
       if (updatedPost) {
-        this.post = updatedPost; 
+        this.post = updatedPost;
       }
-    });
-  }
-
-  openCommentModal(event: Event): void {
-    event.stopPropagation();
-    this._dialog.open(CommentModalComponent, {
-      width: '400px',
-      data: { postId: this.post.id }
     });
   }
 
@@ -78,12 +86,12 @@ export class PostComponent implements OnInit {
     event.stopPropagation();
     const dialogRef = this._dialog.open(ConfirmDeletionDialogComponent, {
       width: '400px',
-      data: { itemType: 'Post' } 
+      data: { itemType: 'Post' },
     });
-  
+
     dialogRef.afterClosed().subscribe((confirmed: boolean) => {
       if (confirmed) {
-        this.deletePost.emit(this.post.id); 
+        this.deletePost.emit(this.post.id);
       }
     });
   }

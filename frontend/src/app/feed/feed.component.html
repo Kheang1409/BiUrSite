@@ -1,30 +1,52 @@
-<div class="feed-container">
-    <div *ngIf="keyword" class="search-keyword">
-        Showing results for: <strong>{{ keyword }}</strong>
-    </div>
+<div class="app-container layout-with-sides">
+  <nav class="side-menu left" aria-label="Left side menu">
+    <ul>
+      <li>
+        <button class="menu-btn" (click)="toProfilePage()">
+          <i class="fas fa-user"></i> Profile
+        </button>
+      </li>
+    </ul>
+  </nav>
 
-    <div class="post-box">
-        <textarea [(ngModel)]="newPostDescription" placeholder="What's on your mind?" required></textarea>
-        <button class="post-button" (click)="createPost()">Post</button>
+  <div class="feed-container">
+    <div *ngIf="keyword" class="search-keyword">
+      Showing results for: <strong>{{ keyword }}</strong>
     </div>
 
     <div class="feed-posts">
-        <app-post 
-            *ngFor="let post of posts" 
-            [post]="post" 
-            (deletePost)="deletePost(post.id)"
-        ></app-post>
+      <app-post
+        *ngFor="let post of posts"
+        [post]="post"
+        (deletePost)="deletePost(post.id)"
+      ></app-post>
     </div>
 
+    <div #infiniteAnchor class="infinite-anchor"></div>
+
     <div *ngIf="isLoading" class="loading-indicator message">
-        <span class="spinner"></span> Loading more posts...
+      <span class="spinner"></span> Loading more posts...
     </div>
 
     <div *ngIf="!hasMorePosts && !isError" class="no-more-posts message">
-        No more posts to load.
+      No more posts to load.
     </div>
 
     <div *ngIf="isError" class="error-message message">
-        {{ errorMessage }}
+      {{ errorMessage }}
     </div>
+  </div>
+
+  <aside class="side-menu right" aria-label="Right side menu">
+    <ul>
+      <li>
+        <button class="menu-btn"><i class="fas fa-users"></i> People</button>
+      </li>
+      <li>
+        <button class="menu-btn">
+          <i class="fas fa-bell"></i> Notifications
+        </button>
+      </li>
+    </ul>
+  </aside>
 </div>

@@ -1,0 +1,15 @@
+<div
+  class="profile-menu"
+  *ngIf="isLoggedIn"
+  (click)="toggleProfileDropdown($event)"
+  aria-haspopup="true"
+  [attr.aria-expanded]="showProfileDropdown"
+>
+  <img class="user-profile-img" [src]="user.profile" alt="User profile" />
+  <div class="profile-dropdown" [ngClass]="{ show: showProfileDropdown }">
+    <ul>
+      <li (click)="toProfilePage()"><a role="button">View Profile</a></li>
+      <li (click)="logout()"><a role="button">Logout</a></li>
+    </ul>
+  </div>
+</div>

@@ -1,0 +1,140 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  font-family: "Montserrat", sans-serif;
+}
+
+.action-icons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.icon-btn:hover,
+.icon-btn:focus-visible {
+  background: rgba(0, 0, 0, 0.05);
+  outline: none;
+  transform: scale(1.05);
+}
+
+.icon-btn i {
+  font-size: 18px;
+  color: var(--muted, #666);
+}
+
+/* Notification Icon Container */
+.notification-icon {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.notification-icon:hover,
+.notification-icon:focus-within {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* Red dot badge */
+.red-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  background: #ff3b30;
+  border: 2px solid var(--card);
+  border-radius: 50%;
+}
+
+/* Dropdown */
+.notification-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 240px;
+  background: var(--card);
+  color: var(--text-color, #111);
+  border-radius: var(--radius, 10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: none;
+  z-index: 1000;
+  overflow: hidden;
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+.notification-dropdown.show {
+  display: block;
+}
+
+.notification-dropdown ul {
+  list-style: none;
+  padding: 6px 0;
+  margin: 0;
+}
+
+.notification-dropdown li {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.notification-dropdown li:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.notification-dropdown li:not(:last-child)::after {
+  content: "";
+  display: block;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.06);
+  margin-top: 8px;
+}
+
+/* Error Message in Dropdown */
+.notification-dropdown li.error {
+  color: #a94442;
+  background: #fff0f0;
+  border-top: 1px solid #f5c6cb;
+}
+
+/* Simple fade-in */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive (Optional) */
+@media (max-width: 480px) {
+  .notification-dropdown {
+    right: -20px;
+    min-width: 200px;
+  }
+}

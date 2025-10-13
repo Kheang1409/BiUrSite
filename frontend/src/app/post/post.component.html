@@ -1,30 +1,38 @@
 <div class="post" (click)="openPostModal()">
   <div class="post-header">
-      <img [src]="post.author.profile" alt="User Avatar" class="user-avatar">
-      <div class="user-info">
-          <h3>{{ post.author.username }}</h3>
-          <p>{{ post.createdDate | timeAgo }}</p>
+    <img
+      [src]="post.userProfile"
+      alt="User Avatar"
+      class="user-avatar"
+      loading="lazy"
+    />
+    <div class="user-info">
+      <h3>{{ post.username }}</h3>
+      <p>{{ post.createdDate | timeAgo }}</p>
+    </div>
+    <div class="post-menu" [class.active]="isMenuOpen">
+      <button class="menu-button" (click)="toggleMenu($event)">
+        <i class="fas fa-ellipsis-v"></i>
+      </button>
+      <div class="dropdown-menu">
+        <ul>
+          <li *ngIf="isOwner()" (click)="openEditPostModal($event)">Edit</li>
+          <li *ngIf="isOwner()" (click)="onDelete($event)">Delete</li>
+          <li *ngIf="!isOwner()" (click)="onReport($event)">Report</li>
+        </ul>
       </div>
-      <div class="post-menu" [class.active]="isMenuOpen">
-          <button class="menu-button" (click)="toggleMenu($event)">
-              <i class="fas fa-ellipsis-v"></i>
-          </button>
-          <div class="dropdown-menu">
-              <ul>
-                  <li *ngIf="isOwner" (click)="openEditPostModal($event)">Edit</li>
-                  <li *ngIf="isOwner" (click)="onDelete($event)">Delete</li>
-                  <li *ngIf="!isOwner"(click)="onReport($event)" >Report</li>
-              </ul>
-          </div>
-      </div>
+    </div>
   </div>
   <div class="post-content">
-      <p>{{ post.description }}</p>
+    <p>{{ post.text }}</p>
+    <div *ngIf="post.imageUrl" class="post-image">
+      <img [src]="post.imageUrl" alt="post image" loading="lazy" />
+    </div>
   </div>
   <div class="post-actions">
-      <button class="comment-button" (click)="openCommentModal($event)">
-          <i class="fas fa-comment"></i>
-          <span class="button-text">Comment</span>
-      </button>
+    <button class="comment-button">
+      <i class="fas fa-comment"></i>
+      <span class="button-text">Comment</span>
+    </button>
   </div>
 </div>

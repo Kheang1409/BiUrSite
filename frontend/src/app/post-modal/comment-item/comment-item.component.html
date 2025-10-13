@@ -1,0 +1,55 @@
+<div class="comment">
+  <div class="comment-header">
+    <img
+      class="comment-avatar"
+      [src]="comment.userProfile"
+      alt="{{ comment.username }}'s profile picture"
+    />
+
+    <div class="comment-meta">
+      <span class="comment-username">{{ comment.username }}</span>
+      <small class="comment-date">{{ comment.createdDate | timeAgo }}</small>
+    </div>
+
+    <div class="comment-actions">
+      <button
+        *ngIf="!editing && isOwner()"
+        aria-label="Edit Comment"
+        title="Edit"
+        (click)="startEditing()"
+      >
+        <i class="fas fa-edit"></i>
+      </button>
+
+      <ng-container *ngIf="editing">
+        <button aria-label="Save Comment" title="Save" (click)="saveEdit()">
+          <i class="fas fa-check"></i>
+        </button>
+        <button aria-label="Cancel Edit" title="Cancel" (click)="cancelEdit()">
+          <i class="fas fa-times"></i>
+        </button>
+      </ng-container>
+
+      <button
+        *ngIf="isOwner() || isPostOwner()"
+        aria-label="Delete Comment"
+        title="Delete"
+        (click)="deleteComment()"
+      >
+        <i class="fas fa-trash"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="comment-content">
+    <!-- Toggle between view and edit -->
+    <p *ngIf="!editing">{{ comment.text }}</p>
+    <input
+      *ngIf="editing"
+      type="text"
+      [(ngModel)]="tempText"
+      class="comment-edit-input"
+      placeholder="Comment as {{ username }}"
+    />
+  </div>
+</div>

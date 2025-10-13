@@ -1,66 +1,223 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { PostsDataService } from '../services/posts-data.service';
-import { AuthService } from '../services/auth.service';
-import { Router } from '@angular/router';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  OnDestroy,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ProfileEditModalComponent } from './profile-edit-modal.component';
+import { Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+
+import { UsersDataService } from '../services/users-data.service';
+import { AuthService } from '../services/auth.service';
+import { User } from '../models/users/user';
+import { UserUpdate } from '../models/users/userUpdate';
 import { environment } from '../../environments/environment';
-import { Location } from '@angular/common';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-profile',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, ProfileEditModalComponent],
   templateUrl: './profile.component.html',
-  styleUrl: './profile.component.css'
+  styleUrls: ['./profile.component.css'],
 })
-export class ProfileComponent implements OnInit, OnDestroy  {
+export class ProfileComponent implements OnInit, OnDestroy {
+  user: User = new User();
 
-  postCount!: number;
-  username!: string;
-  profile!: string;
-  userPayload!: any;
+  username = '';
+  bio = '';
+  selectedImagePreview: string | null = null;
+  selectedImageData: string | null = null;
+
+  editMode = false;
+  isSaving = false;
+  isError = false;
+  errorMessage = '';
+
+  oldImage = '';
 
   private destroy$ = new Subject<void>();
 
+  @ViewChild('fileInput', { static: false })
+  fileInputRef!: ElementRef<HTMLInputElement>;
+
   constructor(
-    private _authService: AuthService, 
-    private _postService: PostsDataService, 
-    private _router: Router,
-    private _location: Location
+    private _authService: AuthService,
+    private userService: UsersDataService,
+    private router: Router
   ) {
-    if(this._authService.isLoggedIn() && this._authService.getUserPayload() !== null) {
-      this.userPayload = this._authService.getUserPayload();
-    }
-  }
-
-  ngOnInit(): void {
-    if(this.userPayload){
-      this.getTotalPost();
-    }
-    else {
-      this._router.navigate([environment.urlFrontend.feed]);
-    }
-  }
-
-  getTotalPost()  {
-    this._postService.getTotalPost().pipe(
-      takeUntil(this.destroy$)
-    ).subscribe({
-      next: (count) => {
-        this.postCount =  count;
-        this.username = this.userPayload.given_name;
-        this.profile = this.userPayload.profile || 'assets/img/profile-default.svg';
-      },
-      error: (error) => {
-        console.error('Error fetching total posts:', error);
-        alert(error);
+    _authService.isLoggedIn$.subscribe((loggedIn) => {
+      if (!loggedIn) {
+        this.router.navigate([environment.urlFrontend.feed]);
       }
+      this.loadProfile();
     });
   }
 
-  back(){
-    this._location.back();
+  ngOnInit(): void {}
+
+  loadProfile(): void {
+    this.userService
+      .getProfile()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user) => {
+          this.user = user;
+          this.username = user.username;
+          this.bio = user.bio ?? '';
+          this.oldImage = user.profile;
+          this.clearImageSelection();
+        },
+        error: (err) => console.error('Failed to load profile', err),
+      });
+  }
+
+  toggleEdit(): void {
+    this.editMode = !this.editMode;
+
+    if (!this.editMode) {
+      this.username = this.user.username;
+      this.bio = this.user.bio ?? '';
+      this.clearImageSelection();
+      this.clearErrors();
+    }
+  }
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    this.resizeImage(file, 1024, 0.8)
+      .then((dataUrl) => {
+        this.selectedImagePreview = dataUrl;
+        this.selectedImageData = dataUrl.split(',')[1];
+        this.user.profile = dataUrl; // immediate avatar preview
+        this.clearErrors();
+      })
+      .catch((err) => {
+        console.error('Image resize failed', err);
+        this.clearImageSelection();
+        this.setError('Failed to process image.');
+      });
+  }
+
+  removeImage(): void {
+    this.clearImageSelection();
+    this.user.profile = this.oldImage; // reset to default avatar if removed
+  }
+
+  private clearImageSelection(): void {
+    this.selectedImagePreview = null;
+    this.selectedImageData = null;
+    if (this.fileInputRef?.nativeElement) {
+      this.fileInputRef.nativeElement.value = '';
+    }
+  }
+
+  private resizeImage(
+    file: File,
+    maxSize: number,
+    quality = 0.8
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (ev: any) => {
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let { width, height } = img;
+
+          if (width > height && width > maxSize) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          } else if (height > maxSize) {
+            width = Math.round((width * maxSize) / height);
+            height = maxSize;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return reject('Canvas not supported');
+
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL(file.type || 'image/jpeg', quality);
+          resolve(dataUrl);
+        };
+        img.onerror = reject;
+        img.src = ev.target.result as string;
+      };
+
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  saveProfile(): void {
+    if (!this.username.trim()) {
+      this.setError('Username cannot be empty.');
+      return;
+    }
+
+    this.isSaving = true;
+
+    const userUpdate = new UserUpdate();
+    userUpdate.username = this.username.trim();
+    userUpdate.bio = this.bio.trim();
+    if (this.selectedImageData) {
+      (userUpdate as any).data = this.selectedImageData; // Ideally: extend UserUpdate type
+    }
+
+    this.userService
+      .updateProfile(userUpdate)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.editMode = false;
+          this.clearImageSelection();
+          this.loadProfile();
+        },
+        error: (err) => {
+          this.isSaving = false;
+          this.setError(err.message || 'Failed to update profile.');
+        },
+      });
+  }
+
+  // Handler invoked when child modal emits a save event
+  onChildSave(userUpdate: UserUpdate): void {
+    this.isSaving = true;
+
+    this.userService
+      .updateProfile(userUpdate)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.isSaving = false;
+          this.editMode = false;
+          this.clearImageSelection();
+          this.loadProfile();
+        },
+        error: (err) => {
+          this.isSaving = false;
+          this.setError(err.message || 'Failed to update profile.');
+        },
+      });
+  }
+
+  private setError(message: string): void {
+    this.isError = true;
+    this.errorMessage = message;
+  }
+
+  private clearErrors(): void {
+    this.isError = false;
+    this.errorMessage = '';
   }
 
   ngOnDestroy(): void {

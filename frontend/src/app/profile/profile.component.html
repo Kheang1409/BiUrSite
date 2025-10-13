@@ -1,13 +1,53 @@
-<div class="profile-container">
-    <div class="back-to-home">
-        <a (click)="back()">Back</a>
-    </div>
+<div class="profile-container fb-style">
+  <!-- Cover photo area -->
+  <div class="cover-wrap">
+    <img class="cover-image" [src]="user.profile" alt="Cover" />
+  </div>
 
-    <div class="profile-cover"></div>
+  <!-- Main content with overlapping avatar -->
+  <div class="profile-main">
+    <div class="profile-left">
+      <div
+        class="avatar-stack"
+        (click)="editMode && fileInputRef.nativeElement.click()"
+        title="Change profile image"
+      >
+        <div class="avatar-wrap">
+          <img
+            [src]="selectedImagePreview ? selectedImagePreview : user.profile"
+            alt="Profile Image"
+            class="profile-image"
+          />
+        </div>
+      </div>
 
-    <div class="profile-header">
-        <img [src]="profile" alt="Profile Image" class="profile-image">
-        <h2>{{username}}</h2>
-        <p>{{postCount}} posts</p>
+      <input
+        #fileInput
+        class="file-input"
+        type="file"
+        accept="image/*"
+        (change)="onFileSelected($event)"
+      />
+
+      <div class="user-meta">
+        <h2 class="username">{{ user.username }}</h2>
+        <p class="bio" *ngIf="user.bio && !editMode">{{ user.bio }}</p>
+        <p class="muted small">
+          Joined {{ user.createdDate | date : "mediumDate" }}
+        </p>
+      </div>
+
+      <div class="profile-actions">
+        <button class="btn-primary" (click)="toggleEdit()">
+          {{ editMode ? "Cancel" : "Edit Profile" }}
+        </button>
+      </div>
     </div>
+  </div>
+  <app-profile-edit-modal
+    *ngIf="editMode"
+    [user]="user"
+    (save)="onChildSave($event)"
+    (cancel)="toggleEdit()"
+  ></app-profile-edit-modal>
 </div>

@@ -1,0 +1,47 @@
+<div class="action-icons" *ngIf="isLoggedIn">
+  <!-- Create Post -->
+  <button
+    class="icon-btn"
+    aria-label="Create new post"
+    (click)="openCreatePostModal()"
+  >
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- Notifications -->
+  <div
+    class="notification-icon"
+    [class.has-new-notifications]="hasNewNotifications"
+    (click)="toggleNotificationDropdown($event)"
+    aria-haspopup="true"
+    [attr.aria-expanded]="showNotificationDropdown"
+    tabindex="0"
+  >
+    <i class="fas fa-bell"></i>
+
+    <span class="red-dot" *ngIf="hasNewNotifications"></span>
+
+    <div
+      class="notification-dropdown"
+      [class.show]="showNotificationDropdown"
+      role="menu"
+    >
+      <ul>
+        <li
+          *ngFor="let notification of notifications; trackBy: trackById"
+          role="menuitem"
+        >
+          {{ notification.message }}
+        </li>
+
+        <li *ngIf="isError" class="error" role="alert">
+          {{ errorMessage }}
+        </li>
+
+        <li *ngIf="!isError && notifications.length === 0">
+          No new notifications
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

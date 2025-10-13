@@ -1,41 +1,15 @@
-<header class="header">
-    <h1>BiUrSite</h1>
+<header class="header" role="banner" aria-label="Site header">
+  <div class="header-left">
+    <app-logo></app-logo>
+  </div>
 
-    <div class="search-bar">
-        <input 
-            type="text" 
-            placeholder="Search..." 
-            [(ngModel)]="searchKeyword" 
-            (keyup.enter)="onSearch()"
-        />
-        <i class="fas fa-search" (click)="onSearch()"></i>
-    </div>
+  <div class="header-center">
+    <app-search></app-search>
+  </div>
 
-    <div class="header-icons" *ngIf="isLoggedIn">
-        <div class="notification-icon" [ngClass]="{'has-new-notifications': hasNewNotifications}" (click)="toggleNotificationDropdown($event)">
-            <i class="fas fa-bell"></i>
-            <div class="red-dot"></div>
-            <div class="notification-dropdown" [ngClass]="{'show': showNotificationDropdown}">
-                <ul>
-                    <li *ngFor="let notification of notifications">{{ notification.message }}</li>
-                    <li *ngIf="isError">{{errorMessage}}</li>
-                    <li *ngIf="notifications.length === 0">No new notifications</li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="profile-menu" (click)="toggleProfileDropdown($event)">
-            <img class="user-profile-img" [src]="userProfileImage || 'assets/img/profile-default.svg'"/>
-            <div class="profile-dropdown" [ngClass]="{'show': showProfileDropdown}">
-                <ul>
-                    <li (click)="goToProfile()"><a>View Profile</a></li>
-                    <li (click)="logout()"><a>Logout</a></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="auth-buttons" *ngIf="!isLoggedIn">
-        <a href={{login}} class="auth-button">Login</a>
-    </div>
+  <div class="header-right">
+    <app-action-icons></app-action-icons>
+    <app-profile-menu></app-profile-menu>
+    <app-auth-buttons></app-auth-buttons>
+  </div>
 </header>

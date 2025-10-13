@@ -1,0 +1,6 @@
+<div class="lightbox" (click)="close()" role="dialog" aria-modal="true">
+  <button class="close-btn" aria-label="Close" (click)="close($event)">
+    ×
+  </button>
+  <img [src]="data.src" alt="image preview" />
+</div>

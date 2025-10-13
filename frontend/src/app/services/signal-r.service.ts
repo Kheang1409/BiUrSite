@@ -3,8 +3,8 @@ import * as signalR from '@microsoft/signalr';
 import { BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
-import { Post } from '../classes/post';
-import { Notification } from '../classes/notification';
+import { Post } from '../models/posts/post';
+import { Notification } from '../models/notifications/notification';
 import { PostsDataService } from './posts-data.service';
 
 @Injectable({
@@ -13,12 +13,16 @@ import { PostsDataService } from './posts-data.service';
 export class SignalRService implements OnDestroy {
   private _baseUrl = environment.urlApi.baseUrl;
   private _notificationHub = environment.urlApi.notificationHub;
+  private _feedHub = environment.urlApi.feedHub;
 
   private hubConnection: signalR.HubConnection;
+  private feedHubConnection: signalR.HubConnection | null = null;
 
   public notifications$ = new BehaviorSubject<Notification[]>([]);
   public posts$ = new BehaviorSubject<Post[]>([]);
-  public connectionState$ = new BehaviorSubject<signalR.HubConnectionState>(signalR.HubConnectionState.Disconnected);
+  public connectionState$ = new BehaviorSubject<signalR.HubConnectionState>(
+    signalR.HubConnectionState.Disconnected
+  );
 
   constructor(
     private _authService: AuthService,
@@ -27,7 +31,7 @@ export class SignalRService implements OnDestroy {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${this._baseUrl}${this._notificationHub}`, {
         accessTokenFactory: () => {
-          const userId = this._authService.getToken()
+          const userId = this._authService.getLocalToken();
           return userId || '';
         },
       })
@@ -37,6 +41,16 @@ export class SignalRService implements OnDestroy {
     this.hubConnection.onclose(() => {
       this.connectionState$.next(signalR.HubConnectionState.Disconnected);
     });
+
+    this.feedHubConnection = new signalR.HubConnectionBuilder()
+      .withUrl(`${this._baseUrl}${this._feedHub}`, {
+        accessTokenFactory: () => {
+          const userId = this._authService.getLocalToken();
+          return userId || '';
+        },
+      })
+      .withAutomaticReconnect()
+      .build();
 
     this.hubConnection.onreconnecting(() => {
       this.connectionState$.next(signalR.HubConnectionState.Reconnecting);
@@ -64,32 +78,39 @@ export class SignalRService implements OnDestroy {
         console.error('Error while starting SignalR connection: ', err);
         this.connectionState$.next(signalR.HubConnectionState.Disconnected);
       });
+
+    if (
+      this.feedHubConnection &&
+      this.feedHubConnection.state !== signalR.HubConnectionState.Connected
+    ) {
+      this.feedHubConnection
+        .start()
+        .then(() => {
+          this.connectionState$.next(signalR.HubConnectionState.Connected);
+        })
+        .catch((err) => {
+          console.error('Error while starting Feed SignalR connection: ', err);
+        });
+    }
   }
 
   public addNotificationListener(): void {
-    this.hubConnection.on('ReceiveNotification', (notification: Notification) => {
-      if (notification) {
-        this.notifications$.next([notification]); 
-      } else {
-        console.error('Received null or undefined notification.');
+    this.hubConnection.on(
+      'ReceiveNotification',
+      (notification: Notification) => {
+        if (notification) {
+          this.notifications$.next([notification]);
+        } else {
+          console.error('Received null or undefined notification.');
+        }
       }
-    });
+    );
   }
 
   public addPostListener(): void {
-    this.hubConnection.on('ReceivePost', (post: any) => {
-      if (post) {
-        this._postService.getPost(post.id).subscribe({
-          next: (newPost) => {
-            this.posts$.next([newPost]);
-          },
-          error: (error) => {
-            console.error('Error fetching post details:', error);
-          },
-        });
-      } else {
-        console.error('Received null or undefined post.');
-      }
+    const conn = this.feedHubConnection || this.hubConnection;
+    conn.on('ReceivePost', (post: any) => {
+      this.posts$.next([post as Post]);
     });
   }
 
@@ -102,6 +123,17 @@ export class SignalRService implements OnDestroy {
       .catch((err) => {
         console.error('Error while stopping SignalR connection: ', err);
       });
+
+    if (this.feedHubConnection) {
+      this.feedHubConnection
+        .stop()
+        .then(() => {
+          this.connectionState$.next(signalR.HubConnectionState.Disconnected);
+        })
+        .catch((err) => {
+          console.error('Error while stopping Feed SignalR connection: ', err);
+        });
+    }
   }
 
   ngOnDestroy(): void {

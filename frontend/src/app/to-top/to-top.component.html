@@ -1,2 +1,10 @@
-<button class="back-to-top" *ngIf="showBackToTop" (click)="backToTop()">
+<button
+  class="back-to-top"
+  [class.show]="showBackToTop"
+  (click)="backToTop()"
+  aria-label="Back to top"
+  title="Back to top"
+>
+  <i class="fas fa-chevron-up" aria-hidden="true"></i>
+  <span class="sr-only">Back to top</span>
 </button>

@@ -5,7 +5,7 @@ import { Component, HostListener } from '@angular/core';
   selector: 'app-to-top',
   imports: [CommonModule],
   templateUrl: './to-top.component.html',
-  styleUrl: './to-top.component.css'
+  styleUrls: ['./to-top.component.css'],
 })
 export class ToTopComponent {
   showBackToTop = false;

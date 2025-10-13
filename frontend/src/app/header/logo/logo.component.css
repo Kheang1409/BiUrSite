@@ -1,0 +1,56 @@
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  background: var(--header-background, #1877f2);
+  border-radius: 6px;
+  padding: 4px;
+  display: inline-block;
+}
+
+.logo img {
+  height: 40px;
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+}
+
+/* nav styles unchanged */
+.fb-nav-list {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.fb-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  color: var(--header-foreground);
+  text-decoration: none;
+  transition: background 0.15s ease, transform 0.12s ease;
+}
+
+.fb-nav-link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  transform: translateY(-1px);
+}
+
+.fb-nav-link i {
+  font-size: 18px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .logo-container {
+    gap: 8px;
+  }
+}
