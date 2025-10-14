@@ -29,6 +29,20 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
+
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/signin-facebook" &&
+        !context.Request.Query.ContainsKey("code"))
+    {
+        context.Response.StatusCode = 200;
+        await context.Response.WriteAsync("Facebook OAuth callback is active.");
+        return;
+    }
+
+    await next();
+});
+
 app.UseRouting();
 
 app.UseCors(CorsConfiguration.AllowAllPolicy);
