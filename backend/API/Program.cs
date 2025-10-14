@@ -6,6 +6,7 @@ using Backend.Infrastructure.Configuration;
 using Backend.Infrastructure.Hubs;
 using Backend.Infrastructure.Swagger;
 using Backend.Infrastructure.Configurations;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,11 @@ builder.Services.AddSwaggerDocumentation();
 builder.Services.AddSignalR();
 
 var app = builder.Build();
+
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
