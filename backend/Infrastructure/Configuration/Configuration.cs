@@ -1,14 +1,16 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Backend.Infrastructure.Configuration;
-public static class CorsConfiguration
+namespace Backend.Infrastructure.Configuration
 {
-    public const string AllowFrontendPolicy = "AllowFrontend";
-
-    public static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
+    public static class CorsConfiguration
     {
-        var envOrigins = Environment.GetEnvironmentVariable("ALLOWED_CORS");
+        public const string AllowFrontendPolicy = "AllowFrontend";
+        public const string AllowAllPolicy = "AllowAll";
+
+        public static IServiceCollection AddCorsPolicies(this IServiceCollection services, IConfiguration configuration)
+        {
+            var envOrigins = Environment.GetEnvironmentVariable("ALLOWED_CORS");
             string[] origins;
 
             if (!string.IsNullOrWhiteSpace(envOrigins))
@@ -21,22 +23,29 @@ public static class CorsConfiguration
             }
 
             if (origins == null || origins.Length == 0)
-            {
                 throw new InvalidOperationException("AllowedCors is not configured.");
-            }
 
             services.AddCors(options =>
             {
+                // Restrict to frontend
                 options.AddPolicy(AllowFrontendPolicy, policy =>
                 {
-                    policy
-                        .WithOrigins(origins)
-                        .AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowCredentials();
+                    policy.WithOrigins(origins)
+                          .AllowAnyHeader()
+                          .AllowAnyMethod()
+                          .AllowCredentials();
+                });
+
+                // Allow all for general API endpoints
+                options.AddPolicy(AllowAllPolicy, policy =>
+                {
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
                 });
             });
 
-        return services;
+            return services;
+        }
     }
 }

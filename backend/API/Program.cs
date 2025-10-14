@@ -16,7 +16,7 @@ builder.Services.AddControllers();
 builder.Services.ConfigureAuthenticationServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddCorsPolicy(builder.Configuration);
+builder.Services.AddCorsPolicies(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddSignalR();
 
@@ -30,7 +30,9 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseHttpsRedirection();
 app.UseRouting();
-app.UseCors(CorsConfiguration.AllowFrontendPolicy);
+
+app.UseCors(CorsConfiguration.AllowAllPolicy);
+
 app.UseAuthentication();
 app.UseAuthorization();
 
@@ -44,7 +46,9 @@ if (app.Environment.IsDevelopment())
 }
 app.MapControllers();
 
-app.MapHub<FeedHub>("/feedHub");
-app.MapHub<NotificationHub>("/notificationHub");
+app.MapHub<FeedHub>("/feedHub")
+    .RequireCors(CorsConfiguration.AllowFrontendPolicy);
+app.MapHub<NotificationHub>("/notificationHub")
+    .RequireCors(CorsConfiguration.AllowFrontendPolicy);
 
 app.Run();
