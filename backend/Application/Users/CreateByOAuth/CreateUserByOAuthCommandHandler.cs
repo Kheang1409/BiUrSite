@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Backend.Application.Users.CreateByOAuth;
 
-internal sealed class CreateUserByOAuthCommandHandler : IRequestHandler<CreateUserByOAuthCommand>
+internal sealed class CreateUserByOAuthCommandHandler : IRequestHandler<CreateUserByOAuthCommand, User>
 {
     private readonly IUserRepository _userRepository;
     private readonly IEnumerable<IUserFactory> _factories;
@@ -19,16 +19,17 @@ internal sealed class CreateUserByOAuthCommandHandler : IRequestHandler<CreateUs
         _unitOfWord = unitOfWord;
     }
 
-    public async Task Handle(CreateUserByOAuthCommand request, CancellationToken cancellationToken)
+    public async Task<User> Handle(CreateUserByOAuthCommand request, CancellationToken cancellationToken)
     {
-        var existUser = await _userRepository.GetUserByEmail(request.Email);
-        if (existUser != null)
+        var existedUser = await _userRepository.GetUserByEmail(request.Email);
+        if (existedUser != null)
         {
-            return;
+            return existedUser;
         }
         var factory = _factories.OfType<OAuthUserFactory>().First();
         var user = factory.Create(new UserId(request.Id), request.Username, request.Email, null, request.AuthProvider);
         await _userRepository.Create(user);
         await _unitOfWord.SaveChangesAsync(user, cancellationToken);
+        return user;
     }
 }

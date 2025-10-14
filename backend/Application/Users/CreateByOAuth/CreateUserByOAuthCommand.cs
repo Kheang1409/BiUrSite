@@ -1,4 +1,5 @@
 
+using Backend.Domain.Users;
 using MediatR;
 
 namespace Backend.Application.Users.CreateByOAuth;
@@ -7,4 +8,4 @@ public record CreateUserByOAuthCommand(
     Guid Id,
     string Email,
     string Username,
-    string AuthProvider) : IRequest;
+    string AuthProvider) : IRequest<User>;

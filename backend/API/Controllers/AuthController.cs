@@ -51,11 +51,10 @@ public class AuthController : ControllerBase
                     ?? authResult.Principal.FindFirst("sub")?.Value
                     ?? throw new Exception("Cannot determine provider user ID.")!;
         var email = authResult.Principal.FindFirst(ClaimTypes.Email)?.Value!;
-        var userName = authResult.Principal.FindFirst(ClaimTypes.Name)?.Value!;
+        var username = authResult.Principal.FindFirst(ClaimTypes.Name)?.Value!;
         var userGuid = ToGuid(userId);
-        await _mediator.Send(new CreateUserByOAuthCommand(userGuid, email, userName, provider));
-
-        var token = _tokenService.GenerateToken(userGuid, email, userName, DEFAULT_ROLE);
+        var user = await _mediator.Send(new CreateUserByOAuthCommand(userGuid, email, username, provider));
+        var token = _tokenService.GenerateToken(user.Id.Value, user.Email, user.Username, DEFAULT_ROLE);
         var redirectUrl = $"{_frontend}#token={token}";
 
         return Redirect(redirectUrl);
