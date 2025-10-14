@@ -15,7 +15,7 @@ public class User : Entity
     public string Email { get; private set; } = string.Empty;
     public Image? Profile { get; private set; }
     public string Bio { get; private set; } = string.Empty;
-    public string Password { get; private set; } = string.Empty;
+    public string? Password { get; private set; }
     public string AuthProvider { get; private set; } = string.Empty;
     public Status Status { get; private set; }
     public Role Role { get; private set; }
@@ -30,7 +30,7 @@ public class User : Entity
         Id = builder.Id ?? new UserId(Guid.NewGuid());
         Username = builder.Username;
         Email = builder.Email;
-        Password = HashPassword(builder.Password);
+        Password = builder.Password is not null ? HashPassword(builder.Password) : null;
         Status = builder.Status;
         Role = builder.Role;
         AuthProvider = builder.AuthProvider;
@@ -46,7 +46,7 @@ public class User : Entity
         internal string Username  = string.Empty;
         internal string Email  = string.Empty; 
         internal string Bio  = string.Empty;
-        internal string Password  = string.Empty;
+        internal string? Password;
         internal string AuthProvider  = string.Empty;
         internal Status Status; 
         internal Role Role;
@@ -69,7 +69,7 @@ public class User : Entity
             Email = email;
             return this;
         }
-        public Builder SetPassword(string password)
+        public Builder SetPassword(string? password)
         {
             Password = password;
             return this;

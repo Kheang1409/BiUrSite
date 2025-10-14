@@ -4,7 +4,7 @@ namespace Backend.Domain.Users;
 
 public class UserFactory : IUserFactory
 {
-    public User Create(UserId? Id, string username, string email, string password, string provider)
+    public User Create(UserId? Id, string username, string email, string? password, string provider)
     {
         var user = new User.Builder()
                     .SetUserName(username)
