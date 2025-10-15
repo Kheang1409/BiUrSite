@@ -28,9 +28,13 @@ services:
     ports:
       - "5000:8080"
 
-  # frontend:
-  #   build: ./frontend
-  #   ports:
-  #     - "8080:80"
-  #   depends_on:
-  #     - backend
+  frontend:
+    build: ./frontend
+    env_file:
+      - .env
+    environment:
+      - API_BASE_URL=${API_BASE_URL}
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
