@@ -215,12 +215,12 @@ public class User : Entity
     }
 
     public Notification AddNotification(
+        string username,
+        string userProfile,
         PostId postId,
-        CommentId commentId,
-        string title,
         string message)
     {
-        var notification = Notification.Create(Id, postId, commentId, title, message);
+        var notification = Notification.Create(Id, username, userProfile, postId, message);
         _notifications.Add(notification);
         return notification;
     }

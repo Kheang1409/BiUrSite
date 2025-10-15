@@ -44,12 +44,15 @@ internal sealed class SendNotificationPostOwnerHandler : IHandleMessages<Comment
         if (user is not null && !user.Id.Value.Equals(comment.UserId.Value))
         {
             var notification = user.AddNotification(
+                comment.Username,
+                comment.UserProfile,
                 post.Id,
-                comment.Id,
-                $"{comment.Username} commented on your post",
                 comment.Text
             );
-            await Task.WhenAll(_notificationRepository.Create(user.Id, notification), _notificationNotifier.NotifyPostOwnerOfComment(notification));
+            await Task.WhenAll(
+                _notificationRepository.Create(user.Id, notification),
+                _notificationNotifier.NotifyPostOwnerOfComment(user.Id, notification)
+            );
         }
     }
 }

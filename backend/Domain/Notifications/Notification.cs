@@ -8,42 +8,44 @@ namespace Backend.Domain.Notifications;
 
 public class Notification : Entity
 {
+    private const string BASE_PROFILE_URL = "https://github.com/Kheang1409/images/blob/main/profiles/";
+    private const string DEFAULT_TITLLE = "commented on your post";
     public NotificationId Id { get; private set; } = default!;
-    public UserId RecipientId { get; private set; } = default!;
+    public UserId UserId { get; private set; } = default!;
     public PostId PostId { get; private set; } = default!;
-    public CommentId CommentId { get; private set; } = default!;
-    public string Title { get; private set; } = string.Empty;
+    public string Username { get; private set; }
+    public string UserProfile { get; private set; }
+    public string Title { get; private set; } = DEFAULT_TITLLE;
     public string Message { get; private set; } = string.Empty;
-    public bool IsRead { get; private set; }
     public Status Status { get; private set; }
     public DateTime CreatedDate { get; private set; }
-    public DateTime? ReadDate { get; private set; }
     public DateTime? DeletedDate { get; private set; }
 
     private Notification() { }
 
-    private Notification(UserId recipientId, PostId postId, CommentId commentId, string title, string message)
+    private Notification(UserId userId, string username, string userProfile, PostId postId, string message)
     {
         Id = new NotificationId(Guid.NewGuid());
-        RecipientId = recipientId;
+        UserId = userId;
+        Username = username;
+        UserProfile = $"{BASE_PROFILE_URL}{UserId.Value}.jpg?raw=true";
         PostId = postId;
-        CommentId = commentId;
-        Title = title;
         Message = message;
-        IsRead = false;
         Status = Status.Active;
         CreatedDate = DateTime.UtcNow;
     }
 
-    internal static Notification Create(UserId recipientId, PostId postId, CommentId commentId, string title, string message)
+    internal static Notification Create(UserId userId, string username, string userProfile, PostId postId, string message)
     {
-        if (recipientId is null)
-            throw new ArgumentNullException(nameof(recipientId));
-        if (string.IsNullOrWhiteSpace(title))
-            throw new InvalidOperationException("Title cannot be empty.");
+        if (userId is null)
+            throw new ArgumentNullException(nameof(userId));
+        if (username is null)
+            throw new ArgumentNullException(nameof(username));
+        if (userProfile is null)
+            throw new ArgumentNullException(nameof(userProfile));
         if (string.IsNullOrWhiteSpace(message))
             throw new InvalidOperationException("Message cannot be empty.");
-        var notification = new Notification(recipientId, postId, commentId, title, message);
+        var notification = new Notification(userId, username, userProfile,  postId, message);
         return notification;
     }
 }

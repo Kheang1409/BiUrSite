@@ -51,25 +51,6 @@ public class NotificationRepository : INotificationRepository
         return notifications;
     }
 
-    public async Task<Notification?> GetNotificationById(UserId userId, NotificationId notificationId)
-    {
-        var filter = Builders<User>.Filter.And(
-            Builders<User>.Filter.Eq(u => u.Id, userId),
-            Builders<User>.Filter.Eq(u => u.Status, Status.Active),
-            Builders<User>.Filter.ElemMatch(SUB_DOCUMENT_NAME, Builders<Notification>.Filter.Eq(n => n.Id, notificationId))
-        );
-
-        var projection = Builders<User>.Projection
-            .ElemMatch(SUB_DOCUMENT_NAME, Builders<Notification>.Filter.Eq(n => n.Id, notificationId));
-
-        var user = await _users.Find(filter)
-            .Project<User>(projection)
-            .SingleOrDefaultAsync();
-
-        var notification = user?.Notifications?.FirstOrDefault(n => n.Id == notificationId);
-        return notification?.Status == Status.Active ? notification : null;
-    }
-
 
     public async Task<Notification> Create(UserId userId, Notification notification)
     {
@@ -79,21 +60,6 @@ public class NotificationRepository : INotificationRepository
             update
         );
         return notification;
-    }
-
-    public async Task Update(UserId userId, Notification notification)
-    {
-        var filter = Builders<User>.Filter.And(
-            Builders<User>.Filter.Eq(u => u.Id, userId),
-            Builders<User>.Filter.ElemMatch(SUB_DOCUMENT_NAME, Builders<Notification>.Filter.Eq("Id", notification.Id))
-        );
-
-        var update = Builders<User>.Update
-            .Set($"{SUB_DOCUMENT_NAME}.$.Title", notification.Title)
-            .Set($"{SUB_DOCUMENT_NAME}.$.Message", notification.Message)
-            .Set($"{SUB_DOCUMENT_NAME}.$.ReadDate", notification.ReadDate);
-
-        await _users.UpdateOneAsync(filter, update);
     }
 
     public async Task Delete(UserId userId, Notification notification)

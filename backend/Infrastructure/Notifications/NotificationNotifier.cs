@@ -1,5 +1,6 @@
 using Backend.Application.Services;
 using Backend.Domain.Notifications;
+using Backend.Domain.Users;
 using Backend.Infrastructure.Hubs;
 using Microsoft.AspNetCore.SignalR;
 
@@ -15,10 +16,10 @@ public class NotificationNotifier : INotificationNotifier
     }
 
     
-    public async Task NotifyPostOwnerOfComment(Notification notification)
+    public async Task NotifyPostOwnerOfComment(UserId userId, Notification notification)
     {
         await _hubContext.Clients
-            .User(notification.RecipientId.Value.ToString())
+            .User(userId.Value.ToString())
             .SendAsync("ReceiveCommentNotification", notification);
     }
 }
