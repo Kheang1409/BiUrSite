@@ -2,7 +2,6 @@ using Backend.Domain.Primitive;
 using Backend.Domain.Users;
 using Backend.Domain.Enums;
 using Backend.Domain.Posts;
-using Backend.Domain.Comments;
 
 namespace Backend.Domain.Notifications;
 
@@ -28,7 +27,7 @@ public class Notification : Entity
         Id = new NotificationId(Guid.NewGuid());
         UserId = userId;
         Username = username;
-        UserProfile = $"{BASE_PROFILE_URL}{UserId.Value}.jpg?raw=true";
+        UserProfile = userProfile;
         PostId = postId;
         Message = message;
         Status = Status.Active;

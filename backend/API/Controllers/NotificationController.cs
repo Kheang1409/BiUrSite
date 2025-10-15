@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Backend.Application.DTOs.Notifications;
 using Backend.Application.Notifications.GetNotifications;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -27,7 +28,7 @@ public class NotificationController : ControllerBase
         return Ok(new
         {
             success = true,
-            data = noticaitions
+            data = noticaitions.Select(n => (NotificationDTO) n)
         });
     }
 

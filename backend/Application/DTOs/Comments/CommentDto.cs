@@ -11,15 +11,15 @@ public record CommentDto(
     DateTime CreatedDate
 )
 {
-    public static explicit operator CommentDto(Comment post)
+    public static explicit operator CommentDto(Comment comment)
     {
         return new CommentDto(
-            post.Id.Value.ToString(),
-            post.UserId.Value.ToString(),
-            post.Username,
-            post.UserProfile,
-            post.Text,
-            post.CreatedDate
+            comment.Id.Value.ToString(),
+            comment.UserId.Value.ToString(),
+            comment.Username,
+            comment.UserProfile,
+            comment.Text,
+            comment.CreatedDate
         );
     }
 }

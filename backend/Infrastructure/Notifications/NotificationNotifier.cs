@@ -1,3 +1,4 @@
+using Backend.Application.DTOs.Notifications;
 using Backend.Application.Services;
 using Backend.Domain.Notifications;
 using Backend.Domain.Users;
@@ -20,6 +21,6 @@ public class NotificationNotifier : INotificationNotifier
     {
         await _hubContext.Clients
             .User(userId.Value.ToString())
-            .SendAsync("ReceiveCommentNotification", notification);
+            .SendAsync("ReceiveCommentNotification", (NotificationDTO) notification);
     }
 }
