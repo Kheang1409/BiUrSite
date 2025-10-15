@@ -5,6 +5,7 @@ using Backend.Infrastructure.Notifications;
 using Backend.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Backend.Domain.Comments;
+using Backend.Domain.Notifications;
 
 namespace Backend.Infrastructure.Extensions;
 
@@ -19,6 +20,7 @@ internal static class RepositoryExtensions
         services.AddScoped<IPostFactory, PostFactory>();
         services.AddScoped<IPostRepository, PostRepository>();
         services.AddScoped<ICommentRepository, CommentRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
 
         // Application services
         services.AddScoped<ITokenService, JwtTokenService>();

@@ -1,4 +1,3 @@
-using Backend.Application.Data;
 using Backend.Application.Storage;
 using Backend.Domain.Enums;
 using Backend.Domain.Images;

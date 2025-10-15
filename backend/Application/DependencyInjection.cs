@@ -20,6 +20,8 @@ using Backend.Application.Comments.Create;
 using Backend.Application.Comments.Edit;
 using Backend.Application.Comments.Delete;
 using Backend.Application.Users.Delete;
+using Backend.Application.Notifications.GetNotifications;
+using Backend.Domain.Users;
 
 namespace Backend.Application;
 public static class DependencyInjection
@@ -65,6 +67,8 @@ public static class DependencyInjection
             cfg.RegisterServicesFromAssembly(typeof(EditCommentCommandHandler).Assembly);
 
             cfg.RegisterServicesFromAssembly(typeof(DeleteCommentCommandHandler).Assembly);
+
+            cfg.RegisterServicesFromAssembly(typeof(GetNotificationsQueryHandler).Assembly);
 
         });
 

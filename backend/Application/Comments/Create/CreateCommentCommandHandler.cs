@@ -1,5 +1,6 @@
 using Backend.Application.Data;
 using Backend.Domain.Comments;
+using Backend.Domain.Notifications;
 using Backend.Domain.Posts;
 using Backend.Domain.Users;
 using Backend.SharedKernel.Exceptions;
@@ -29,10 +30,12 @@ internal sealed class CreateCommentCommandHandler : IRequestHandler<CreateCommen
         var post = await _postRepository.GetPostById(postId);
         if (post is null)
             throw new NotFoundException("Post not found.");
+
         var comment = post.AddComment(
             new UserId(request.UserId),
             request.Username,
             request.Text);
+        
         await Task.WhenAll(_commentRepository.Create(postId, comment), _unitOfWord.SaveChangesAsync(post, cancellationToken));
         return comment;
     }

@@ -28,7 +28,6 @@ internal sealed class UploadProfileImageHandler : IHandleMessages<UpdatedProfile
                 var id = user.Id.Value.ToString();
                 var fileName = $"profiles/{id}.jpg";
                 var url = await _imageStorageService.UploadImageAsync(fileName, message.Data);
-                user.SetImage(url);
             }
         await _userRepository.Update(user);
     }

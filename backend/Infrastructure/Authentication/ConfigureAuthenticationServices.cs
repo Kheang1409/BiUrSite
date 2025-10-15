@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Backend.Infrastructure.Authentication.Providers;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Backend.Infrastructure.Authentication;
 
@@ -15,7 +16,6 @@ public static class AuthenticationServiceConfiguration
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // JWT + Cookie base setup
         var authBuilder = services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -27,15 +27,22 @@ public static class AuthenticationServiceConfiguration
             {
                 OnMessageReceived = context =>
                 {
-                    var token = context.Request.Headers["Authorization"].ToString();
-
-                    if (!string.IsNullOrEmpty(token))
+                    var authHeader = context.Request.Headers["Authorization"].ToString();
+                    if (!string.IsNullOrEmpty(authHeader))
                     {
-                        // Accept token exactly as sent (with "Bearer " prefix)
-                        // Don't strip "Bearer ", let JwtBearer middleware handle it
-                        context.Token = token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
-                                        ? token.Substring("Bearer ".Length).Trim()
-                                        : token;
+                        context.Token = authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                                        ? authHeader.Substring("Bearer ".Length).Trim()
+                                        : authHeader;
+                    }
+
+                    if (string.IsNullOrEmpty(context.Token) && context.Request.Query.TryGetValue("access_token", out var accessToken))
+                    {
+                        var path = context.HttpContext.Request.Path;
+                        if (path.StartsWithSegments("/notificationHub", StringComparison.OrdinalIgnoreCase) ||
+                            path.StartsWithSegments("/feedHub", StringComparison.OrdinalIgnoreCase))
+                        {
+                            context.Token = accessToken;
+                        }
                     }
 
                     return Task.CompletedTask;
@@ -89,6 +96,8 @@ public static class AuthenticationServiceConfiguration
             provider.Configure(authBuilder, configuration);
         }
 
+        services.AddSingleton<IUserIdProvider, SignalRUserIdProvider>();
+        
         return services;
     }
 }

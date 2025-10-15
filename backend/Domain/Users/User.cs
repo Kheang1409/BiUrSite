@@ -1,9 +1,13 @@
 
 using System.Security.Cryptography;
 using System.Text;
+using Backend.Domain.Comments;
 using Backend.Domain.Enums;
 using Backend.Domain.Images;
+using Backend.Domain.Notifications;
+using Backend.Domain.Posts;
 using Backend.Domain.Primitive;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Backend.Domain.Users;
 
@@ -15,8 +19,11 @@ public class User : Entity
     public string Email { get; private set; } = string.Empty;
     public Image Profile { get; private set; }
     public string Bio { get; private set; } = string.Empty;
+    [BsonElement("Notifications")]
+    private List<Notification> _notifications = new();
+    public IEnumerable<Notification> Notifications => _notifications;
     public string? Password { get; private set; }
-    public string AuthProvider { get; private set; } = string.Empty;
+    public string AuthProvider { get; private set; } = string.Empty; 
     public Status Status { get; private set; }
     public Role Role { get; private set; }
     public Otp? Otp { get; private set; }
@@ -207,8 +214,14 @@ public class User : Entity
         }
     }
 
-    public void SetImage(string url)
+    public Notification AddNotification(
+        PostId postId,
+        CommentId commentId,
+        string title,
+        string message)
     {
-        
+        var notification = Notification.Create(Id, postId, commentId, title, message);
+        _notifications.Add(notification);
+        return notification;
     }
 }

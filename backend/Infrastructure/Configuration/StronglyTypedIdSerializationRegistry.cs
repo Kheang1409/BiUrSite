@@ -4,6 +4,7 @@ using Backend.Infrastructure.Serialization;
 using Backend.Domain.Posts;
 using Backend.Domain.Comments;
 using Backend.Domain.Images;
+using Backend.Domain.Notifications;
 
 namespace Backend.Infrastructure.Configurations
 {
@@ -18,6 +19,10 @@ namespace Backend.Infrastructure.Configurations
 
             BsonSerializer.RegisterSerializer(new StronglyTypedIdSerializer<UserId>(
                 guid => new UserId(guid),
+                id => id.Value
+            ));
+            BsonSerializer.RegisterSerializer(new StronglyTypedIdSerializer<NotificationId>(
+                guid => new NotificationId(guid),
                 id => id.Value
             ));
             BsonSerializer.RegisterSerializer(new StronglyTypedIdSerializer<PostId>(
