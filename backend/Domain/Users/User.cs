@@ -13,7 +13,7 @@ public class User : Entity
     public UserId Id { get; private set; }
     public string Username { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
-    public Image? Profile { get; private set; }
+    public Image Profile { get; private set; }
     public string Bio { get; private set; } = string.Empty;
     public string? Password { get; private set; }
     public string AuthProvider { get; private set; } = string.Empty;
@@ -155,11 +155,12 @@ public class User : Entity
         AddDomainEvent(new UserCreatedDomainEvent(Guid.NewGuid(), Id));
     }
 
-    public void Update(string username, string bio, byte[] data)
+    public void Update(string username, string bio, Image profile)
     {
         Username = username;
         Bio = bio;
-        AddDomainEvent(new UpdatedProfileDomainEvent(Guid.NewGuid(), Id, data));
+        Profile = profile;
+        ModifiedDate = DateTime.UtcNow;
     }
 
     public void Verify()
@@ -208,7 +209,6 @@ public class User : Entity
 
     public void SetImage(string url)
     {
-        Profile = new Image(url);
-        ModifiedDate = DateTime.UtcNow;
+        
     }
 }

@@ -68,8 +68,17 @@ public class GitHubImageStorageService : IImageStorageService
             throw new Exception($"GitHub upload failed: {response.StatusCode} - {error}");
         }
 
-        var cacheBuster = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        return $"https://raw.githubusercontent.com/{_username}/{_repo}/{_branch}/{fileName}?v={cacheBuster}";
+        var responseBody = await response.Content.ReadAsStringAsync();
+        using var respDoc = JsonDocument.Parse(responseBody);
+        var commitSha = respDoc.RootElement
+            .GetProperty("commit")
+            .GetProperty("sha")
+            .GetString();
+
+        if (string.IsNullOrWhiteSpace(commitSha))
+            throw new Exception("Failed to retrieve commit SHA from GitHub response.");
+
+        return $"https://raw.githubusercontent.com/{_username}/{_repo}/{commitSha}/{fileName}";
     }
 
     public async Task DeleteImageAsync(string fileName)
