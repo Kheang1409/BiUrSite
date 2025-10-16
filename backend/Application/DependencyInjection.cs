@@ -22,6 +22,8 @@ using Backend.Application.Comments.Delete;
 using Backend.Application.Users.Delete;
 using Backend.Application.Notifications.GetNotifications;
 using Backend.Domain.Users;
+using Backend.Application.Posts.GetMyPosts;
+using Backend.Application.Users.UpdateProfileNotificationStatus;
 
 namespace Backend.Application;
 public static class DependencyInjection
@@ -52,11 +54,15 @@ public static class DependencyInjection
 
             cfg.RegisterServicesFromAssembly(typeof(DeleteUserCommandHandler).Assembly);
 
+            cfg.RegisterServicesFromAssembly(typeof(UpdateProfileNotificationStatusCommandHandler).Assembly);
+
             cfg.RegisterServicesFromAssembly(typeof(GetPostByIdQueryHandler).Assembly);
 
             cfg.RegisterServicesFromAssembly(typeof(CreatePostCommandHandler).Assembly);
 
             cfg.RegisterServicesFromAssembly(typeof(GetPostsQueryHandler).Assembly);
+
+            cfg.RegisterServicesFromAssembly(typeof(GetMyPostsQueryHandler).Assembly);
 
             cfg.RegisterServicesFromAssembly(typeof(GetCommentsQueryHandler).Assembly);
 

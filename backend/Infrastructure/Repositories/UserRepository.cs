@@ -1,3 +1,4 @@
+using Backend.Domain.Enums;
 using Backend.Domain.Users;
 using Backend.Infrastructure.Persistence;
 using MongoDB.Driver;
@@ -7,11 +8,34 @@ namespace Backend.Infrastructure.Repositories;
 public class UserRepository : IUserRepository
 {
     private readonly IMongoCollection<User> _users;
-    private const int LIMIT_ITEM = 10;
+    private const int LIMIT = 10;
 
     public UserRepository(MongoDbContext context)
     {
         _users = context.Users;
+    }
+
+    public async Task<IEnumerable<User>> GetUsers(int pageNumber)
+    {
+        var filterBuilder = Builders<User>.Filter;
+
+        var filters = new List<FilterDefinition<User>>();
+
+        filters.Add(filterBuilder.Where(u => u.Status == Status.Active));
+
+        var finalFilter = filters.Count > 0
+            ? filterBuilder.And(filters)
+            : FilterDefinition<User>.Empty;
+
+        if (pageNumber <= 0)
+            return Enumerable.Empty<User>();
+
+        var skip = (pageNumber - 1) * LIMIT;
+
+        return await _users.Find(finalFilter)
+            .Skip(skip)
+            .Limit(LIMIT)
+            .ToListAsync();
     }
 
     public async Task<User?> GetUserById(UserId id)

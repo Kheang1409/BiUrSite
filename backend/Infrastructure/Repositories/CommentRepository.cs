@@ -72,11 +72,16 @@ public class CommentRepository : ICommentRepository
 
     public async Task<Comment> Create(PostId postId, Comment comment)
     {
-        var update = Builders<Post>.Update.Push(SUB_DOCUMENT_NAME, comment);
+        var update = Builders<Post>.Update.PushEach(
+        SUB_DOCUMENT_NAME,
+        new[] { comment },
+            position: 0
+        );
         await _posts.UpdateOneAsync(
             Builders<Post>.Filter.Eq(p => p.Id, postId),
             update
         );
+
         return comment;
     }
 

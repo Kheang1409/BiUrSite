@@ -8,6 +8,8 @@ using Backend.Application.Users.Update;
 using System.Security.Claims;
 using Backend.Application.DTOs.Users;
 using Backend.Application.Users.Delete;
+using Backend.Application.Users.UpdateProfileNotificationStatus;
+using Backend.Application.Users.GetUsers;
 
 namespace Backend.Api.Controllers;
 
@@ -31,6 +33,17 @@ public class UserController : ControllerBase
         {
             success = true,
             message = "User registered successfully. Please check your email to verify your account."
+        });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetUsers([FromQuery] GetUsersQuery query)
+    {
+        var users = await _mediator.Send(query);
+        return Ok(new
+        {
+            success = true,
+            data = users.Select(user => (UserDto)user)
         });
     }
 
@@ -85,6 +98,23 @@ public class UserController : ControllerBase
                     message = "User ID claim not found."
                 });
         var command = new UpdateProfileCommand(emailClaim.Value, dto.Username, dto.Bio, dto.Data);
+        await _mediator.Send(command);
+        return NoContent();
+    }
+
+    [HttpPatch("me")]
+    [Authorize]
+    public async Task<IActionResult> MarkNotificationAsRead()
+    {
+        var emailClaim = User.FindFirst(ClaimTypes.Email);
+        if (emailClaim is null || string.IsNullOrEmpty(emailClaim.Value))
+            return Unauthorized(
+                new
+                {
+                    success = false,
+                    message = "User ID claim not found."
+                });
+        var command = new UpdateProfileNotificationStatusCommand(emailClaim.Value);
         await _mediator.Send(command);
         return NoContent();
     }

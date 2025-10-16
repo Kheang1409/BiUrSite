@@ -22,6 +22,7 @@ public class User : Entity
     [BsonElement("Notifications")]
     private List<Notification> _notifications = new();
     public IEnumerable<Notification> Notifications => _notifications;
+    public bool HasNewNotification { get; private set; }
     public string? Password { get; private set; }
     public string AuthProvider { get; private set; } = string.Empty; 
     public Status Status { get; private set; }
@@ -174,6 +175,10 @@ public class User : Entity
     {
         Token = null;
         Status = Status.Active;
+    }
+    public void MarkNotificationsAsRead()
+    {
+        HasNewNotification = false;
     }
 
     public User ResetPassword(string plainPassword)

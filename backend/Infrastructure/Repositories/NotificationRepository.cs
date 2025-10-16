@@ -54,11 +54,22 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<Notification> Create(UserId userId, Notification notification)
     {
-        var update = Builders<User>.Update.Push(SUB_DOCUMENT_NAME, notification);
+        var update = Builders<User>.Update.PushEach(
+        SUB_DOCUMENT_NAME,
+        new[] { notification },
+            position: 0
+        );
+        // also mark that the user has new notifications
+        var combinedUpdate = Builders<User>.Update.Combine(
+            update,
+            Builders<User>.Update.Set(u => u.HasNewNotification, true)
+        );
+
         await _users.UpdateOneAsync(
             Builders<User>.Filter.Eq(u => u.Id, userId),
-            update
+            combinedUpdate
         );
+
         return notification;
     }
 

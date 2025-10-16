@@ -1,5 +1,6 @@
 using Backend.Domain.Enums;
 using Backend.Domain.Posts;
+using Backend.Domain.Users;
 using Backend.Infrastructure.Persistence;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -20,7 +21,7 @@ public class PostRepository : IPostRepository
         _posts = context.Posts;
     }
 
-    public async Task<IEnumerable<Post>> GetPosts(string? username, string? keywords, int pageNumber)
+    public async Task<IEnumerable<Post>> GetPosts(UserId? userId, string? keywords, int pageNumber)
     {
         var filterBuilder = Builders<Post>.Filter;
 
@@ -30,9 +31,9 @@ public class PostRepository : IPostRepository
         {
             filters.Add(filterBuilder.Regex(p => p.Text, new BsonRegularExpression(keywords, "i")));
         }
-        if (!string.IsNullOrWhiteSpace(username))
+        if (userId is not null)
         {
-            filters.Add(filterBuilder.Regex(u => u.Username, new BsonRegularExpression(username, "i")));
+            filters.Add(filterBuilder.Eq(p => p.UserId, userId));
         }
 
         filters.Add(filterBuilder.Where(p => p.Status == Status.Active));

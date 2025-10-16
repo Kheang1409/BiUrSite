@@ -3,6 +3,7 @@ using Backend.Application.DTOs.Posts;
 using Backend.Application.Posts.Create;
 using Backend.Application.Posts.Delete;
 using Backend.Application.Posts.Edit;
+using Backend.Application.Posts.GetMyPosts;
 using Backend.Application.Posts.GetPost;
 using Backend.Application.Posts.GetPosts;
 using MediatR;
@@ -30,6 +31,19 @@ public class PostController : ControllerBase
         {
             success = true,
             data = posts.Select(post => (PostDto)post)
+        });
+    }
+
+    [HttpGet("me")]
+    public async Task<IActionResult> MyPosts([FromQuery] int pageNumber)
+    {
+        var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
+
+        var posts = await _mediator.Send(new GetMyPostsQuery(new Guid(ownerId), pageNumber));
+        return Ok(new
+        {
+            success = true,
+            data = posts.Select(p => (PostDto) p)
         });
     }
 
