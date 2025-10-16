@@ -25,16 +25,36 @@ services:
       - GIT_TOKEN=${GIT_TOKEN}
       - GIT_USERNAME=${GIT_USERNAME}
       - GIT_REPO=${GIT_REPO}
+      - GIT_BRANCH=${GIT_BRANCH}
+      - REDIS_CONNECTION_STRING=${REDIS_CONNECTION_STRING}
+      - RATE_LIMIT_REQUESTS=${RATE_LIMIT_REQUESTS}
+      - RATE_LIMIT_WINDOW_SECONDS=${RATE_LIMIT_WINDOW_SECONDS}
     ports:
       - "5000:8080"
+    restart: unless-stopped
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
 
   frontend:
     build: ./frontend
     env_file:
       - .env
-    environment:
-      - API_BASE_URL=${API_BASE_URL}
     ports:
-      - "8080:80"
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
     depends_on:
       - backend
+
+volumes:
+  redis-data:

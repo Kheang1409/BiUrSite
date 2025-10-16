@@ -28,6 +28,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseMiddleware<RateLimitingMiddleware>();
 // Development-only middleware in one place (container runs HTTP behind compose/proxy)
 if (app.Environment.IsDevelopment())
 {

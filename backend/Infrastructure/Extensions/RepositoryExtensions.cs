@@ -3,6 +3,7 @@ using Backend.Domain.Users;
 using Backend.Domain.Posts;
 using Backend.Infrastructure.Notifications;
 using Backend.Infrastructure.Repositories;
+using Backend.Infrastructure.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
 using Backend.Domain.Comments;
 using Backend.Domain.Notifications;
@@ -24,6 +25,12 @@ internal static class RepositoryExtensions
 
         // Application services
         services.AddScoped<ITokenService, JwtTokenService>();
+        // RateLimiter: pick at resolve time based on presence of IConnectionMultiplexer in DI
+        services.AddScoped<IRateLimiter>(sp =>
+        {
+            var muxer = sp.GetService<StackExchange.Redis.IConnectionMultiplexer>();
+            return muxer != null ? new RedisRateLimiter(muxer) : new NoopRateLimiter();
+        });
         services.AddSingleton<IEmailService, EmailService>();
         // Notifications
         services.AddSingleton<IFeedNotifier, FeedNotifier>();

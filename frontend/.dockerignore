@@ -1,0 +1,54 @@
+# Dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build output
+dist
+.angular
+*.tgz
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.editorconfig
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Testing
+coverage
+.nyc_output
+*.spec.ts
+karma.conf.js
+tsconfig.spec.json
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Documentation
+README.md
+*.md
+docs
+
+# CI/CD
+.github
+.gitlab-ci.yml
+azure-pipelines.yml
+
+# Misc
+*.log
+.cache
+tmp
+temp

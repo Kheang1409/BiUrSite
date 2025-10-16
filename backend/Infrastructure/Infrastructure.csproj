@@ -28,6 +28,7 @@
     <!-- Other utilities -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
+    <PackageReference Include="StackExchange.Redis" Version="2.7.33" />
   </ItemGroup>
 
 </Project>

@@ -1,36 +1,35 @@
 # Stage 1: Build Angular application
-FROM node:latest AS build
+FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Copy package.json and package-lock.json first for better caching
+# Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies with clean install (faster & deterministic)
+RUN npm ci --legacy-peer-deps && \
+    npm cache clean --force
 
-# Copy the rest of the source code
+# Copy source code
 COPY . .
 
-# Build Angular app (it will use environment.prod.ts automatically)
-RUN npm run build --configuration=production
+# Build Angular app for production
+RUN npm run build -- --configuration=production
 
 # Stage 2: Serve with Nginx
 FROM nginx:alpine
 
-WORKDIR /usr/share/nginx/html
-
-# Remove default Nginx HTML files
-RUN rm -rf ./*
-
-# Copy built Angular files from build stage
-COPY --from=build /app/dist/frontend/ ./
-
 # Copy custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose port 80 for serving
+# Remove default Nginx static assets
+RUN rm -rf /usr/share/nginx/html/*
+
+# Copy built Angular files from build stage
+COPY --from=build /app/dist/frontend /usr/share/nginx/html
+
+# Expose port 80
 EXPOSE 80
 
 # Start Nginx server
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
