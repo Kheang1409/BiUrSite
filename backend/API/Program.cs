@@ -28,7 +28,16 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseHttpsRedirection();
+// Development-only middleware in one place (container runs HTTP behind compose/proxy)
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "BiUrSite API v1");
+    });
+}
 
 app.Use(async (context, next) =>
 {
@@ -49,15 +58,6 @@ app.UseCors(CorsConfiguration.AllowAllPolicy);
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "BiUrSite API v1");
-    });
-}
 app.MapControllers();
 
 app.MapHub<FeedHub>("/feedHub")
@@ -66,3 +66,6 @@ app.MapHub<NotificationHub>("/notificationHub")
     .RequireCors(CorsConfiguration.AllowFrontendPolicy);
 
 app.Run();
+
+// Make Program class accessible for integration tests
+public partial class Program { }

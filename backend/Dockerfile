@@ -8,15 +8,15 @@ COPY Domain/Domain.csproj ./Domain/
 COPY Infrastructure/Infrastructure.csproj ./Infrastructure/
 COPY SharedKernel/SharedKernel.csproj ./SharedKernel/
 
-RUN dotnet restore ./API/Api.csproj
+RUN dotnet restore API/Api.csproj
 
 COPY . ./
-RUN dotnet build ./API/Api.csproj -c Release -o /app/build
 
-RUN dotnet publish ./API/Api.csproj -c Release -o /app/publish
+RUN dotnet publish API/Api.csproj -c Release -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:latest
 WORKDIR /app
+
 COPY --from=build /app/publish .
 
 EXPOSE 8080

@@ -65,21 +65,21 @@ backend/Infrastructure/*.userprefs
 backend/Infrastructure/*.csproj.user
 
 # Ignore test build artifacts
-backendTests/bin/
-backendTests/obj/
-backendTests/.vs/
-backendTests/*.user
-backendTests/*.suo
-backendTests/*.userprefs
-backendTests/*.csproj.user
-backendTests/TestResults/
-backendTests/coverage/
-backendTests/*.trx
-backendTests/*.coverage
-backendTests/*.coveragexml
-backendTests/*.lastbuildstate
-backendTests/*.VisualState.xml
-backendTests/*.DotSettings.user
+backend/Tests/bin/
+backend/Tests/obj/
+backend/Tests/*.user
+backend/Tests/.vs/
+backend/Tests/*.suo
+backend/Tests/*.userprefs
+backend/Tests/*.csproj.user
+backend/Tests/TestResults/
+backend/Tests/coverage/
+backend/Tests/*.trx
+backend/Tests/*.coverage
+backend/Tests/*.coveragexml
+backend/Tests/*.lastbuildstate
+backend/Tests/*.VisualState.xml
+backend/Tests/*.DotSettings.user
 
 # Ignore Angular build artifacts
 frontend/dist/
