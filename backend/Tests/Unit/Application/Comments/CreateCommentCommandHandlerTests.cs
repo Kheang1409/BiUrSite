@@ -14,6 +14,7 @@ namespace Tests.Unit.Application.Comments;
 
 public class CreateCommentCommandHandlerTests : TestBase
 {
+    private readonly Mock<IUserRepository> _userRepositoryMock;
     private readonly Mock<IPostRepository> _postRepositoryMock;
     private readonly Mock<ICommentRepository> _commentRepositoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
@@ -21,11 +22,13 @@ public class CreateCommentCommandHandlerTests : TestBase
 
     public CreateCommentCommandHandlerTests()
     {
+        _userRepositoryMock = new Mock<IUserRepository>();
         _postRepositoryMock = new Mock<IPostRepository>();
         _commentRepositoryMock = new Mock<ICommentRepository>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
 
         _handler = new CreateCommentCommandHandler(
+            _userRepositoryMock.Object,
             _postRepositoryMock.Object,
             _commentRepositoryMock.Object,
             _unitOfWorkMock.Object);
@@ -35,22 +38,34 @@ public class CreateCommentCommandHandlerTests : TestBase
     public async Task Handle_ValidCommand_ShouldCreateComment()
     {
         var post = MockData.CreateFakePost();
-        var userId = Guid.NewGuid();
-        var command = new CreateCommentCommand(post.Id.Value, userId, "testuser", "Great post!");
+        var user = MockData.CreateFakeUser();
+        var userId = user.Id.Value;
+        var command = new CreateCommentCommand(post.Id.Value, userId, "Great post!");
 
         _postRepositoryMock
             .Setup(x => x.GetPostById(It.IsAny<PostId>()))
             .ReturnsAsync(post);
 
+        _userRepositoryMock
+            .Setup(x => x.GetUserById(It.IsAny<UserId>()))
+            .ReturnsAsync(user);
+
         _commentRepositoryMock
             .Setup(x => x.Create(It.IsAny<PostId>(), It.IsAny<Comment>()))
-            .ReturnsAsync(It.IsAny<Comment>());
+            .ReturnsAsync((PostId _, Comment c) => c);
 
         _unitOfWorkMock
             .Setup(x => x.SaveChangesAsync(It.IsAny<Entity>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        var result = await _handler.Handle(command, CancellationToken.None);
+        // Re-create handler after setups to ensure it uses the latest mock configurations
+        var handler = new CreateCommentCommandHandler(
+            _userRepositoryMock.Object,
+            _postRepositoryMock.Object,
+            _commentRepositoryMock.Object,
+            _unitOfWorkMock.Object);
+
+        var result = await handler.Handle(command, CancellationToken.None);
 
         result.Should().NotBeNull();
         result.Text.Should().Be("Great post!");
@@ -61,7 +76,7 @@ public class CreateCommentCommandHandlerTests : TestBase
     [Fact]
     public async Task Handle_PostNotFound_ShouldThrowNotFoundException()
     {
-        var command = new CreateCommentCommand(Guid.NewGuid(), Guid.NewGuid(), "user", "comment");
+        var command = new CreateCommentCommand(Guid.NewGuid(), Guid.NewGuid(), "comment");
 
         _postRepositoryMock
             .Setup(x => x.GetPostById(It.IsAny<PostId>()))

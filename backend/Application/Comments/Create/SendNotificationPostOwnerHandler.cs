@@ -34,24 +34,20 @@ internal sealed class SendNotificationPostOwnerHandler : IHandleMessages<Comment
         var postId = new PostId(message.PostId);
         var commentId = new CommentId(message.Id);
         var post = await _postRepository.GetPostById(postId);
-        var comment = await _commentRepository.GetCommentById(postId, commentId);
         if (post == null)
-            throw new NotFoundException("Post not found.");
+            return;
+        var comment = await _commentRepository.GetCommentById(postId, commentId);
         if (comment == null)
-            throw new NotFoundException("Comment not found.");
-        
-        var user = await _userRepository.GetUserById(post.UserId);
-        if (user is not null && !user.Id.Value.Equals(comment.UserId.Value))
+            return; 
+
+        if (!post.UserId.Value.Equals(comment.UserId.Value))
         {
-            var notification = user.AddNotification(
-                comment.Username,
-                comment.UserProfile,
-                post.Id,
-                comment.Text
-            );
+            var notification = Notification.Create(comment.User!.Id, post.Id, comment.Text);
+            notification.SetUser(comment.User);
+            post.User!.AddNotification(notification);
             await Task.WhenAll(
-                _notificationRepository.Create(user.Id, notification),
-                _notificationNotifier.NotifyPostOwnerOfComment(user.Id, notification)
+                _notificationRepository.Create(post.User.Id, notification),
+                _notificationNotifier.NotifyPostOwnerOfComment(post.User.Id, notification)
             );
         }
     }

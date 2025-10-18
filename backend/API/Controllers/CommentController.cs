@@ -57,11 +57,9 @@ public class CommentController : ControllerBase
     public async Task<IActionResult> Comment(Guid postId, [FromBody] CommentCreateDTO dto)
     {
         var ownerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new UnauthorizedAccessException();
-        var username = User.FindFirstValue(ClaimTypes.Name) ?? throw new UnauthorizedAccessException();
         var command = new CreateCommentCommand(
             PostId: postId,
             UserId: new Guid(ownerId),
-            Username: username,
             Text: dto.Text
         );
         var comment = await _mediator.Send(command);

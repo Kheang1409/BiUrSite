@@ -1,4 +1,3 @@
-using Backend.Domain.Comments;
 using Backend.Domain.Notifications;
 
 namespace Backend.Application.DTOs.Notifications;
@@ -20,8 +19,8 @@ public record NotificationDTO(
             notification.Id.Value.ToString(),
             notification.PostId.Value.ToString(),
             notification.UserId.Value.ToString(),
-            notification.Username,
-            notification.UserProfile,
+            notification.User!.Username,
+            notification.User!.Profile.Url,
             notification.Title,
             notification.Message,
             notification.CreatedDate

@@ -5,6 +5,7 @@ using Backend.Domain.Posts;
 using FluentAssertions;
 using Tests.TestFixtures;
 using Xunit;
+using Backend.Domain.Notifications;
 
 namespace Tests.Unit.Domain;
 
@@ -163,12 +164,14 @@ public class UserTests : TestBase
     {
         var user = MockData.CreateFakeUser();
         var postId = new PostId(Guid.NewGuid());
+        var notification = Notification.Create(
+                user.Id,
+                postId,
+                "commented on your post"
+            );
 
-        var notification = user.AddNotification("commenter", "profile.jpg", postId, "commented on your post");
-
+        user.AddNotification(notification);
         user.Notifications.Should().Contain(notification);
         notification.UserId.Should().Be(user.Id);
     }
-
-
 }

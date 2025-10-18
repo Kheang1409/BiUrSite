@@ -46,7 +46,14 @@ public class NotificationRepository : INotificationRepository
         var notifications = bsonResult[SUB_DOCUMENT_NAME]
             .AsBsonArray
             .Select(n => BsonSerializer.Deserialize<Notification>(n.AsBsonDocument))
-            .Where(n => n.Status == Status.Active);
+            .Where(n => n.Status == Status.Active)
+            .ToList();
+
+        foreach (var notification in notifications)
+        {
+            var user = await _users.Find(Builders<User>.Filter.Eq(u => u.Id, notification.UserId)).FirstOrDefaultAsync();
+            notification.SetUser(user);
+        }
 
         return notifications;
     }
@@ -54,22 +61,48 @@ public class NotificationRepository : INotificationRepository
 
     public async Task<Notification> Create(UserId userId, Notification notification)
     {
-        var update = Builders<User>.Update.PushEach(
-        SUB_DOCUMENT_NAME,
-        new[] { notification },
-            position: 0
-        );
-        // also mark that the user has new notifications
-        var combinedUpdate = Builders<User>.Update.Combine(
-            update,
-            Builders<User>.Update.Set(u => u.HasNewNotification, true)
+        var notiMatchFilter = Builders<Notification>.Filter.And(
+            Builders<Notification>.Filter.Eq(n => n.PostId, notification.PostId),
+            Builders<Notification>.Filter.Eq(n => n.Message, notification.Message),
+            Builders<Notification>.Filter.Eq(n => n.Status, Status.Active)
         );
 
-        await _users.UpdateOneAsync(
+        var filter = Builders<User>.Filter.And(
             Builders<User>.Filter.Eq(u => u.Id, userId),
-            combinedUpdate
+            Builders<User>.Filter.Not(
+                Builders<User>.Filter.ElemMatch(SUB_DOCUMENT_NAME, notiMatchFilter)
+            )
         );
 
+        var update = Builders<User>.Update
+            .PushEach(SUB_DOCUMENT_NAME, new[] { notification }, position: 0)
+            .Set(u => u.HasNewNotification, true);
+
+        var result = await _users.UpdateOneAsync(filter, update);
+
+        if (result.ModifiedCount > 0)
+        {
+            return notification;
+        }
+
+        var existingFilter = Builders<User>.Filter.And(
+            Builders<User>.Filter.Eq(u => u.Id, userId),
+            Builders<User>.Filter.ElemMatch(SUB_DOCUMENT_NAME, notiMatchFilter)
+        );
+
+        var projection = Builders<User>.Projection
+            .ElemMatch(SUB_DOCUMENT_NAME, notiMatchFilter);
+
+        var bsonResult = await _users
+            .Find(existingFilter)
+            .Project<BsonDocument>(projection)
+            .FirstOrDefaultAsync();
+
+        if (bsonResult != null && bsonResult.Contains(SUB_DOCUMENT_NAME) && bsonResult[SUB_DOCUMENT_NAME].AsBsonArray.Count > 0)
+        {
+            var doc = bsonResult[SUB_DOCUMENT_NAME].AsBsonArray[0].AsBsonDocument;
+            return BsonSerializer.Deserialize<Notification>(doc);
+        }
         return notification;
     }
 

@@ -16,8 +16,8 @@ public record CommentDto(
         return new CommentDto(
             comment.Id.Value.ToString(),
             comment.UserId.Value.ToString(),
-            comment.Username,
-            comment.UserProfile,
+            comment.User!.Username,
+            comment.User!.Profile.Url,
             comment.Text,
             comment.CreatedDate
         );

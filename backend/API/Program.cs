@@ -40,19 +40,6 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path == "/signin-facebook" &&
-        !context.Request.Query.ContainsKey("code"))
-    {
-        context.Response.StatusCode = 200;
-        await context.Response.WriteAsync("Facebook OAuth callback is active.");
-        return;
-    }
-
-    await next();
-});
-
 app.UseRouting();
 
 app.UseCors(CorsConfiguration.AllowAllPolicy);
@@ -68,5 +55,4 @@ app.MapHub<NotificationHub>("/notificationHub")
 
 app.Run();
 
-// Make Program class accessible for integration tests
 public partial class Program { }

@@ -1,6 +1,7 @@
 using Backend.Domain.Comments;
 using Backend.Domain.Enums;
 using Backend.Domain.Posts;
+using Backend.Domain.Users;
 using Backend.Infrastructure.Persistence;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
@@ -10,6 +11,7 @@ namespace Backend.Infrastructure.Repositories;
 
 public class CommentRepository : ICommentRepository
 {
+    private readonly IMongoCollection<User> _users;
     private readonly IMongoCollection<Post> _posts;
     private const int LIMIT = 10;
     private const string SUB_DOCUMENT_NAME = "Comments";
@@ -19,6 +21,7 @@ public class CommentRepository : ICommentRepository
         )
     {
         _posts = context.Posts;
+        _users = context.Users;
     }
 
     public async Task<IEnumerable<Comment>> GetComments(PostId postId, int pageNumber)
@@ -45,8 +48,14 @@ public class CommentRepository : ICommentRepository
         var comments = bsonResult[SUB_DOCUMENT_NAME]
             .AsBsonArray
             .Select(c => BsonSerializer.Deserialize<Comment>(c.AsBsonDocument))
-            .Where(c => c.Status == Status.Active);
+            .Where(c => c.Status == Status.Active)
+            .ToList();
 
+        foreach (var comment in comments)
+        {
+            var user = await _users.Find(Builders<User>.Filter.Eq(u => u.Id, comment.UserId)).FirstOrDefaultAsync();
+            comment.SetUser(user);
+        }
         return comments;
     }
 
@@ -66,7 +75,13 @@ public class CommentRepository : ICommentRepository
             .SingleOrDefaultAsync();
 
         var comment = post?.Comments?.FirstOrDefault(c => c.Id == commentId);
-        return comment?.Status == Status.Active ? comment : null;
+        if (comment?.Status == Status.Active)
+        {
+            var user = await _users.Find(Builders<User>.Filter.Eq(u => u.Id, comment.UserId)).FirstOrDefaultAsync();
+            comment.SetUser(user);
+            return comment;
+        }
+        return null;
     }
 
 

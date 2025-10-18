@@ -1,19 +1,33 @@
-bin/
-obj/
+# Build output
 **/bin/
 **/obj/
-**/.vs/
-**/.vscode/
-**/*.user
-**/*.suo
-**/*.swp
-**/*.DS_Store
-**/node_modules/
-**/Tests/
-.env
-.git
+/app/
+
+# User-specific
+*.swp
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
 .gitignore
-Dockerfile
-**/*.nupkg
-**/*.lock.json
-**/*.log
+
+# Package managers
+node_modules/
+
+# Logs
+*.log
+logs/
+
+# Others
+.env

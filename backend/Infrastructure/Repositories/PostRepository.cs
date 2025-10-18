@@ -9,6 +9,7 @@ namespace Backend.Infrastructure.Repositories;
 
 public class PostRepository : IPostRepository
 {
+    private readonly IMongoCollection<User> _users;
     private readonly IMongoCollection<Post> _posts;
     private const string SUB_DOCUMENT_NAME = "Comments";
 
@@ -19,6 +20,7 @@ public class PostRepository : IPostRepository
         )
     {
         _posts = context.Posts;
+        _users = context.Users;
     }
 
     public async Task<IEnumerable<Post>> GetPosts(UserId? userId, string? keywords, int pageNumber)
@@ -44,13 +46,20 @@ public class PostRepository : IPostRepository
 
         var skip = (pageNumber - 1) * LIMIT;
 
-        return await _posts.Find(finalFilter)
+        var posts = await _posts.Find(finalFilter)
                             .Project<Post>(Builders<Post>.Projection
                                 .Exclude(SUB_DOCUMENT_NAME))
                             .SortByDescending(p => p.CreatedDate)
                             .Skip(skip)
                             .Limit(LIMIT)
                             .ToListAsync();
+
+        foreach (var post in posts)
+        {
+            var user = await _users.Find(Builders<User>.Filter.Eq(u => u.Id, post.UserId)).FirstOrDefaultAsync();
+            post.SetUser(user);
+        }
+        return posts;
     }
 
     public async Task<Post?> GetPostById(PostId id)
@@ -67,6 +76,8 @@ public class PostRepository : IPostRepository
                             .SingleOrDefaultAsync();
         if (post == null)
             return null;
+        var user = await _users.Find(Builders<User>.Filter.Eq(u => u.Id, post.UserId)).FirstOrDefaultAsync();
+        post.SetUser(user);
         var sortedComments = post.Comments.OrderByDescending(c => c.CreatedDate).ToList();
         var commentsField = typeof(Post).GetField("_comments", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         commentsField?.SetValue(post, sortedComments);

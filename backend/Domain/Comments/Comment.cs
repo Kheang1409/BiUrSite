@@ -1,44 +1,47 @@
 using Backend.Domain.Enums;
 using Backend.Domain.Primitive;
 using Backend.Domain.Users;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace Backend.Domain.Comments;
 
 public class Comment : Entity
 {
-    private const string BASE_PROFILE_URL = "https://github.com/Kheang1409/images/blob/main/profiles/";
     public CommentId Id { get; private set; }
     public UserId UserId { get; private set; }
-    public string Username { get; private set; }
-    public string UserProfile { get; private set; }
-    public string Text { get; private set; }
+    [BsonIgnore]
+    public User? User { get; private set; }
+    public string Text { get; private set; } = string.Empty;
     public Status Status { get; private set; }
     public DateTime CreatedDate { get; private set; }
     public DateTime? ModifiedDate { get; private set; }
     public DateTime? DeletedDate { get; private set; }
 
 
-    private Comment() { }
-    private Comment(UserId userId, string username, string text)
+    private Comment(){ }
+    private Comment(User user, string text)
     {
-        Id = new CommentId(Guid.NewGuid());
-        UserId = userId;
-        Username = username;
-        UserProfile = $"{BASE_PROFILE_URL}{UserId.Value}.jpg?raw=true";
-        Text = text;
-        Status = Status.Active;
-        CreatedDate = DateTime.UtcNow;
+    Id = new CommentId(Guid.NewGuid());
+    UserId = user.Id;
+    User = user;
+    Text = text;
+    Status = Status.Active;
+    CreatedDate = DateTime.UtcNow;
     }
 
-    internal static Comment Create(UserId userId, string username, string text)
+    internal static Comment Create(User user, string text)
     {
-        var comment = new Comment(userId, username, text);
+        var comment = new Comment(user, text);
         return comment;
     }
     public void UpdateContent(string text)
     {
         Text = text;
         ModifiedDate = DateTime.UtcNow;
+    }
+
+    public void SetUser(User user){
+        User = user;
     }
 
     public void Delete()

@@ -19,8 +19,8 @@ public record PostDetailDto(
         return new PostDetailDto(
             post.Id.Value.ToString(),
             post.UserId.Value.ToString(),
-            post.Username,
-            post.UserProfile,
+            post.User!.Username,
+            post.User!.Profile.Url,
             post.Text,
             post.Image?.Url,
             post.Comments.Select(c => (CommentDto)c),

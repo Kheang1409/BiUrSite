@@ -17,8 +17,8 @@ public record PostDto(
         return new PostDto(
             post.Id.Value.ToString(),
             post.UserId.Value.ToString(),
-            post.Username,
-            post.UserProfile,
+            post.User!.Username,
+            post.User!.Profile.Url,
             post.Text,
             post.Image?.Url,
             post.CreatedDate

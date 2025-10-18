@@ -10,11 +10,10 @@ namespace Backend.Domain.Posts;
 
 public class Post : Entity
 {
-    private const string BASE_PROFILE_URL = "https://github.com/Kheang1409/images/blob/main/profiles/";
     public PostId Id { get; private set; }
     public UserId UserId { get; private set; }
-    public string Username { get; private set; } = string.Empty;
-    public string UserProfile { get; private set; }
+    [BsonIgnore]
+    public User? User { get; set; }
     public string Text { get; private set; } = string.Empty;
     public Image? Image { get; private set; }
     [BsonElement("Comments")]
@@ -24,25 +23,29 @@ public class Post : Entity
     public DateTime CreatedDate { get; private set; }
     public DateTime? ModifiedDate { get; private set; }
     public DateTime? DeletedDate { get; private set; }
-    private Post() { }
+    private Post()
+    {
+        Id = new PostId(Guid.Empty);
+        UserId = new UserId(Guid.Empty);
+    }
 
     private Post(Builder builder)
     {
         Id = new PostId(Guid.NewGuid());
-        UserId = builder.UserId;
-        Username = builder.Username;
-        UserProfile = $"{BASE_PROFILE_URL}{builder.UserId.Value}.jpg?raw=true";
+        UserId = builder.UserId ?? throw new ArgumentNullException(nameof(builder.UserId));
         Text = builder.Text;
         Status = Status.Active;
         CreatedDate = DateTime.UtcNow;
+        User = builder.User;
     }
 
     public class Builder
     {
-        internal UserId UserId;
-        internal string Username = string.Empty;
-        internal string Text = string.Empty;
-        internal byte[]? Data;
+    internal UserId? UserId;
+    internal User? User;
+    internal string Username = string.Empty;
+    internal string Text = string.Empty;
+    internal byte[]? Data;
 
         public Builder WithUserId(UserId userId)
         {
@@ -68,6 +71,12 @@ public class Post : Entity
             return this;
         }
 
+        public Builder WithUser(User user)
+        {
+            User = user;
+            return this;
+        }
+
         public Post Build()
         {
             if (UserId == null || UserId.Value == Guid.Empty)
@@ -80,7 +89,9 @@ public class Post : Entity
                 throw new ArgumentException("Text must be provided.", nameof(Text));
 
             var post = new Post(this);
-            post.AddDomainEvent(new PostCreatedDomainEvent(Guid.NewGuid(), post.Id, Data));
+            // User is not persisted, only used at runtime
+            post.User = User;
+            post.AddDomainEvent(new PostCreatedDomainEvent(Guid.NewGuid(), post.Id!, Data));
             return post;
         }
     }
@@ -95,7 +106,7 @@ public class Post : Entity
     {
         Status = Status.Deleted;
         DeletedDate = DateTime.UtcNow;
-        AddDomainEvent(new PostDeletedDomainEvent(Guid.NewGuid(), Id, Image));
+        AddDomainEvent(new PostDeletedDomainEvent(Guid.NewGuid(), Id!, Image));
     }
 
     public void UpdateContent(string content)
@@ -105,12 +116,16 @@ public class Post : Entity
     }
 
 
-    public Comment AddComment(UserId userId, string username, string text)
+    public Comment AddComment(User user, string text)
     {
-        var comment = Comment.Create(userId, username, text);
+        var comment = Comment.Create(user, text);
         _comments.Add(comment);
-        this.AddDomainEvent(new CommentAddedDomainEvent(Guid.NewGuid(), this.Id, comment.Id, userId));
+        this.AddDomainEvent(new CommentAddedDomainEvent(Guid.NewGuid(), this.Id!, comment.Id!, user.Id));
         return comment;
+    }
+
+    public void SetUser(User user){
+        User = user;
     }
 
 }

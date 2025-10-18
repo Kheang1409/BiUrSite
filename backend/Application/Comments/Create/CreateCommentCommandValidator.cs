@@ -10,8 +10,6 @@ public class CreateCommentCommandValidator : AbstractValidator<CreateCommentComm
             .NotEmpty().WithMessage("Post Id is required.");
         RuleFor(x => x.UserId)
             .NotEmpty().WithMessage("User Id is required.");
-        RuleFor(x => x.Username)
-            .NotEmpty().WithMessage("Username is required.");
         RuleFor(x => x.Text)
             .NotEmpty().WithMessage("Text is required.")
             .MinimumLength(1).WithMessage("Text is required.");

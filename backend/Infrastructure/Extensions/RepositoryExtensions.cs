@@ -29,7 +29,11 @@ internal static class RepositoryExtensions
         services.AddScoped<IRateLimiter>(sp =>
         {
             var muxer = sp.GetService<StackExchange.Redis.IConnectionMultiplexer>();
-            return muxer != null ? new RedisRateLimiter(muxer) : new NoopRateLimiter();
+            if (muxer != null && muxer.IsConnected)
+            {
+                return new RedisRateLimiter(muxer);
+            }
+            return new NoopRateLimiter();
         });
         services.AddSingleton<IEmailService, EmailService>();
         // Notifications

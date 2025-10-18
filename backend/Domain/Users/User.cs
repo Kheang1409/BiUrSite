@@ -1,11 +1,9 @@
 
 using System.Security.Cryptography;
 using System.Text;
-using Backend.Domain.Comments;
 using Backend.Domain.Enums;
 using Backend.Domain.Images;
 using Backend.Domain.Notifications;
-using Backend.Domain.Posts;
 using Backend.Domain.Primitive;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -200,6 +198,11 @@ public class User : Entity
         DeletedDate = DateTime.UtcNow;
     }
 
+    public void AddNotification(Notification notification)
+    {
+        _notifications.Add(notification);
+    }
+
     public bool VerifyPassword(string plainPassword, string hashedPassword)
     {
         byte[] hashWithSalt = Convert.FromBase64String(hashedPassword);
@@ -217,16 +220,5 @@ public class User : Entity
 
             return hashBytes.SequenceEqual(computedHash);
         }
-    }
-
-    public Notification AddNotification(
-        string username,
-        string userProfile,
-        PostId postId,
-        string message)
-    {
-        var notification = Notification.Create(Id, username, userProfile, postId, message);
-        _notifications.Add(notification);
-        return notification;
     }
 }

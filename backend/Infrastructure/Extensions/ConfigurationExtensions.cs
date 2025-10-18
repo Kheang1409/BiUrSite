@@ -19,14 +19,20 @@ internal static class ConfigurationExtensions
         {
             options.BaseUrl = appBaseUrl;
         });
+        
         // Rate limit options (env overrides appsettings)
-        var requestLimit = int.TryParse(Environment.GetEnvironmentVariable("RATE_LIMIT_REQUESTS"), out var rl)
-            ? rl
-            : int.Parse(configuration["LimitSettings:RequestLimit"] ?? "100");
-        var windowSeconds = int.TryParse(Environment.GetEnvironmentVariable("RATE_LIMIT_WINDOW_SECONDS"), out var ws)
-            ? ws
-            : 60;
-        services.Configure<Backend.Application.Configuration.RateLimitOptions>(opt =>
+        var requestLimitStr = Environment.GetEnvironmentVariable("RATE_LIMIT_REQUESTS")
+                            ?? configuration["LimitSettings:RequestLimit"]
+                            ?? throw new InvalidOperationException("Rate Limit RequestLimit is not configured.");
+        
+        var windowSecondsStr = Environment.GetEnvironmentVariable("RATE_LIMIT_WINDOW_SECONDS")
+                             ?? configuration["LimitSettings:WindowSeconds"]
+                             ?? throw new InvalidOperationException("Rate Limit WindowSeconds is not configured.");
+        
+        var requestLimit = int.Parse(requestLimitStr);
+        var windowSeconds = int.Parse(windowSecondsStr);
+        
+        services.Configure<RateLimitOptions>(opt =>
         {
             opt.RequestLimit = requestLimit;
             opt.WindowSeconds = windowSeconds;
@@ -36,7 +42,28 @@ internal static class ConfigurationExtensions
                         ?? configuration["Redis:ConnectionString"];
         if (!string.IsNullOrWhiteSpace(redisConn))
         {
-            services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(redisConn));
+            services.AddSingleton<IConnectionMultiplexer>(sp =>
+            {
+                var options = ConfigurationOptions.Parse(redisConn);
+                options.AbortOnConnectFail = false; // Allow app to start even if Redis is unavailable
+                options.ConnectTimeout = 5000; // 5 seconds timeout
+                options.ConnectRetry = 3;
+                
+                var multiplexer = ConnectionMultiplexer.Connect(options);
+                
+                // Log connection status
+                if (multiplexer.IsConnected)
+                {
+                    Console.WriteLine($"Successfully connected to Redis at {redisConn}");
+                }
+                else
+                {
+                    Console.WriteLine($"Warning: Redis connection established but not connected to {redisConn}");
+                    Console.WriteLine("Rate limiting will fall back to NoopRateLimiter");
+                }
+                
+                return multiplexer;
+            });
         }
         services.AddHttpClient();
         services.AddScoped<IImageStorageService, GitHubImageStorageService>();

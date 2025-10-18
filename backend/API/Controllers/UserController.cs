@@ -18,10 +18,16 @@ namespace Backend.Api.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly string _frontend;
+
     public UserController(
-        IMediator mediator)
+        IMediator mediator,
+        IConfiguration configuration)
     {
         _mediator = mediator;
+        _frontend = Environment.GetEnvironmentVariable("FRONTEND")
+                    ?? configuration["Frontend"]
+                    ?? throw new InvalidOperationException("Frontend is not configured.");
     }
 
     [HttpPost]
@@ -64,11 +70,8 @@ public class UserController : ControllerBase
     {
         var command = new VerifyUserCommand(token);
         await _mediator.Send(command);
-        return Ok(new
-        {
-            success = true,
-            message = "Your account has been verified successfully."
-        });
+        var redirectUrl = $"{_frontend}/login";
+        return Redirect(redirectUrl);
     }
 
     [HttpGet("me")]
@@ -130,13 +133,5 @@ public class UserController : ControllerBase
             success = true,
             message = "Your account has been deleted successfully."
         });
-    }
-    
-    [HttpGet("me-test")]
-    [Authorize]
-    public IActionResult MeTest()
-    {
-        var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
-        return Ok(claims);
     }
 }

@@ -10,15 +10,18 @@ namespace Backend.Application.Comments.Create;
 
 internal sealed class CreateCommentCommandHandler : IRequestHandler<CreateCommentCommand, Comment>
 {
+    private readonly IUserRepository _userRepository;
     private readonly IPostRepository _postRepository;
     private readonly ICommentRepository _commentRepository;
     private readonly IUnitOfWork _unitOfWord;
 
     public CreateCommentCommandHandler(
+        IUserRepository userRepository,
         IPostRepository postRepository,
         ICommentRepository commentRepository,
         IUnitOfWork unitOfWord)
     {
+        _userRepository = userRepository;
         _postRepository = postRepository;
         _commentRepository = commentRepository;
         _unitOfWord = unitOfWord;
@@ -30,13 +33,13 @@ internal sealed class CreateCommentCommandHandler : IRequestHandler<CreateCommen
         var post = await _postRepository.GetPostById(postId);
         if (post is null)
             throw new NotFoundException("Post not found.");
-
-        var comment = post.AddComment(
-            new UserId(request.UserId),
-            request.Username,
-            request.Text);
-        
-        await Task.WhenAll(_commentRepository.Create(postId, comment), _unitOfWord.SaveChangesAsync(post, cancellationToken));
+        var userId = new UserId(request.UserId);
+        var user = await _userRepository.GetUserById(userId);
+        if (user is null)
+            throw new UnauthorizedAccessException($"User is {request.UserId}.");
+        var comment = post.AddComment(user, request.Text);
+        await _commentRepository.Create(postId, comment);
+        await _unitOfWord.SaveChangesAsync(post, cancellationToken);
         return comment;
     }
 }

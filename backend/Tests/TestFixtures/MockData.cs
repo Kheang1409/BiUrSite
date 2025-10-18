@@ -23,9 +23,11 @@ public static class MockData
 
     public static Post CreateFakePost()
     {
+        var user = CreateFakeUser();
         return new Post.Builder()
-            .WithUserId(new UserId(Guid.NewGuid()))
-            .WithUsername(_faker.Internet.UserName())
+            .WithUserId(user.Id)
+            .WithUsername(user.Username)
+            .WithUser(user)
             .WithText(_faker.Lorem.Sentence())
             .Build();
     }

@@ -2,9 +2,7 @@ using Backend.Domain.Posts;
 using Backend.Domain.Users;
 using Backend.Domain.Enums;
 using Backend.Domain.Comments;
-using FluentAssertions;
 using Tests.TestFixtures;
-using Xunit;
 
 namespace Tests.Unit.Domain;
 
@@ -13,20 +11,21 @@ public class PostTests : TestBase
     [Fact]
     public void CreatePost_WithValidData_ShouldCreateSuccessfully()
     {
-        var userId = new UserId(Guid.NewGuid());
-        var username = "testuser";
+        var user = MockData.CreateFakeUser();
+        var userId = user.Id;
         var text = "Test post content";
 
         var post = new Post.Builder()
             .WithUserId(userId)
-            .WithUsername(username)
+            .WithUsername(user.Username)
+            .WithUser(user)
             .WithText(text)
             .Build();
 
         post.Should().NotBeNull();
         post.Id.Value.Should().NotBe(Guid.Empty);
         post.UserId.Should().Be(userId);
-        post.Username.Should().Be(username);
+        post.User.Should().Be(user);
         post.Text.Should().Be(text);
         post.Status.Should().Be(Status.Active);
     }
@@ -107,11 +106,11 @@ public class PostTests : TestBase
     public void AddComment_ShouldAddCommentToPost()
     {
         var post = MockData.CreateFakePost();
-        var userId = new UserId(Guid.NewGuid());
-        var username = "commenter";
+        var user = MockData.CreateFakeUser();
+        var userId = user.Id;
         var text = "Nice post!";
 
-        var comment = post.AddComment(userId, username, text);
+        var comment = post.AddComment(user, text);
 
         comment.Should().NotBeNull();
         comment.UserId.Should().Be(userId);
