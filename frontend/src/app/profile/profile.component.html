@@ -12,45 +12,42 @@
     />
   </div>
 
+  <!-- Avatar placed here so it can overlap the cover image bottom-left -->
+  <div
+    class="avatar-stack"
+    (click)="profileLeft?.openFilePicker()"
+    title="Change profile image"
+  >
+    <div class="avatar-wrap">
+      <img
+        [src]="selectedImagePreview ? selectedImagePreview : user.profile"
+        alt="Profile Image"
+        class="profile-image"
+      />
+    </div>
+  </div>
+
   <!-- Main content with overlapping avatar -->
   <div class="profile-main">
-    <div class="profile-left">
-      <div
-        class="avatar-stack"
-        (click)="editMode && fileInputRef.nativeElement.click()"
-        title="Change profile image"
-      >
-        <div class="avatar-wrap">
-          <img
-            [src]="selectedImagePreview ? selectedImagePreview : user.profile"
-            alt="Profile Image"
-            class="profile-image"
-          />
-        </div>
-      </div>
+    <app-profile-left
+      #profileLeft
+      [user]="user"
+      [editMode]="editMode"
+      [selectedImagePreview]="selectedImagePreview"
+      (fileSelected)="onFileSelected($event)"
+      (toggleEdit)="toggleEdit()"
+    ></app-profile-left>
 
-      <input
-        #fileInput
-        class="file-input"
-        type="file"
-        accept="image/*"
-        (change)="onFileSelected($event)"
-      />
+    <!-- Center column: user's posts -->
+    <app-profile-center
+      [posts]="posts"
+      [isLoading]="isLoading"
+      (deletePost)="onDeletePost($event)"
+      (loadMore)="loadMoreProfilePosts()"
+    ></app-profile-center>
 
-      <div class="user-meta">
-        <h2 class="username">{{ user.username }}</h2>
-        <p class="bio" *ngIf="user.bio && !editMode">{{ user.bio }}</p>
-        <p class="muted small">
-          Joined {{ user.createdDate | date : "mediumDate" }}
-        </p>
-      </div>
-
-      <div class="profile-actions">
-        <button class="btn-primary" (click)="toggleEdit()">
-          {{ editMode ? "Cancel" : "Edit Profile" }}
-        </button>
-      </div>
-    </div>
+    <!-- Right column: notifications -->
+    <app-profile-right [notifications]="notifications"></app-profile-right>
   </div>
   <app-profile-edit-modal
     *ngIf="editMode"

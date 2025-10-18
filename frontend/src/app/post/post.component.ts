@@ -98,6 +98,5 @@ export class PostComponent implements OnInit {
 
   onReport(event: Event): void {
     event.stopPropagation();
-    console.log('Reported post:', this.post.id);
   }
 }

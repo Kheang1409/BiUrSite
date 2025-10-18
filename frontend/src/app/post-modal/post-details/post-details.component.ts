@@ -1,4 +1,10 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  HostListener,
+} from '@angular/core';
 import { Post } from '../../models/posts/post';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { EditPostModalComponent } from '../../shared/edit-post-modal/edit-post-modal.component';
@@ -24,6 +30,20 @@ export class PostDetailsComponent {
   @Output() postUpdated = new EventEmitter<Post>();
 
   isMenuOpen = false;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    const isMenuClicked = !!target && target.closest('.post-menu') !== null;
+    if (!isMenuClicked && this.isMenuOpen) {
+      this.isMenuOpen = false;
+    }
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscapeKey(event: KeyboardEvent) {
+    if (this.isMenuOpen) this.isMenuOpen = false;
+  }
 
   isOwner(): boolean {
     return this.userPayload && this.post.userId === this.userPayload.sub;
@@ -60,7 +80,6 @@ export class PostDetailsComponent {
 
   reportPost(event: Event) {
     event.stopPropagation();
-    console.log('Report post');
   }
 
   onImageLoad(ev: Event) {

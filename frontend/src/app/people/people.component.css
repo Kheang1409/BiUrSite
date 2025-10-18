@@ -1,0 +1,76 @@
+.people-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.person-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.01)
+  );
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: 170px;
+}
+
+.avatar-wrap {
+  width: 96px;
+  height: 96px;
+  border-radius: 18px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.person-body {
+  width: 100%;
+}
+
+.username {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+
+.meta {
+  margin-bottom: 8px;
+}
+
+.bio {
+  font-size: 0.95rem;
+  line-height: 1.3;
+  max-height: 3.9em; /* ~3 lines */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.infinite-anchor {
+  height: 1px;
+}
+.message {
+  margin-top: 12px;
+}
+
+@media (max-width: 480px) {
+  .people-list {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  .avatar-wrap {
+    width: 80px;
+    height: 80px;
+  }
+}

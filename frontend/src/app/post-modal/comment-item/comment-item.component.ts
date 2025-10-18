@@ -4,11 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { TimeAgoPipe } from '../../pipes/time-ago.pipe';
 import { Comment } from '../../models/comments/comment';
 import { AuthService } from '../../services/auth.service';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { ConfirmDeletionDialogComponent } from '../../shared/confirm-deletion-dialog/confirm-deletion-dialog.component';
 
 @Component({
   selector: 'app-comment-item',
   standalone: true,
-  imports: [CommonModule, FormsModule, TimeAgoPipe],
+  imports: [CommonModule, FormsModule, TimeAgoPipe, MatDialogModule],
   templateUrl: './comment-item.component.html',
   styleUrls: ['./comment-item.component.css'],
 })
@@ -25,7 +27,7 @@ export class CommentItemComponent implements OnInit {
 
   isLoggedIn!: boolean;
 
-  constructor(private _authService: AuthService) {
+  constructor(private _authService: AuthService, private _dialog: MatDialog) {
     _authService.isLoggedIn$.subscribe((loggedIn) => {
       this.isLoggedIn = loggedIn;
     });
@@ -67,8 +69,16 @@ export class CommentItemComponent implements OnInit {
   }
 
   deleteComment() {
-    if (confirm('Are you sure you want to delete this comment?')) {
-      this.deleted.emit(this.comment.id);
-    }
+    // Use the shared Material confirmation dialog like PostComponent
+    const dialogRef = this._dialog.open(ConfirmDeletionDialogComponent, {
+      width: '400px',
+      data: { itemType: 'Comment' },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.deleted.emit(this.comment.id);
+      }
+    });
   }
 }

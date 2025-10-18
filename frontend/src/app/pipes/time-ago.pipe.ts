@@ -1,18 +1,20 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'timeAgo'
+  name: 'timeAgo',
+  standalone: true,
 })
 export class TimeAgoPipe implements PipeTransform {
-
   transform(value: string | Date): string {
     if (!value) return '';
 
     const date = new Date(typeof value === 'string' ? value + 'Z' : value);
     const now = new Date();
 
-    const seconds = Math.abs(Math.floor((now.getTime() - date.getTime()) / 1000));
-    
+    const seconds = Math.abs(
+      Math.floor((now.getTime() - date.getTime()) / 1000)
+    );
+
     if (seconds < 60) {
       return 'Just now';
     }
@@ -23,7 +25,7 @@ export class TimeAgoPipe implements PipeTransform {
       week: 604800,
       day: 86400,
       hour: 3600,
-      minute: 60
+      minute: 60,
     };
 
     let counter;
@@ -38,6 +40,12 @@ export class TimeAgoPipe implements PipeTransform {
       }
     }
 
-    return date.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
   }
 }

@@ -8,8 +8,10 @@
   </div>
 
   <div class="header-right">
-    <app-action-icons></app-action-icons>
-    <app-profile-menu></app-profile-menu>
+    <app-action-icons
+      [hasNewNotifications]="user.hasNewNotification"
+    ></app-action-icons>
+    <app-profile-menu [user]="user"></app-profile-menu>
     <app-auth-buttons></app-auth-buttons>
   </div>
 </header>

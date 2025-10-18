@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild, HostListener } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ImageLightboxComponent } from '../shared/image-lightbox/image-lightbox.component';
 import { CommonModule } from '@angular/common';
@@ -18,6 +18,7 @@ import { environment } from '../../environments/environment';
   styleUrls: ['./create-post-modal.component.css'],
 })
 export class CreatePostModalComponent {
+  private _ignoreDocumentClicks = true;
   text: string = '';
   selectedImagePreview: string | null = null;
   selectedImageData: string | null = null; // base64
@@ -34,11 +35,44 @@ export class CreatePostModalComponent {
     private _postService: PostsDataService,
     private _authService: AuthService,
     private _dialog: MatDialog,
-    private _router: Router
+    private _router: Router,
+    private hostRef: ElementRef
   ) {
     _authService.isLoggedIn$.subscribe((loggedIn) => {
       if (loggedIn) this._router.navigate([this.login]);
     });
+
+    // Ignore document clicks that triggered opening this dialog.
+    // The click that opens the dialog can bubble to document and immediately close it.
+    // Use a short timeout so we only ignore the opening click.
+    setTimeout(() => (this._ignoreDocumentClicks = false), 0);
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    // If we're still ignoring initial clicks (the click that opened the dialog), do nothing
+    if (this._ignoreDocumentClicks) return;
+
+    // If clicked inside the dialog component, do nothing
+    const target = event.target as HTMLElement;
+    if (!target) return;
+    try {
+      if (this.hostRef && this.hostRef.nativeElement.contains(target)) return;
+    } catch (e) {
+      // ignore
+    }
+
+    // Otherwise close the dialog
+    try {
+      this.dialogRef.close();
+    } catch (e) {}
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscapeKey(event: KeyboardEvent) {
+    try {
+      this.dialogRef.close();
+    } catch (e) {}
   }
 
   isBigTextarea(): boolean {

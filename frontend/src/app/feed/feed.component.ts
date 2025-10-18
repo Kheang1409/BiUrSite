@@ -52,6 +52,7 @@ export class FeedComponent implements OnInit, OnDestroy {
   private postsSubscription!: Subscription;
 
   private _profile: string = environment.urlFrontend.profile;
+  private _people: string = environment.urlFrontend.people;
 
   constructor(
     private _authService: AuthService,
@@ -217,7 +218,6 @@ export class FeedComponent implements OnInit, OnDestroy {
     this._postService.deletePost(postId).subscribe({
       next: () => {
         this.posts = this.posts.filter((post) => post.id !== postId);
-        console.log('Post deleted successfully');
       },
       error: (error) => {
         this.isError = true;
@@ -246,5 +246,8 @@ export class FeedComponent implements OnInit, OnDestroy {
 
   toProfilePage() {
     this._router.navigate([this._profile]);
+  }
+  goToPeoplePage() {
+    this._router.navigate([this._people]);
   }
 }

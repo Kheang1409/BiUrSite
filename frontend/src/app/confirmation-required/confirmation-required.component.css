@@ -1,31 +1,108 @@
-.confirmation-container {
-    max-width: 600px;
-    margin: 50px auto;
-    padding: 20px;
-    text-align: center;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+/* Fun illustration above card heading */
+.confirmation-illustration {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 18px;
+  width: 100%;
+}
+:root {
+  --header-height: 56px;
+}
+
+/* ===== Page Wrapper ===== */
+.confirmation-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #f1f5f9;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  z-index: 10;
+}
+
+/* ===== Card ===== */
+.confirmation-card {
+  background: rgba(15, 23, 42, 0.75); /* darker frosted glass for contrast */
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius, 12px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  text-align: center;
+  padding: 60px 40px;
+  max-width: 580px;
+  width: 90%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  color: #f8fafc;
+}
+
+.confirmation-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
+/* ===== Heading ===== */
+.confirmation-card h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  background: linear-gradient(
+    45deg,
+    var(--primary-1, #06b6d4),
+    var(--primary-2, #3b82f6)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  margin-bottom: 28px;
+  letter-spacing: 0.5px;
+}
+
+/* ===== Text ===== */
+.confirmation-card p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #cbd5e1; /* lighter text for readability */
+  margin-bottom: 18px;
+}
+
+.confirmation-card strong {
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+/* ===== Links ===== */
+.confirmation-card a {
+  color: var(--primary-1, #06b6d4);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.25s ease, text-shadow 0.25s ease;
+}
+
+.confirmation-card a:hover {
+  text-decoration: underline;
+  color: var(--primary-2, #3b82f6);
+  text-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+  .confirmation-card {
+    padding: 40px 22px;
   }
-  
-  .confirmation-container h1 {
-    font-size: 2.5rem;
-    color: #1877f2;
-    margin-bottom: 20px;
+
+  .confirmation-card h1 {
+    font-size: 1.9rem;
   }
-  
-  .confirmation-container p {
-    font-size: 1.1rem;
-    line-height: 1.6;
-    color: #333;
-    margin-bottom: 20px;
+
+  .confirmation-card p {
+    font-size: 1rem;
   }
-  
-  .confirmation-container a {
-    color: #1877f2;
-    text-decoration: none;
-  }
-  
-  .confirmation-container a:hover {
-    text-decoration: underline;
-  }
+}

@@ -14,6 +14,7 @@ import { UserUpdate } from '../models/users/userUpdate';
 export class UsersDataService {
   private _baseUrl = environment.urlApi.baseUrl;
   private _userUrl = environment.urlApi.userUrl;
+  private queryPageNumber = environment.urlApi.query.pageNumber;
 
   private _me = environment.urlApi.me;
 
@@ -22,15 +23,8 @@ export class UsersDataService {
     private _errorHandlingService: ErrorHandlingService
   ) {}
 
-  getUsers(
-    page: number = 1,
-    username: string | null = null
-  ): Observable<User[]> {
-    let url: string = `${this._baseUrl}${this._userUrl}?page=${page}`;
-    if (username) {
-      url = `${url}&username=${username}`;
-    }
-
+  getUsers(pageNumber: number = 1): Observable<User[]> {
+    let url: string = `${this._baseUrl}${this._userUrl}?${this.queryPageNumber}=${pageNumber}`;
     return this._httpClient.get<any>(url).pipe(
       map((response) => response.data as User[]),
       catchError((err) => this._errorHandlingService.handleError(err))
@@ -65,6 +59,13 @@ export class UsersDataService {
     let url: string = `${this._baseUrl}${this._userUrl}${environment.urlApi.me}`;
     return this._httpClient
       .put<any>(url, userUpdate.toJSON())
+      .pipe(catchError((err) => this._errorHandlingService.handleError(err)));
+  }
+
+  markNotificationAsRead(): Observable<any> {
+    let url: string = `${this._baseUrl}${this._userUrl}${environment.urlApi.me}`;
+    return this._httpClient
+      .patch<any>(url, {})
       .pipe(catchError((err) => this._errorHandlingService.handleError(err)));
   }
 }

@@ -4,6 +4,8 @@ import { environment } from '../environments/environment';
 import { ErrorPageComponent } from './error-page/error-page.component';
 import { ConfirmationRequiredComponent } from './confirmation-required/confirmation-required.component';
 import { ProfileComponent } from './profile/profile.component';
+import { PeopleComponent } from './people/people.component';
+import { PrivacyComponent } from './privacy/privacy.component';
 import { LoginComponent } from './auth-component/login/login.component';
 import { ForgotPasswordComponent } from './auth-component/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './auth-component/reset-password/reset-password.component';
@@ -16,7 +18,9 @@ const resetPassword = environment.urlShared.resetPassword;
 const register = environment.urlShared.register;
 const profile = environment.urlFrontend.profile;
 const confirmationRequired = environment.urlFrontend.confirmationRequired;
+const privacy = environment.urlFrontend.privacy;
 const error = environment.urlFrontend.error;
+const people = environment.urlFrontend.people;
 
 export const routes: Routes = [
   {
@@ -45,12 +49,20 @@ export const routes: Routes = [
     component: ProfileComponent,
   },
   {
+    path: people,
+    component: PeopleComponent,
+  },
+  {
     path: resetPassword,
     component: ResetPasswordComponent,
   },
   {
     path: confirmationRequired,
     component: ConfirmationRequiredComponent,
+  },
+  {
+    path: privacy,
+    component: PrivacyComponent,
   },
   {
     path: error,

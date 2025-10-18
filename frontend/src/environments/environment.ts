@@ -12,8 +12,10 @@ export const environment = {
   },
   urlFrontend: {
     feed: '',
+    privacy: 'privacy',
     confirmationRequired: 'confirmation-required',
     profile: 'profile',
+    people: 'people',
     error: '**',
   },
   urlApi: {
@@ -21,11 +23,10 @@ export const environment = {
     authUrl: 'api/auth/',
     userUrl: 'api/users/',
     postUrl: 'api/posts/',
-    // notificationUrl: 'api/notifications/',
+    notificationUrl: 'api/notifications/',
     feedHub: 'feedHub',
     notificationHub: 'notificationHub',
     subsetUrl: '/comments/',
-    total: 'total',
     me: 'me',
     query: {
       pageNumber: 'PageNumber',

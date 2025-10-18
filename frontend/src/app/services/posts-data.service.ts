@@ -14,11 +14,10 @@ import { PostDetail } from '../models/posts/postDetail';
 export class PostsDataService {
   private _baseUrl = environment.urlApi.baseUrl;
   private _postUrl = environment.urlApi.postUrl;
+  private _me = environment.urlApi.me;
 
   private queryPageNumber = environment.urlApi.query.pageNumber;
   private queryKeyword = environment.urlApi.query.keywords;
-
-  private queryTotalPost = environment.urlApi.total;
 
   constructor(
     private _httpClient: HttpClient,
@@ -30,7 +29,14 @@ export class PostsDataService {
     if (keyword) {
       url = `${url}&${this.queryKeyword}=${keyword}`;
     }
-    console.log(url);
+    return this._httpClient.get<any>(url).pipe(
+      map((response) => (response.data ?? []) as Post[]),
+      catchError((err) => this._errorHandlingService.handleError(err))
+    );
+  }
+
+  getMyPosts(pageNumber: number) {
+    let url: string = `${this._baseUrl}${this._postUrl}${this._me}?${this.queryPageNumber}=${pageNumber}`;
     return this._httpClient.get<any>(url).pipe(
       map((response) => (response.data ?? []) as Post[]),
       catchError((err) => this._errorHandlingService.handleError(err))
@@ -41,15 +47,6 @@ export class PostsDataService {
     let url: string = `${this._baseUrl}${this._postUrl}${postId}`;
     return this._httpClient.get<any>(url).pipe(
       map((response) => response.data as PostDetail),
-      catchError((err) => this._errorHandlingService.handleError(err))
-    );
-  }
-
-  getTotalPost(): Observable<number> {
-    let url: string = `${this._baseUrl}${this._postUrl}${this.queryTotalPost}`;
-
-    return this._httpClient.get<any>(url).pipe(
-      map((response) => response.data?.postCount ?? response.postCount ?? 0),
       catchError((err) => this._errorHandlingService.handleError(err))
     );
   }

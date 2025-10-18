@@ -1,18 +1,98 @@
-<div class="confirmation-container">
-  <h1 *ngIf="confirmationType === 'email'">You're Almost There!</h1>
-  <h1 *ngIf="confirmationType === 'otp'">Check Your Email!</h1>
+<div class="confirmation-page">
+  <div class="confirmation-card">
+    <div class="confirmation-illustration">
+      <!-- Modern email icon with circle and paper, using main app colors -->
+      <svg
+        width="90"
+        height="90"
+        viewBox="0 0 90 90"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle
+          cx="45"
+          cy="45"
+          r="40"
+          fill="#f1f5f9"
+          stroke="#0682a5"
+          stroke-width="3"
+          style="stroke: var(--primary-1, #0682a5)"
+        />
+        <!-- Envelope body -->
+        <rect
+          x="22"
+          y="32"
+          width="46"
+          height="30"
+          rx="7"
+          fill="#fff"
+          stroke="#3b82f6"
+          stroke-width="2.5"
+          style="stroke: var(--primary-2, #3b82f6)"
+        />
+        <!-- Envelope flap -->
+        <polygon
+          points="22,32 45,52 68,32"
+          fill="#0682a5"
+          style="fill: var(--primary-1, #0682a5)"
+        />
+        <!-- Paper coming out -->
+        <rect
+          x="34"
+          y="22"
+          width="22"
+          height="16"
+          rx="3"
+          fill="#e0f2fe"
+          stroke="#3b82f6"
+          stroke-width="1.5"
+          style="stroke: var(--primary-2, #3b82f6)"
+        />
+        <!-- Paper lines -->
+        <line
+          x1="38"
+          y1="28"
+          x2="62"
+          y2="28"
+          stroke="#3b82f6"
+          stroke-width="1"
+          style="stroke: var(--primary-2, #3b82f6)"
+        />
+        <line
+          x1="38"
+          y1="32"
+          x2="62"
+          y2="32"
+          stroke="#3b82f6"
+          stroke-width="1"
+          style="stroke: var(--primary-2, #3b82f6)"
+        />
+      </svg>
+    </div>
+    <h1 *ngIf="confirmationType === 'email'">You're Almost There!</h1>
+    <h1 *ngIf="confirmationType === 'otp'">Check Your Email!</h1>
 
-  <p *ngIf="confirmationType === 'email'">
-    We've sent a confirmation email to <strong>{{ email }}</strong>. Please check your inbox and click the link in the email to verify your account.
-  </p>
-  <p *ngIf="confirmationType === 'otp'">
-    We've sent an OTP to <strong>{{ email }}</strong>. Please check your inbox and enter the OTP to proceed.
-  </p>
+    <p *ngIf="confirmationType === 'email'">
+      We've sent a confirmation email to
+      <strong>{{ email }}</strong
+      >. Please check your inbox and click the link in the email to verify your
+      account.
+    </p>
 
-  <p *ngIf="confirmationType === 'email'">
-    Once your account is verified, you can <a href="{{login}}">log in</a> and start using BiUrSite.
-  </p>
-  <p *ngIf="confirmationType === 'otp'">
-    Once you receive the OTP, go to the <a href="{{resetPassword}}">reset password page</a> to complete the process.
-  </p>
+    <p *ngIf="confirmationType === 'otp'">
+      We've sent an OTP to
+      <strong>{{ email }}</strong
+      >. Please check your inbox and enter the OTP to proceed.
+    </p>
+
+    <p *ngIf="confirmationType === 'email'">
+      Once your account is verified, you can
+      <a [href]="login">log in</a> and start using BiUrSite.
+    </p>
+
+    <p *ngIf="confirmationType === 'otp'">
+      Once you receive the OTP, go to the
+      <a [href]="resetPassword">reset password page</a> to complete the process.
+    </p>
+  </div>
 </div>

@@ -26,11 +26,11 @@
   --max-width: 1200px;
 
   /* Gradient Background Variable */
-  --bg-gradient: radial-gradient(
-    circle farthest-corner at -24.7% -47.3%,
-    #0682a5 0%,
-    #223056 66.8%,
-    #0f172a 100.2%
+  --bg-gradient: linear-gradient(
+    to bottom,
+    #0f172a 0%,
+    #1e293b 50%,
+    #0f172a 100%
   );
 
   /* Typography - Golden Ratio Type Scale (Base: 16px) */
@@ -60,11 +60,27 @@ body {
   font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Arial,
     sans-serif;
   background-image: var(--bg-gradient);
+  background-repeat: no-repeat;
+  background-size: 100% 100vh; /* Stretch to viewport */
+  background-attachment: scroll; /* Important: disables parallax effect */
+  background-position: top;
   color: #f1f5f9;
   margin: 0;
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 200vh;
+  background: var(--bg-gradient);
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* Typography Utility Classes */
@@ -226,6 +242,35 @@ a:hover {
   color: #e2e8f0;
 }
 
+/* Facebook-like centered app container for pages that need three columns */
+.layout-with-sides {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.loading-indicator {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+  border-top-color: rgba(255, 255, 255, 0.5);
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Dialog Customizations */
 .custom-create-post-dialog .mdc-dialog__surface,
 .custom-create-post-dialog .mat-dialog-container,
@@ -315,9 +360,7 @@ a:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  padding: 40px 16px;
-  background: var(--bg-gradient);
+  min-height: 85vh;
   color: #f1f5f9;
   gap: 24px;
 }

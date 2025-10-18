@@ -5,7 +5,6 @@ import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { Post } from '../models/posts/post';
 import { Notification } from '../models/notifications/notification';
-import { PostsDataService } from './posts-data.service';
 
 @Injectable({
   providedIn: 'root',
@@ -24,10 +23,7 @@ export class SignalRService implements OnDestroy {
     signalR.HubConnectionState.Disconnected
   );
 
-  constructor(
-    private _authService: AuthService,
-    private _postService: PostsDataService
-  ) {
+  constructor(private _authService: AuthService) {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${this._baseUrl}${this._notificationHub}`, {
         accessTokenFactory: () => {
@@ -95,16 +91,17 @@ export class SignalRService implements OnDestroy {
   }
 
   public addNotificationListener(): void {
-    this.hubConnection.on(
-      'ReceiveNotification',
-      (notification: Notification) => {
+    this.hubConnection.on('ReceiveCommentNotification', (notification: any) => {
+      try {
         if (notification) {
-          this.notifications$.next([notification]);
+          this.notifications$.next([notification as Notification]);
         } else {
           console.error('Received null or undefined notification.');
         }
+      } catch (err) {
+        console.error('Error handling incoming notification', err);
       }
-    );
+    });
   }
 
   public addPostListener(): void {
@@ -115,6 +112,12 @@ export class SignalRService implements OnDestroy {
   }
 
   public stopConnection(): void {
+    try {
+      this.hubConnection.off('ReceiveCommentNotification');
+      this.hubConnection.off('ReceiveNotification');
+      this.hubConnection.off('ReceivePost');
+    } catch (e) {}
+
     this.hubConnection
       .stop()
       .then(() => {
@@ -125,6 +128,9 @@ export class SignalRService implements OnDestroy {
       });
 
     if (this.feedHubConnection) {
+      try {
+        this.feedHubConnection.off('ReceivePost');
+      } catch {}
       this.feedHubConnection
         .stop()
         .then(() => {

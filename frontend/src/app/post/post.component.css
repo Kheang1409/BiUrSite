@@ -58,8 +58,7 @@
   overflow: hidden;
   border-radius: 6px;
   position: relative;
-  max-height: 520px;
-  /* Reserve vertical space to reduce CLS while the image loads. Use a sensible aspect ratio fallback. */
+  max-height: 480px;
   min-height: 200px;
   background-color: rgba(255, 255, 255, 0.02);
 }

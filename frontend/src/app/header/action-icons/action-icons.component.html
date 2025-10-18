@@ -26,22 +26,46 @@
       [class.show]="showNotificationDropdown"
       role="menu"
     >
-      <ul>
+      <div class="notification-header">
+        <strong>Notifications</strong>
+      </div>
+
+      <ul class="notification-list">
         <li
-          *ngFor="let notification of notifications; trackBy: trackById"
+          *ngFor="let notification of notifications"
           role="menuitem"
+          (click)="openNotification(notification)"
+          tabindex="0"
         >
-          {{ notification.message }}
-        </li>
+          <img
+            class="notif-avatar"
+            [src]="notification.userProfile || '/assets/img/default-avatar.png'"
+            alt="{{ notification.username }}'s avatar"
+            loading="lazy"
+          />
 
-        <li *ngIf="isError" class="error" role="alert">
-          {{ errorMessage }}
-        </li>
+          <div class="notif-content">
+            <div class="notif-title">
+              <span class="username">{{ notification.username }}</span>
+              <span class="action">{{ notification.title }}</span>
+            </div>
 
-        <li *ngIf="!isError && notifications.length === 0">
-          No new notifications
+            <div class="notif-message">{{ notification.message }}</div>
+
+            <div class="notif-meta">
+              <span class="time">{{ notification.createdDate | timeAgo }}</span>
+            </div>
+          </div>
         </li>
       </ul>
+
+      <div *ngIf="isError" class="error" role="alert">
+        {{ errorMessage }}
+      </div>
+
+      <div *ngIf="!isError && notifications.length === 0" class="empty">
+        No new notifications
+      </div>
     </div>
   </div>
 </div>

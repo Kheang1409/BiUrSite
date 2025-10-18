@@ -4,6 +4,7 @@ export class User {
   #email!: string;
   #profile!: string;
   #bio!: string;
+  #hasNewNotification!: boolean;
   #createdDate!: Date;
   get id(): string {
     return this.#id;
@@ -40,6 +41,14 @@ export class User {
   }
   set bio(value: string) {
     this.#bio = value;
+  }
+
+  get hasNewNotification(): boolean {
+    return this.#hasNewNotification;
+  }
+
+  set hasNewNotification(value: boolean) {
+    this.#hasNewNotification = value;
   }
 
   get createdDate(): Date {

@@ -1,0 +1,35 @@
+.profile-left {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.avatar-wrap {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.file-input {
+  display: none;
+}
+
+.profile-actions {
+  margin-top: 8px;
+}
+
+@media (max-width: 880px) {
+  :host {
+    flex-basis: 100%;
+    min-width: auto;
+    min-height: auto;
+  }
+}

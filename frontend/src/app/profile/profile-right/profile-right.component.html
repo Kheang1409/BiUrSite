@@ -1,0 +1,36 @@
+<div class="profile-right">
+  <aside class="notifications-panel">
+    <h4>Notifications</h4>
+    <div class="notifications-list">
+      <div *ngFor="let n of notifications" class="notification-row">
+        <div class="notif-avatar-wrap">
+          <img class="notif-avatar" [src]="n.userProfile" alt="avatar" />
+        </div>
+        <div class="notif-content">
+          <div class="notif-header">
+            <span class="notif-user">{{ n.username }}</span>
+            <span class="notif-time muted small">{{
+              n.createdDate | timeAgo
+            }}</span>
+          </div>
+          <div class="notif-text">{{ n.message }}</div>
+        </div>
+      </div>
+      <div *ngIf="notifications.length === 0" class="notifications-empty">
+        <div class="empty-icon">🔔</div>
+        <div class="empty-text muted">No notifications yet</div>
+      </div>
+
+      <!-- infinite scroll anchor -->
+      <div id="notificationsAnchor" style="min-height: 8px; width: 100%"></div>
+
+      <div
+        *ngIf="isLoadingNotifications"
+        class="notifications-loading muted small"
+        style="padding: 8px; text-align: center"
+      >
+        Loading more notifications...
+      </div>
+    </div>
+  </aside>
+</div>
