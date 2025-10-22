@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - production
+      - test
 
 jobs:
   build:
@@ -52,7 +52,14 @@ jobs:
       - name: Build and push Docker images
         run: |
           # Build and tag backend
-          docker build -t ${{ secrets.DOCKER_HUB_USERNAME }}/biursite-backend:latest \
+          # Ensure the repository root is used as the build context so files like backend.sln
+          # (which live at ./backend/backend.sln) are available to the Dockerfile.
+          # Use -f to point to the Dockerfile inside the backend folder.
+          echo "Listing repo root for debugging" && ls -la .
+          echo "Listing backend folder for debugging" && ls -la ./backend
+          # Use ./backend as the build context so the Dockerfile's COPY paths (like API/Api.csproj)
+          # which are relative to the backend folder resolve correctly.
+          docker build -f backend/Dockerfile -t ${{ secrets.DOCKER_HUB_USERNAME }}/biursite-backend:latest \
                        -t ${{ secrets.DOCKER_HUB_USERNAME }}/biursite-backend:v${{ steps.version.outputs.VERSION }} \
                        ./backend
 

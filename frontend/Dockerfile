@@ -2,17 +2,27 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 
-# Install dependencies separately to improve caching
-COPY package*.json ./
-RUN npm install --legacy-peer-deps && npm cache clean --force
+# Copy only package manifests to leverage Docker layer cache for dependencies
+COPY package.json package-lock.json* ./
+
+# Prefer npm ci when a lockfile is present (reproducible, faster)
+RUN if [ -f package-lock.json ]; then \
+			npm ci --legacy-peer-deps; \
+		else \
+			npm install --legacy-peer-deps; \
+		fi && npm cache clean --force
 
 FROM node:20-alpine AS build
 WORKDIR /app
+
+# Copy node_modules from deps stage (cached) and only needed source files
 COPY --from=deps /app/node_modules ./node_modules
+
+# Copy application sources. Keep this as late as possible so dependency layer is reused
 COPY . .
 
 # Build Angular app for production (default configuration is production)
-RUN npm run build -- --configuration=production
+RUN npm run build -- --configuration=production --output-hashing=all
 
 ## Stage 2: Serve with Nginx
 FROM nginx:1.27-alpine AS runtime

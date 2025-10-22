@@ -22,6 +22,10 @@ backend/*.opendb
 backend/*.db-shm
 backend/*.db-wal
 
+# Ensure solution and project files remain trackable (allow committing them when needed)
+!backend/backend.sln
+!backend/**/*.csproj
+
 # Ignore object files in all layers
 backend/API/appsettings.Development.json
 backend/Api/bin/

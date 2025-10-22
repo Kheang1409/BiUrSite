@@ -25,3 +25,15 @@ Thumbs.db
 
 # Env
 .env
+
+# Angular cache
+.angular
+
+# Test output
+coverage/
+test-results/
+
+# Local logs and telemetry
+*.log
+.npm
+.cache
