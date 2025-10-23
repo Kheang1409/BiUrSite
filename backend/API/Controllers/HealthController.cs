@@ -7,6 +7,7 @@ namespace Backend.API.Controllers
     public class HealthController : ControllerBase
     {
         [HttpHead]
+        [HttpGet]
         public IActionResult Head()
         {
             return Ok();

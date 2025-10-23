@@ -19,7 +19,7 @@ export const environment = {
     error: '**',
   },
   urlApi: {
-    baseUrl: 'http://localhost:5000/',
+    baseUrl: 'https://biursite-6z6n.onrender.com/',
     authUrl: 'api/auth/',
     userUrl: 'api/users/',
     postUrl: 'api/posts/',

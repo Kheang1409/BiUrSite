@@ -30,15 +30,13 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 app.UseMiddleware<GlobalExceptionMiddleware>();
 app.UseMiddleware<RateLimitingMiddleware>();
 // Development-only middleware in one place (container runs HTTP behind compose/proxy)
-if (app.Environment.IsDevelopment())
+
+app.UseHttpsRedirection();
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseHttpsRedirection();
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "BiUrSite API v1");
-    });
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "BiUrSite API v1");
+});
 
 app.UseRouting();
 
