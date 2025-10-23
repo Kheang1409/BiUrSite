@@ -9,7 +9,8 @@ public class ForbiddenHandler  : ExceptionHandlerBase
     {
         if (exception is ForbiddenException forbidden)
         {
-            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            // Return 403 Forbidden
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
 
             return new ProblemDetails
             {

@@ -45,8 +45,8 @@ internal static class ConfigurationExtensions
             services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
                 var options = ConfigurationOptions.Parse(redisConn);
-                options.AbortOnConnectFail = false; // Allow app to start even if Redis is unavailable
-                options.ConnectTimeout = 5000; // 5 seconds timeout
+                options.AbortOnConnectFail = false;
+                options.ConnectTimeout = 5000;
                 options.ConnectRetry = 3;
                 
                 var multiplexer = ConnectionMultiplexer.Connect(options);
