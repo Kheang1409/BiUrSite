@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: biursite-backend-svc
+  labels:
+    app: biursite-backend
+  annotations:
+    # Azure will create a public IP and DNS label: <dnsLabel>.<location>.cloudapp.azure.com
+    service.beta.kubernetes.io/azure-dns-label-name: "biursitebackend"
+spec:
+  type: LoadBalancer
+  selector:
+    app: biursite-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
