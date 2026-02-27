@@ -1,0 +1,6 @@
+[*.cs]
+
+# Test-specific rules
+dotnet_diagnostic.CA1707.severity = none # Underscores in test method names
+dotnet_diagnostic.CA1062.severity = none # Validate arguments in tests
+dotnet_diagnostic.CA2007.severity = none # ConfigureAwait in tests

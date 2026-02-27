@@ -1,26 +1,17 @@
-version: '3.8'
-
 services:
-  sql_server_container:
-    image: mcr.microsoft.com/mssql/server
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=${DB_PASSWORD}
-    ports:
-      - "1433:1433"
-
   backend:
     build: ./backend
     env_file:
       - .env
     environment:
-      - DB_CONNECT_STRING=Server=sql_server_container,1433;Database=${DB_NAME};User Id=${DB_USER_ID};Password=${DB_PASSWORD};TrustServerCertificate=True
+      - ASPNETCORE_ENVIRONMENT=Development
+      - MONGODB_CONNECTION_STRING=${MONGODB_CONNECTION_STRING}
+      - MONGODB_NAME=${MONGODB_NAME}
+      - REBUS_QUEUE_NAME=${REBUS_QUEUE_NAME}
       - JWT_SECRET_KEY=${JWT_SECRET_KEY}
       - JWT_ISSUER=${JWT_ISSUER}
       - JWT_AUDIENCE=${JWT_AUDIENCE}
       - JWT_EXPIRY_MINUTES=${JWT_EXPIRY_MINUTES}
-      - REQUEST_LIMIT=${REQUEST_LIMIT}
-      - LIMIT_ITEM=${LIMIT_ITEM}
       - SMTP_SERVER=${SMTP_SERVER}
       - SMTP_PORT=${SMTP_PORT}
       - SMTP_SENDER_EMAIL=${SMTP_SENDER_EMAIL}
@@ -29,15 +20,46 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - FACEBOOK_APP_ID=${FACEBOOK_APP_ID}
       - FACEBOOK_APP_SECRET=${FACEBOOK_APP_SECRET}
-      - CORS_ALLOWED_ORIGINS =${CORS_ALLOWED_ORIGINS}
+      - ALLOWED_CORS=${ALLOWED_CORS}
+      - FRONTEND=${FRONTEND}
+      - APP_BASE_URL=${APP_BASE_URL}
+      - GIT_TOKEN=${GIT_TOKEN}
+      - GIT_USERNAME=${GIT_USERNAME}
+      - GIT_REPO=${GIT_REPO}
+      - GIT_BRANCH=${GIT_BRANCH}
+      - REDIS_CONNECTION_STRING=${REDIS_CONNECTION_STRING}
+      - RATE_LIMIT_REQUESTS=${RATE_LIMIT_REQUESTS}
+      - RATE_LIMIT_WINDOW_SECONDS=${RATE_LIMIT_WINDOW_SECONDS}
     ports:
       - "5000:8080"
+    restart: unless-stopped
     depends_on:
-      - sql_server_container
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    env_file:
+      - .env
     ports:
-      - "8080:80"
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    restart: unless-stopped
     depends_on:
       - backend
+
+volumes:
+  redis-data:
