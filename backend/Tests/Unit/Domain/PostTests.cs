@@ -55,7 +55,7 @@ public class PostTests : TestBase
     }
 
     [Fact]
-    public void CreatePost_WithoutText_ShouldThrowException()
+    public void CreatePost_WithoutTextAndImage_ShouldThrowException()
     {
         var act = () => new Post.Builder()
             .WithUserId(new UserId(Guid.NewGuid()))
@@ -63,7 +63,24 @@ public class PostTests : TestBase
             .Build();
 
         act.Should().Throw<ArgumentException>()
-            .WithMessage("*Text*");
+            .WithMessage("*text or image*");
+    }
+
+    [Fact]
+    public void CreatePost_WithImageOnly_ShouldCreateSuccessfully()
+    {
+        var user = MockData.CreateFakeUser();
+        var post = new Post.Builder()
+            .WithUserId(user.Id)
+            .WithUsername(user.Username)
+            .WithUser(user)
+            .WithImage(new byte[] { 1, 2, 3 })
+            .Build();
+
+        post.Should().NotBeNull();
+        post.Id.Value.Should().NotBe(Guid.Empty);
+        post.Text.Should().BeEmpty();
+        post.Status.Should().Be(Status.Active);
     }
 
     [Fact]
@@ -125,5 +142,22 @@ public class PostTests : TestBase
         var post2 = MockData.CreateFakePost();
 
         post1.Id.Should().NotBe(post2.Id);
+    }
+
+    [Fact]
+    public void Delete_WhenAlreadyDeleted_ShouldBeIdempotent()
+    {
+        var post = MockData.CreateFakePost();
+        post.Delete();
+        var firstDeletedDate = post.DeletedDate;
+        var domainEventsCount = post.GetDomainEvents().Count();
+
+        // Second delete should be a no-op (idempotent)
+        post.Delete();
+
+        post.Status.Should().Be(Status.Deleted);
+        post.DeletedDate.Should().Be(firstDeletedDate);
+        // Should not add another PostDeletedDomainEvent
+        post.GetDomainEvents().Count().Should().Be(domainEventsCount);
     }
 }

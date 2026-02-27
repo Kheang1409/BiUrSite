@@ -1,134 +1,431 @@
-# Frontend: environment & deployment notes
+# Next.js Frontend - BiUrSite
 
-This file documents how the Angular frontend handles environment configuration for development and production, and how to override the API base URL at container runtime using Docker / docker-compose + a `.env` file.
+A modern Next.js (TypeScript) frontend for the BiUrSite mini social media platform, replacing the Angular CLI application.
 
-Summary
+## 🚀 Features
 
-- `ng serve` / development builds use `src/environments/environment.development.ts` (configured via `angular.json` file replacements).
-- Production builds (used by the Dockerfile) use `src/environments/environment.ts`.
-- At runtime, the production container generates `assets/env.js` from an environment variable (`API_BASE_URL`) so you can change the API URL without rebuilding the app.
+- **Modern Stack**: Next.js 15 + React 19 + TypeScript + Tailwind CSS
+- **GraphQL Integration**: Apollo Client with full type safety
+- **Dark Mode Support**: Light/dark theme with localStorage persistence
+- **Responsive Design**: Mobile-first approach with Tailwind CSS
+- **Authentication**: JWT token-based auth with hooks
+- **Real-time Updates**: SignalR integration for live notifications
+- **Component Architecture**: Reusable, maintainable components
+- **TypeScript**: Full type safety across the application
 
-Files of interest
-
-- `src/environments/environment.development.ts` — development environment values used by `ng serve`.
-- `src/environments/environment.ts` — production defaults used at build time.
-- `docker-entrypoint.sh` — entrypoint in the frontend image that writes `/usr/share/nginx/html/assets/env.js` from `API_BASE_URL`.
-- `frontend/Dockerfile` — copies the built files into nginx and uses the entrypoint.
-- `docker-compose.yml` — configured to pass `API_BASE_URL` from `.env` into the frontend container.
-
-How to set the API base URL for Docker deployments
-
-1. In the repo root create/modify `.env` and set the variable:
+## 📋 Project Structure
 
 ```
-API_BASE_URL=https://api.myproduction.site/
+src/
+├── app/                          # Next.js App Router
+│   ├── layout.tsx               # Root layout with providers
+│   ├── page.tsx                 # Home/Feed page
+│   ├── login/page.tsx           # Login page
+│   ├── register/page.tsx        # Register page
+│   ├── profile/page.tsx         # User profile page
+│   └── people/page.tsx          # People discovery page
+├── components/
+│   ├── Header.tsx               # Navigation header
+│   ├── Post.tsx                 # Post component
+│   ├── Comment.tsx              # Comment component
+│   ├── UserCard.tsx             # User card component
+│   ├── CreatePostCard.tsx       # Create post form
+│   ├── Providers.tsx            # Apollo + Theme providers
+│   ├── layouts/
+│   │   ├── MainLayout.tsx       # Main app layout
+│   │   └── AuthLayout.tsx       # Auth pages layout
+│   └── pages/
+│       ├── Feed.tsx             # Feed component
+│       ├── ProfilePage.tsx      # Profile page
+│       ├── PeoplePage.tsx       # People page
+│       └── Auth/
+│           ├── LoginPage.tsx    # Login form
+│           └── RegisterPage.tsx # Register form
+├── hooks/                        # Custom React hooks
+│   ├── useAuth.ts               # Authentication hook
+│   ├── useGraphQLAuth.ts        # GraphQL auth hook
+│   └── useLocalStorage.ts       # localStorage hook
+├── lib/
+│   ├── graphql/
+│   │   └── queries.ts           # GraphQL queries/mutations
+│   └── ThemeProvider.tsx        # Theme context provider
+├── types/
+│   └── index.ts                 # TypeScript type definitions
+├── utils/
+│   └── helpers.ts               # Utility functions
+└── styles/
+    └── globals.css              # Global styles + Tailwind
 ```
 
-2. Start the stack with docker-compose (no frontend rebuild required):
+## 🛠️ Setup & Installation
 
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+1. **Clone and navigate to the project**:
+
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+2. **Configure environment variables**:
+
+   ```bash
+   # .env.local (already provided)
+   NEXT_PUBLIC_API_URL=localhost:3000/
+   ```
+
+3. **Install dependencies**:
+
+   ```bash
+   npm install
+   ```
+
+4. **Run development server**:
+
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 📦 Available Scripts
+
+| Command              | Description                       |
+| -------------------- | --------------------------------- |
+| `npm run dev`        | Start development server          |
+| `npm run build`      | Build for production              |
+| `npm run start`      | Start production server           |
+| `npm run lint`       | Run ESLint                        |
+| `npm run type-check` | Check TypeScript types            |
+| `npm run codegen`    | Generate GraphQL types (optional) |
+
+## 🎨 Styling & Theme
+
+### Color Palette
+
+The app uses a gradient-based color scheme matching the original Angular design:
+
+```typescript
+colors: {
+  primary: {
+    1: '#0682a5',  // Cyan-blue
+    2: '#223056',  // Slate blue
+    3: '#0f172a',  // Deep navy
+  },
+  secondary: { ... },
+  tertiary: { ... },
+  danger: { ... },
+  success: { ... },
+}
 ```
-docker-compose up -d --build
+
+### Theme Switching
+
+The theme provider (`ThemeProvider`) automatically:
+
+- Detects system preference
+- Loads saved preference from localStorage
+- Applies light/dark mode classes to `<html>` element
+- Persists user choice
+
+**Usage in components**:
+
+```typescript
+import { useEffect } from "react";
+
+// Components automatically adapt to dark/light mode
+// using Tailwind's `dark:` modifier
+<div className="bg-white dark:bg-slate-900">Content adapts to theme</div>;
 ```
 
-The frontend container's entrypoint will create `assets/env.js` with
-`window.__env.API_BASE_URL` set to the value from `.env`. `index.html` includes
-`assets/env.js` so the app will read the runtime value.
+## 🔐 Authentication
 
-Verification steps
+### Login Flow
 
-- Development (local):
+```typescript
+import { useGraphQLAuth } from "@/hooks/useGraphQLAuth";
 
-  - Run the dev server and verify it uses the development environment:
-    ```powershell
-    cd frontend
-    npm install
-    npm start
-    # open http://localhost:4200 and inspect behavior or values that differ in dev
-    ```
+const { handleLogin, logout, currentUser } = useGraphQLAuth();
 
-- Production build (local):
+// Login
+await handleLogin(email, password);
 
-  - Build production bundle and inspect output:
-    ```powershell
-    cd frontend
-    npm run build -- --configuration=production
-    # the bundle will include values from src/environments/environment.ts
-    ```
+// Logout
+logout();
 
-- Runtime override (docker-compose):
-  - Set `API_BASE_URL` in `.env` and start the stack:
-    ```powershell
-    docker-compose up -d --build
-    ```
-  - To test a different API URL without rebuilding, change `.env` and restart the frontend container:
-    ```powershell
-    docker-compose up -d --force-recreate --no-deps --build frontend
-    ```
+// Access current user
+console.log(currentUser);
+```
 
-Notes & tips
+### Protected Routes
 
-- Do not store secrets in frontend env vars. Only public config like API endpoints should be put in `assets/env.js`.
-- If you want to force normalization (e.g. ensure trailing slash) I can add a small normalization step to `docker-entrypoint.sh`.
-- If you deploy static files (S3, CloudFront, etc.) instead of containers, upload a customized `assets/env.js` during deployment with the runtime API URL.
+Wrap components with authentication checks:
 
-If you'd like I can also add a tiny CI/CD snippet (GitHub Actions, Azure Pipeline) to publish the built files and write `assets/env.js` during deploy.
+```typescript
+import { useAuth } from "@/hooks/useAuth";
 
-# Frontend
+export function ProtectedComponent() {
+  const { isAuthenticated, isLoading } = useAuth();
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.0.
+  if (isLoading) return <Loading />;
+  if (!isAuthenticated) return <Redirect to="/login" />;
 
-## Development server
+  return <ProtectedContent />;
+}
+```
 
-To start a local development server, run:
+## 📡 GraphQL Integration
+
+### Using Queries
+
+```typescript
+import { useQuery } from "@apollo/client";
+import { POSTS_QUERY } from "@/lib/graphql/queries";
+
+export function Feed() {
+  const { data, loading, error } = useQuery(POSTS_QUERY, {
+    variables: {
+      pageNumber: 1,
+      keywords: null,
+    },
+  });
+
+  const posts = data?.posts || [];
+  // ...
+}
+```
+
+### Using Mutations
+
+```typescript
+import { useMutation } from "@apollo/client";
+import { CREATE_POST_MUTATION } from "@/lib/graphql/queries";
+
+export function CreatePost() {
+  const [createPost, { loading }] = useMutation(CREATE_POST_MUTATION, {
+    onCompleted: (data) => {
+      console.log("Post created:", data);
+    },
+    onError: (error) => {
+      console.error("Failed to create post:", error);
+    },
+  });
+
+  const handleCreate = async (text: string) => {
+    await createPost({
+      variables: { text },
+    });
+  };
+
+  // ...
+}
+```
+
+### Available Queries/Mutations
+
+See [src/lib/graphql/queries.ts](src/lib/graphql/queries.ts) for complete list:
+
+**Queries**:
+
+- `POSTS_QUERY` - Get feed posts
+- `MY_POSTS_QUERY` - Get user's posts
+- `POST_DETAIL_QUERY` - Get single post with comments
+- `USERS_QUERY` - Get users list
+- `USER_QUERY` - Get user profile
+- `ME_QUERY` - Get current user
+- `NOTIFICATIONS_QUERY` - Get notifications
+
+**Mutations**:
+
+- `LOGIN_MUTATION` - User login
+- `REGISTER_MUTATION` - User registration
+- `CREATE_POST_MUTATION` - Create post
+- `EDIT_POST_MUTATION` - Edit post
+- `DELETE_POST_MUTATION` - Delete post
+- `CREATE_COMMENT_MUTATION` - Add comment
+- `EDIT_COMMENT_MUTATION` - Edit comment
+- `DELETE_COMMENT_MUTATION` - Delete comment
+
+## 🧩 Component Usage
+
+### Post Component
+
+```typescript
+import { Post } from "@/components/Post";
+
+<Post
+  post={postData}
+  isOwner={currentUserId === post.userId}
+  onEdit={(id, content) => handleEdit(id, content)}
+  onDelete={(id) => handleDelete(id)}
+  onLike={(id) => handleLike(id)}
+  onComment={(id) => navigateToPost(id)}
+/>;
+```
+
+### UserCard Component
+
+```typescript
+import { UserCard } from "@/components/UserCard";
+
+<UserCard
+  user={userData}
+  isFollowing={false}
+  onFollow={() => handleFollow(user.id)}
+  onUnfollow={() => handleUnfollow(user.id)}
+/>;
+```
+
+### CreatePostCard Component
+
+```typescript
+import { CreatePostCard } from "@/components/CreatePostCard";
+
+<CreatePostCard onPostCreated={() => refetchPosts()} />;
+```
+
+## 🎯 Best Practices
+
+### TypeScript
+
+All components and utilities are fully typed:
+
+```typescript
+interface PostProps {
+  post: Post;
+  onEdit?: (postId: string, content: string) => void;
+  isOwner?: boolean;
+}
+
+export function Post({ post, onEdit, isOwner }: PostProps) {
+  // ...
+}
+```
+
+### Component Structure
+
+- **Functional components** only (hooks-based)
+- **Clear separation of concerns**
+- **Reusable and composable**
+- **Proper error boundaries**
+
+### State Management
+
+- **Local state**: `useState` for component-level state
+- **Global state**: Apollo Client cache for API data
+- **Persistent state**: Custom `useLocalStorage` hook
+- **Auth state**: Custom `useAuth` hook with localStorage
+
+### Error Handling
+
+```typescript
+// GraphQL errors
+const { data, loading, error } = useQuery(QUERY);
+if (error) {
+  return <ErrorBoundary error={error} />;
+}
+
+// Mutation errors
+const [mutate] = useMutation(MUTATION, {
+  onError: (error) => {
+    const message = ApiErrorHandler.handleGraphQLError(error);
+    showErrorToast(message);
+  },
+});
+```
+
+## 🚀 Deployment
+
+### Build for Production
 
 ```bash
-ng serve
+npm run build
+npm start
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+### Docker
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+A `Dockerfile` is included for containerized deployment:
 
 ```bash
-ng generate component component-name
+docker build -t biursite-frontend .
+docker run -p 3000:3000 -e NEXT_PUBLIC_API_URL=https://api.example.com/ biursite-frontend
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Environment Variables
+
+For production deployment, set:
+
+```env
+NEXT_PUBLIC_API_URL=https://your-api-domain.com/
+```
+
+## Troubleshooting
+
+### Port 3000 already in use
 
 ```bash
-ng generate --help
+npm run dev -- -p 3001
 ```
 
-## Building
-
-To build the project run:
+### Clear cache and reinstall
 
 ```bash
-ng build
+rm -rf node_modules .next
+npm install
+npm run dev
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### TypeScript errors
 
 ```bash
-ng test
+npm run type-check
 ```
 
-## Running end-to-end tests
+### Check Apollo Client connection
 
-For end-to-end (e2e) testing, run:
+- Verify `NEXT_PUBLIC_API_URL` is correct
+- Check browser DevTools Network tab for GraphQL requests
+- Verify backend GraphQL endpoint is accessible
 
-```bash
-ng e2e
-```
+## 📚 Key Technologies
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+- **Next.js 15** - React framework with App Router
+- **React 19** - UI library
+- **TypeScript 5.3** - Type safety
+- **Tailwind CSS 3.4** - Utility-first styling
+- **Apollo Client 3.10** - GraphQL client
+- **Zustand** - State management (optional)
+- **DayJS** - Date manipulation
+- **SignalR** - Real-time communication
 
-## Additional Resources
+## 🤝 Contributing
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+1. Follow the existing component structure
+2. Maintain TypeScript types for all functions
+3. Use Tailwind CSS for styling (no inline styles)
+4. Keep components small and reusable
+5. Test GraphQL queries in Apollo Studio
+
+## 📄 License
+
+Same as the parent project.
+
+## 🆘 Support
+
+For issues or questions:
+
+1. Check existing components for examples
+2. Review GraphQL queries and mutations
+3. Verify environment configuration
+4. Check browser console and DevTools
+
+---
+
+**Ready to use!** Install dependencies and run `npm run dev` to get started.

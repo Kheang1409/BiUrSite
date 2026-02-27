@@ -1,43 +1,28 @@
-## Stage 1: Build Angular application
 FROM node:20-alpine AS deps
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci --frozen-lockfile
 
-# Copy only package manifests to leverage Docker layer cache for dependencies
-COPY package.json package-lock.json* ./
-
-# Prefer npm ci when a lockfile is present (reproducible, faster)
-RUN if [ -f package-lock.json ]; then \
-			npm ci --legacy-peer-deps; \
-		else \
-			npm install --legacy-peer-deps; \
-		fi && npm cache clean --force
-
-FROM node:20-alpine AS build
+FROM node:20-alpine AS builder
 WORKDIR /app
-
-# Copy node_modules from deps stage (cached) and only needed source files
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 COPY --from=deps /app/node_modules ./node_modules
-
-# Copy application sources. Keep this as late as possible so dependency layer is reused
 COPY . .
+RUN npm run build
 
-# Build Angular app for production (default configuration is production)
-RUN npm run build -- --configuration=production --output-hashing=all
-
-## Stage 2: Serve with Nginx
-FROM nginx:1.27-alpine AS runtime
-
-# Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Remove default Nginx static assets
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copy built Angular files from build stage
-COPY --from=build /app/dist/frontend /usr/share/nginx/html
-
-# Expose port 80
-EXPOSE 80
-
-# Start Nginx server
-CMD ["nginx", "-g", "daemon off;"]
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+USER nextjs
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "server.js"]

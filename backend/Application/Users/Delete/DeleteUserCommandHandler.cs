@@ -1,4 +1,5 @@
 using Backend.Application.Data;
+using Backend.Domain.Enums;
 using Backend.Domain.Users;
 using Backend.SharedKernel.Exceptions;
 using MediatR;
@@ -21,11 +22,9 @@ internal sealed class DeleteUserCommandHandler : IRequestHandler<DeleteUserComma
     public async Task Handle(DeleteUserCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetUserById(new UserId(request.Id));
-        if (user is null)
-            throw new NotFoundException("User not found.");
-        if (user.Status != Domain.Enums.Status.Active)
-            throw new UnauthorizedAccessException($"User is {user.Status}.");
-        user.Delete();
+        if (user is {Status: Status.Deleted})
+            throw new ConflictException("User is already deleted.");
+        user!.Delete();
         await _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync(user, cancellationToken);
     }

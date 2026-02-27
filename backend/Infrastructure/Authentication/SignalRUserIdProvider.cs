@@ -2,11 +2,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Backend.Infrastructure.Authentication;
-
-/// <summary>
-/// Provide user id for SignalR based on the authenticated user's claims.
-/// It prefers the JWT 'sub' (subject) claim, falling back to NameIdentifier.
-/// </summary>
 public class SignalRUserIdProvider : IUserIdProvider
 {
     public string? GetUserId(HubConnectionContext connection)
@@ -15,11 +10,15 @@ public class SignalRUserIdProvider : IUserIdProvider
         if (user == null)
             return null;
 
-        // Try 'sub' claim first (JwtRegisteredClaimNames.Sub)
-        var sub = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                  ?? user.FindFirst("sub")?.Value
-                  ?? user.Identity?.Name;
+        var idClaim = user.FindFirst("id")?.Value;
+        if (!string.IsNullOrEmpty(idClaim)) return idClaim;
 
-        return sub;
+        var nameId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!string.IsNullOrEmpty(nameId)) return nameId;
+
+        var sub = user.FindFirst("sub")?.Value;
+        if (!string.IsNullOrEmpty(sub)) return sub;
+
+        return user.Identity?.Name;
     }
 }

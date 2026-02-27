@@ -16,8 +16,8 @@ internal sealed class DeleteImageHandler : IHandleMessages<PostDeletedEvent>
     {
         if (message.Image is not null && !string.IsNullOrEmpty(message.Image.Url))
         {
-            var id = message.Image.Id.ToString();
-            var fileName = $"posts/{id}.jpg";   
+            var id = message.Id.ToString();
+            var fileName = $"posts/{id}.jpg";
             await _imageStorageService.DeleteImageAsync(fileName);
         }
     }

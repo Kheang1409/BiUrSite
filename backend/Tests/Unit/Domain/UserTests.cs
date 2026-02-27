@@ -105,7 +105,16 @@ public class UserTests : TestBase
     [Fact]
     public void Verify_ShouldSetStatusToActive()
     {
-        var user = MockData.CreateFakeUser();
+        // Create a user that is not yet verified (Unverified status with token)
+        var user = new User.Builder()
+            .SetUserName("pendinguser")
+            .SetEmail("pending@example.com")
+            .SetPassword("password123")
+            .SetAuthProvider("local")
+            .SetStatus(Status.Unverified)
+            .SetRole(Role.User)
+            .SetToken(Token.Generate())
+            .Build();
 
         user.Verify();
 
@@ -173,5 +182,44 @@ public class UserTests : TestBase
         user.AddNotification(notification);
         user.Notifications.Should().Contain(notification);
         notification.UserId.Should().Be(user.Id);
+    }
+
+    [Fact]
+    public void Verify_WhenAlreadyActive_ShouldThrow()
+    {
+        // Create an already active user
+        var user = MockData.CreateFakeUser();
+        // MockData.CreateFakeUser() creates Active users, so calling Verify should throw
+
+        var act = () => user.Verify();
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("User is already verified.");
+    }
+
+    [Fact]
+    public void Verify_WhenDeleted_ShouldThrow()
+    {
+        var user = MockData.CreateFakeUser();
+        user.Delete();
+
+        var act = () => user.Verify();
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage("Cannot verify a deleted user.");
+    }
+
+    [Fact]
+    public void Delete_WhenAlreadyDeleted_ShouldBeIdempotent()
+    {
+        var user = MockData.CreateFakeUser();
+        user.Delete();
+        var firstDeletedDate = user.DeletedDate;
+
+        // Second delete should be a no-op
+        user.Delete();
+
+        user.Status.Should().Be(Status.Deleted);
+        user.DeletedDate.Should().Be(firstDeletedDate);
     }
 }

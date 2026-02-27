@@ -6,4 +6,6 @@ public record UpdateProfileCommand(
     string Email,
     string Username,
     string? Bio,
-    byte[]? Data) : IRequest;
+    byte[]? Data,
+    string? Phone = null,
+    bool RemoveImage = false) : IRequest;

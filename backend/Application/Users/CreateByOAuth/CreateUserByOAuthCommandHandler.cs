@@ -7,16 +7,16 @@ namespace Backend.Application.Users.CreateByOAuth;
 internal sealed class CreateUserByOAuthCommandHandler : IRequestHandler<CreateUserByOAuthCommand, User>
 {
     private readonly IUserRepository _userRepository;
-    private readonly IEnumerable<IUserFactory> _factories;
-    private readonly IUnitOfWork _unitOfWord;
+    private readonly IOAuthUserFactory _userFactory;
+    private readonly IUnitOfWork _unitOfWork;
     public CreateUserByOAuthCommandHandler(
         IUserRepository userRepository,
-        IEnumerable<IUserFactory> factories,
-        IUnitOfWork unitOfWord)
+        IOAuthUserFactory userFactory,
+        IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
-        _factories = factories;
-        _unitOfWord = unitOfWord;
+        _userFactory = userFactory;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<User> Handle(CreateUserByOAuthCommand request, CancellationToken cancellationToken)
@@ -26,10 +26,9 @@ internal sealed class CreateUserByOAuthCommandHandler : IRequestHandler<CreateUs
         {
             return existedUser;
         }
-        var factory = _factories.OfType<OAuthUserFactory>().First();
-        var user = factory.Create(new UserId(request.Id), request.Username, request.Email, null, request.AuthProvider);
+        var user = _userFactory.Create(new UserId(request.Id), request.Username, request.Email, null, request.AuthProvider);
         await _userRepository.Create(user);
-        await _unitOfWord.SaveChangesAsync(user, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(user, cancellationToken);
         return user;
     }
 }

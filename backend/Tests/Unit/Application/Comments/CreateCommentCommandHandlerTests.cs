@@ -58,7 +58,6 @@ public class CreateCommentCommandHandlerTests : TestBase
             .Setup(x => x.SaveChangesAsync(It.IsAny<Entity>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        // Re-create handler after setups to ensure it uses the latest mock configurations
         var handler = new CreateCommentCommandHandler(
             _userRepositoryMock.Object,
             _postRepositoryMock.Object,

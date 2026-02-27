@@ -2,7 +2,8 @@ using System.Diagnostics;
 using System.Text.Json;
 
 namespace Backend.API.Middleware;
-public class GlobalExceptionMiddleware
+
+public sealed class GlobalExceptionMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<GlobalExceptionMiddleware> _logger;
@@ -15,7 +16,7 @@ public class GlobalExceptionMiddleware
         _handlerContext = new ExceptionHandlerContext(env);
     }
 
-    public async Task InvokeAsync(HttpContext context)
+    public async Task InvokeAsync(HttpContext context, ICorrelationIdAccessor correlationIdAccessor)
     {
         try
         {
@@ -23,13 +24,20 @@ public class GlobalExceptionMiddleware
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unhandled exception occurred.");
+            var correlationId = correlationIdAccessor.CorrelationId ?? context.TraceIdentifier;
+            
+            _logger.LogError(
+                ex,
+                "Unhandled exception occurred. CorrelationId: {CorrelationId}",
+                correlationId);
+            
             var problem = _handlerContext.Handle(ex, context);
 
             problem.Type = $"{context.Request.Scheme}://{context.Request.Host}/api/errors/{ex.GetType().Name}";
             problem.Extensions["traceId"] = Activity.Current?.Id ?? context.TraceIdentifier;
-            problem.Extensions["requestId"] = context.TraceIdentifier;
-            problem.Extensions["success"] = false; 
+            problem.Extensions["correlationId"] = correlationId;
+            problem.Extensions["success"] = false;
+            
             context.Response.ContentType = "application/problem+json";
             var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 

@@ -3,6 +3,7 @@ using Backend.Application.Storage;
 using Backend.Infrastructure.Storage;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using StackExchange.Redis;
 
 namespace Backend.Infrastructure.Extensions;
@@ -20,7 +21,6 @@ internal static class ConfigurationExtensions
             options.BaseUrl = appBaseUrl;
         });
         
-        // Rate limit options (env overrides appsettings)
         var requestLimitStr = Environment.GetEnvironmentVariable("RATE_LIMIT_REQUESTS")
                             ?? configuration["LimitSettings:RequestLimit"]
                             ?? throw new InvalidOperationException("Rate Limit RequestLimit is not configured.");
@@ -44,6 +44,7 @@ internal static class ConfigurationExtensions
         {
             services.AddSingleton<IConnectionMultiplexer>(sp =>
             {
+                var logger = sp.GetService<ILoggerFactory>()?.CreateLogger("RedisConfiguration");
                 var options = ConfigurationOptions.Parse(redisConn);
                 options.AbortOnConnectFail = false;
                 options.ConnectTimeout = 5000;
@@ -51,15 +52,18 @@ internal static class ConfigurationExtensions
                 
                 var multiplexer = ConnectionMultiplexer.Connect(options);
                 
-                // Log connection status
                 if (multiplexer.IsConnected)
                 {
-                    Console.WriteLine($"Successfully connected to Redis at {redisConn}");
+                    if (string.Equals(Environment.GetEnvironmentVariable("ENABLE_REQUEST_TRACING"), "1"))
+                        logger?.LogInformation("Successfully connected to Redis at {RedisConnection}", redisConn);
                 }
                 else
                 {
-                    Console.WriteLine($"Warning: Redis connection established but not connected to {redisConn}");
-                    Console.WriteLine("Rate limiting will fall back to NoopRateLimiter");
+                    if (string.Equals(Environment.GetEnvironmentVariable("ENABLE_REQUEST_TRACING"), "1"))
+                    {
+                        logger?.LogWarning("Redis connection established but not connected to {RedisConnection}", redisConn);
+                        logger?.LogWarning("Rate limiting will fall back to NoopRateLimiter");
+                    }
                 }
                 
                 return multiplexer;

@@ -5,19 +5,19 @@ using MediatR;
 
 namespace Backend.Application.Posts.Delete;
 
-public record DeletePostCommandHandler : IRequestHandler<DeletePostCommand>
+internal sealed class DeletePostCommandHandler : IRequestHandler<DeletePostCommand>
 {
     private readonly IPostRepository _postRepository;
-    private readonly IUnitOfWork _unitOfWord;
+    private readonly IUnitOfWork _unitOfWork;
 
 
     public DeletePostCommandHandler(
         IPostRepository postRepository,
-        IUnitOfWork unitOfWord
+        IUnitOfWork unitOfWork
     )
     {
         _postRepository = postRepository;
-        _unitOfWord = unitOfWord;
+        _unitOfWork = unitOfWork;
     }
     public async Task Handle(DeletePostCommand request, CancellationToken cancellationToken)
     {
@@ -28,6 +28,6 @@ public record DeletePostCommandHandler : IRequestHandler<DeletePostCommand>
             throw new ForbiddenException("You are not authorized to edit this post.");
         post.Delete();
         await _postRepository.Delete(post);
-        await _unitOfWord.SaveChangesAsync(post, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(post, cancellationToken);
     }
 }

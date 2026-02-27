@@ -13,8 +13,8 @@ public class CreatePostCommandValidator : AbstractValidator<CreatePostCommand>
             .NotEmpty().WithMessage("Username is required.")
             .Length(2, 25).WithMessage("Username must be at least 2 characters.");
 
-        RuleFor(x => x.Text)
-            .NotEmpty().WithMessage("Text is required.")
-            .MinimumLength(1).WithMessage("Text must be at least 1 characters.");
+        RuleFor(x => x)
+            .Must(x => !string.IsNullOrWhiteSpace(x.Text) || (x.Data?.Length ?? 0) > 0)
+            .WithMessage("Post must contain text or image.");
     }
 }

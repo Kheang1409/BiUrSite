@@ -3,7 +3,6 @@ using Backend.Domain.Comments;
 using Backend.Domain.Notifications;
 using Backend.Domain.Posts;
 using Backend.Domain.Users;
-using Backend.SharedKernel.Exceptions;
 using Rebus.Handlers;
 
 namespace Backend.Application.Comments.Create;
@@ -42,13 +41,16 @@ internal sealed class SendNotificationPostOwnerHandler : IHandleMessages<Comment
 
         if (!post.UserId.Value.Equals(comment.UserId.Value))
         {
-            var notification = Notification.Create(comment.User!.Id, post.Id, comment.Text);
+            var actorId = comment.User!.Id;
+            var recipientId = post.User!.Id;
+
+            var notification = Notification.Create(actorId, post.Id, comment.Text);
             notification.SetUser(comment.User);
+
             post.User!.AddNotification(notification);
-            await Task.WhenAll(
-                _notificationRepository.Create(post.User.Id, notification),
-                _notificationNotifier.NotifyPostOwnerOfComment(post.User.Id, notification)
-            );
+            var created = await _notificationRepository.Create(recipientId, notification);
+
+            await _notificationNotifier.NotifyPostOwnerOfComment(recipientId, created);
         }
     }
 }

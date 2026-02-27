@@ -3,8 +3,6 @@ using Backend.Domain.Enums;
 using Backend.Domain.Images;
 using Backend.Domain.Primitive;
 using Backend.Domain.Users;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace Backend.Domain.Posts;
 
@@ -12,11 +10,9 @@ public class Post : Entity
 {
     public PostId Id { get; private set; }
     public UserId UserId { get; private set; }
-    [BsonIgnore]
-    public User? User { get; set; }
+    public User? User { get; private set; }
     public string Text { get; private set; } = string.Empty;
     public Image? Image { get; private set; }
-    [BsonElement("Comments")]
     private List<Comment> _comments = new();
     public IEnumerable<Comment> Comments => _comments;
     public Status Status { get; private set; }
@@ -85,11 +81,13 @@ public class Post : Entity
             if (string.IsNullOrWhiteSpace(Username))
                 throw new ArgumentException("Username must be provided.", nameof(Username));
 
-            if (string.IsNullOrWhiteSpace(Text))
-                throw new ArgumentException("Text must be provided.", nameof(Text));
+            var hasText = !string.IsNullOrWhiteSpace(Text);
+            var hasImage = Data is { Length: > 0 };
+
+            if (!hasText && !hasImage)
+                throw new ArgumentException("Post must contain text or image.");
 
             var post = new Post(this);
-            // User is not persisted, only used at runtime
             post.User = User;
             post.AddDomainEvent(new PostCreatedDomainEvent(Guid.NewGuid(), post.Id!, Data));
             return post;
@@ -100,10 +98,21 @@ public class Post : Entity
     {
         Image = new Image(url);
         ModifiedDate = DateTime.UtcNow;
+        AddDomainEvent(new PostUpdatedDomainEvent(Guid.NewGuid(), Id, UserId, null, url));
+    }
+
+    public void RemoveImage()
+    {
+        Image = null;
+        ModifiedDate = DateTime.UtcNow;
+        AddDomainEvent(new PostUpdatedDomainEvent(Guid.NewGuid(), Id, UserId, null, null));
     }
 
     public void Delete()
     {
+        if (Status == Status.Deleted)
+            return; // Idempotent - already deleted
+            
         Status = Status.Deleted;
         DeletedDate = DateTime.UtcNow;
         AddDomainEvent(new PostDeletedDomainEvent(Guid.NewGuid(), Id!, Image));
@@ -113,6 +122,7 @@ public class Post : Entity
     {
         Text = content;
         ModifiedDate = DateTime.UtcNow;
+        AddDomainEvent(new PostUpdatedDomainEvent(Guid.NewGuid(), Id, UserId, content, Image?.Url));
     }
 
 
@@ -124,7 +134,8 @@ public class Post : Entity
         return comment;
     }
 
-    public void SetUser(User user){
+    public void SetUser(User user)
+    {
         User = user;
     }
 

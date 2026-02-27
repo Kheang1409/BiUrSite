@@ -27,7 +27,6 @@ namespace Backend.Infrastructure.Configuration
 
             services.AddCors(options =>
             {
-                // Restrict to frontend
                 options.AddPolicy(AllowFrontendPolicy, policy =>
                 {
                     policy.WithOrigins(origins)
@@ -36,7 +35,6 @@ namespace Backend.Infrastructure.Configuration
                           .AllowCredentials();
                 });
 
-                // Allow all for general API endpoints
                 options.AddPolicy(AllowAllPolicy, policy =>
                 {
                     policy.AllowAnyOrigin()

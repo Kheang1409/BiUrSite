@@ -8,6 +8,7 @@ public class UserDto
     public string Username { get; private set; } = string.Empty;
     public string Email { get; private set; }  = string.Empty;
     public string Profile { get; private set; }  = string.Empty;
+    public string? Phone { get; private set; }
     public string Bio { get; private set; } = string.Empty;
     public bool HasNewNotification { get; private set; }
     public DateTime CreatedDate { get; private set; }
@@ -22,6 +23,7 @@ public class UserDto
             Username = user.Username,
             Email = user.Email,
             Profile = user.Profile.Url,
+            Phone = user.Phone,
             Bio = user.Bio,
             HasNewNotification = user.HasNewNotification,
             CreatedDate = user.CreatedDate,

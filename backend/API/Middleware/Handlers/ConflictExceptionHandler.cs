@@ -8,9 +8,7 @@ public class ConflictExceptionHandler  : ExceptionHandlerBase
     {
         if (exception is ConflictException conflictEx)
         {
-            // Return 409 Conflict
             context.Response.StatusCode = StatusCodes.Status409Conflict;
-
             return new ProblemDetails
             {
                 Status = StatusCodes.Status409Conflict,

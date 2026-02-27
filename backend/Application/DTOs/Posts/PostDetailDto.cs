@@ -1,4 +1,5 @@
 using Backend.Application.DTOs.Comments;
+using Backend.Domain.Enums;
 using Backend.Domain.Posts;
 
 namespace Backend.Application.DTOs.Posts;
@@ -10,7 +11,7 @@ public record PostDetailDto(
     string UserProfile,
     string Text,
     string? ImageUrl,
-    IEnumerable<CommentDto> Comments,
+    int CommentCount,
     DateTime CreatedDate
 )
 {
@@ -23,7 +24,7 @@ public record PostDetailDto(
             post.User!.Profile.Url,
             post.Text,
             post.Image?.Url,
-            post.Comments.Select(c => (CommentDto)c),
+            post.Comments.Count(c => c.Status == Status.Active),
             post.CreatedDate
         );
     }

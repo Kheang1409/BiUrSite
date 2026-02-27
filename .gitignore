@@ -85,28 +85,14 @@ backend/Tests/*.lastbuildstate
 backend/Tests/*.VisualState.xml
 backend/Tests/*.DotSettings.user
 
-# Ignore Angular build artifacts
-frontend/dist/
+# Ignore Next.js build artifacts
+frontend/.next/
+frontend/.next/cache/
 frontend/node_modules/
-frontend/.angular/cache
-frontend/.browserslistrc
-frontend/.editorconfig
-frontend/.gitignore
-frontend/.vscode/
-frontend/.idea/
-frontend/.DS_Store
-frontend/.env
 frontend/.env.local
 frontend/.env.development.local
 frontend/.env.test.local
 frontend/.env.production.local
-frontend/bun.lockb
-frontend/package-lock.json
-frontend/yarn.lock
-frontend/coverage/
-frontend/logs/
-frontend/tmp/
-frontend/out-tsc/
 
 # Ignore IDE specific files
 .idea/
@@ -144,5 +130,4 @@ backend/nuget.config
 .idea/
 
 # Ignore build and dependency artifacts
-frontend/node_modules/
 frontend/.vscode/

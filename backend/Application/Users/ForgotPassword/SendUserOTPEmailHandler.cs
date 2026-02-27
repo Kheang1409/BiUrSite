@@ -2,7 +2,6 @@ using Backend.Application.Messaging.Emails;
 using Backend.Application.Services;
 using Backend.Domain.Users;
 using Backend.SharedKernel.Exceptions;
-using MediatR;
 using Rebus.Handlers;
 
 namespace Backend.Application.Users.ForgotPassword;

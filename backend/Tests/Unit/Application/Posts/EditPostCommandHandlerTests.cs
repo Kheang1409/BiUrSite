@@ -1,4 +1,6 @@
 using Backend.Application.Posts.Edit;
+using Backend.Application.Data;
+using Backend.Application.Storage;
 using Backend.Domain.Posts;
 using Backend.SharedKernel.Exceptions;
 using FluentAssertions;
@@ -11,12 +13,19 @@ namespace Tests.Unit.Application.Posts;
 public class EditPostCommandHandlerTests : TestBase
 {
     private readonly Mock<IPostRepository> _postRepositoryMock;
+    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<IImageStorageService> _imageStorageServiceMock;
     private readonly EditPostCommandHandler _handler;
 
     public EditPostCommandHandlerTests()
     {
         _postRepositoryMock = new Mock<IPostRepository>();
-        _handler = new EditPostCommandHandler(_postRepositoryMock.Object);
+        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _imageStorageServiceMock = new Mock<IImageStorageService>();
+        _handler = new EditPostCommandHandler(
+            _postRepositoryMock.Object,
+            _unitOfWorkMock.Object,
+            _imageStorageServiceMock.Object);
     }
 
     [Fact]
@@ -33,10 +42,15 @@ public class EditPostCommandHandlerTests : TestBase
             .Setup(x => x.Update(It.IsAny<Post>()))
             .Returns(Task.CompletedTask);
 
+        _unitOfWorkMock
+            .Setup(x => x.SaveChangesAsync(It.IsAny<Backend.Domain.Primitive.Entity>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
         await _handler.Handle(command, CancellationToken.None);
 
         post.Text.Should().Be("Updated content");
         _postRepositoryMock.Verify(x => x.Update(It.IsAny<Post>()), Times.Once);
+        _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<Backend.Domain.Primitive.Entity>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

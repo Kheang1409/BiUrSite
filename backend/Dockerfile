@@ -1,8 +1,8 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
+# syntax=docker/dockerfile:1.6
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 
 WORKDIR /src
 
-# Copy only project files first to leverage Docker layer caching for restore
 COPY backend.sln ./
 COPY API/Api.csproj ./API/
 COPY Application/Application.csproj ./Application/
@@ -10,25 +10,40 @@ COPY Domain/Domain.csproj ./Domain/
 COPY Infrastructure/Infrastructure.csproj ./Infrastructure/
 COPY SharedKernel/SharedKernel.csproj ./SharedKernel/
 
-# Restore dependencies
-RUN dotnet restore ./API/Api.csproj
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet restore ./API/Api.csproj
 
-# Copy the rest of the source
 COPY . ./
 
-# Build and publish (no restore again); strip debug symbols for smaller output
-# Avoid ReadyToRun here to keep framework-dependent publish without RID requirements
-RUN dotnet publish ./API/Api.csproj -c Release -o /app/publish --no-restore \
-	-p:DebugType=None -p:DebugSymbols=false
+RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
+    dotnet publish ./API/Api.csproj -c Release -o /app/publish --no-restore \
+    -p:DebugType=None \
+    -p:DebugSymbols=false \
+    -p:PublishTrimmed=false
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
+
+RUN apk add --no-cache curl
+
+RUN addgroup -g 1000 appgroup && \
+    adduser -u 1000 -G appgroup -D -s /bin/sh appuser
+
 WORKDIR /app
 
-# Listen on 8080 inside the container (matches docker-compose mapping)
-ENV ASPNETCORE_URLS=http://+:8080 \
-	DOTNET_EnableDiagnostics=0
+COPY --from=build --chown=appuser:appgroup /app/publish .
 
-COPY --from=build /app/publish .
+USER appuser
+
+ENV ASPNETCORE_URLS=http://+:8080 \
+    DOTNET_EnableDiagnostics=0 \
+    DOTNET_RUNNING_IN_CONTAINER=true \
+    DOTNET_gcServer=1 \
+    DOTNET_GCHeapHardLimit=0x10000000 \
+    COMPlus_EnableDiagnostics=0
 
 EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl --fail http://localhost:8080/health || exit 1
+
 ENTRYPOINT ["dotnet", "Api.dll"]

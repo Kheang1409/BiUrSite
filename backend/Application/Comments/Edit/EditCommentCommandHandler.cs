@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Backend.Application.Comments.Edit;
 
-public record EditCommentCommandHandler : IRequestHandler<EditCommentCommand>
+internal sealed class EditCommentCommandHandler : IRequestHandler<EditCommentCommand>
 {
     private readonly ICommentRepository _commentRepository;
     public EditCommentCommandHandler(

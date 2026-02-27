@@ -5,19 +5,19 @@ using Backend.Domain.Enums;
 using Backend.Domain.Images;
 using Backend.Domain.Notifications;
 using Backend.Domain.Primitive;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace Backend.Domain.Users;
 
 public class User : Entity
 {
     private const string DEFAULT_PROFILE = "https://raw.githubusercontent.com/Kheang1409/images/refs/heads/main/profiles/profile-default.webp";
-    public UserId Id { get; private set; }
+    public static string DefaultProfileUrl => DEFAULT_PROFILE;
+    public UserId Id { get; private set; } = null!;
     public string Username { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
-    public Image Profile { get; private set; }
+    public Image Profile { get; private set; } = null!;
+    public string? Phone { get; private set; }
     public string Bio { get; private set; } = string.Empty;
-    [BsonElement("Notifications")]
     private List<Notification> _notifications = new();
     public IEnumerable<Notification> Notifications => _notifications;
     public bool HasNewNotification { get; private set; }
@@ -142,13 +142,13 @@ public class User : Entity
         }
     }
 
-        public void IsExistingNotActivated(string username, string plainPassword)
-        {
-            Username = username;
-            Password = HashPassword(plainPassword);
-            Token = Token.Generate();
-            AddDomainEvent(new UserCreatedDomainEvent(Guid.NewGuid(), Id));
-        }
+    public void ReactivateWithCredentials(string username, string plainPassword)
+    {
+        Username = username;
+        Password = HashPassword(plainPassword);
+        Token = Token.Generate();
+        AddDomainEvent(new UserCreatedDomainEvent(Guid.NewGuid(), Id));
+    }
 
     public User ResetUsername(string username)
     {
@@ -161,16 +161,23 @@ public class User : Entity
         AddDomainEvent(new UserCreatedDomainEvent(Guid.NewGuid(), Id));
     }
 
-    public void Update(string username, string bio, Image profile)
+    public void Update(string username, string bio, Image profile, string? phone = null)
     {
         Username = username;
         Bio = bio;
         Profile = profile;
+        if (phone is not null)
+            Phone = phone;
         ModifiedDate = DateTime.UtcNow;
     }
 
     public void Verify()
     {
+        if (Status == Status.Active)
+            throw new InvalidOperationException("User is already verified.");
+        if (Status == Status.Deleted)
+            throw new InvalidOperationException("Cannot verify a deleted user.");
+            
         Token = null;
         Status = Status.Active;
     }
@@ -194,6 +201,9 @@ public class User : Entity
 
     public void Delete()
     {
+        if (Status == Status.Deleted)
+            return; // Idempotent - already deleted
+            
         Status = Status.Deleted;
         DeletedDate = DateTime.UtcNow;
     }
@@ -201,24 +211,6 @@ public class User : Entity
     public void AddNotification(Notification notification)
     {
         _notifications.Add(notification);
-    }
-
-    public bool VerifyPassword(string plainPassword, string hashedPassword)
-    {
-        byte[] hashWithSalt = Convert.FromBase64String(hashedPassword);
-        byte[] salt = new byte[16];
-        Array.Copy(hashWithSalt, 0, salt, 0, 16);
-
-        byte[] hashBytes = new byte[hashWithSalt.Length - 16];
-        Array.Copy(hashWithSalt, 16, hashBytes, 0, hashBytes.Length);
-
-        using (SHA512 sha512Hash = SHA512.Create())
-        {
-            byte[] passwordBytes = Encoding.UTF8.GetBytes(plainPassword);
-            byte[] saltedPassword = passwordBytes.Concat(salt).ToArray();
-            byte[] computedHash = sha512Hash.ComputeHash(saltedPassword);
-
-            return hashBytes.SequenceEqual(computedHash);
-        }
+        HasNewNotification = true;
     }
 }

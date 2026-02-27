@@ -1,39 +1,9 @@
-# Node
-node_modules/
-
-# Build output
-/dist/
-/build/
-
-# Logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
-
-# OS
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-
-# Git
-.git/
-.gitignore
-
-# Env
+.next
+node_modules
 .env
-
-# Angular cache
-.angular
-
-# Test output
-coverage/
-test-results/
-
-# Local logs and telemetry
+.env.local
+.env.*.local
 *.log
-.npm
-.cache
+dist
+build
+.DS_Store

@@ -1,0 +1,7 @@
+HTTP/1.1 400 Bad Request
+Content-Type: application/graphql-response+json; charset=utf-8
+Date: Tue, 13 Jan 2026 23:44:57 GMT
+Server: Kestrel
+Transfer-Encoding: chunked
+
+{"errors":[{"message":"Unexpected character `\\` (92).","locations":[{"line":1,"column":2}],"extensions":{"code":"HC0011"}}]}

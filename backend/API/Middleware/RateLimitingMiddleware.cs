@@ -17,6 +17,12 @@ public class RateLimitingMiddleware
 
     public async Task InvokeAsync(HttpContext context, IRateLimiter rateLimiter)
     {
+        var tracing = string.Equals(Environment.GetEnvironmentVariable("ENABLE_REQUEST_TRACING"), "1");
+        if (tracing)
+        {
+            await _next(context);
+            return;
+        }
         var identity = context.User?.Identity?.IsAuthenticated == true
             ? context.User.Identity!.Name ?? context.User.FindFirst("sub")?.Value ?? "anon"
             : context.Connection.RemoteIpAddress?.ToString() ?? "unknown";

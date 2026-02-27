@@ -1,15 +1,13 @@
 using Backend.Domain.Enums;
 using Backend.Domain.Primitive;
 using Backend.Domain.Users;
-using MongoDB.Bson.Serialization.Attributes;
 
 namespace Backend.Domain.Comments;
 
 public class Comment : Entity
 {
-    public CommentId Id { get; private set; }
-    public UserId UserId { get; private set; }
-    [BsonIgnore]
+    public CommentId Id { get; private set; } = null!;
+    public UserId UserId { get; private set; } = null!;
     public User? User { get; private set; }
     public string Text { get; private set; } = string.Empty;
     public Status Status { get; private set; }
@@ -40,7 +38,8 @@ public class Comment : Entity
         ModifiedDate = DateTime.UtcNow;
     }
 
-    public void SetUser(User user){
+    public void SetUser(User user)
+    {
         User = user;
     }
 

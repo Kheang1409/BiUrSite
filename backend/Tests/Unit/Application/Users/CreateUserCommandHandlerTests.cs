@@ -14,20 +14,17 @@ namespace Tests.Unit.Application.Users;
 public class CreateUserCommandHandlerTests : TestBase
 {
     private readonly Mock<IUserRepository> _userRepositoryMock;
-    private readonly Mock<IUserFactory> _userFactoryMock;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly CreateUserCommandHandler _handler;
 
     public CreateUserCommandHandlerTests()
     {
         _userRepositoryMock = new Mock<IUserRepository>();
-        _userFactoryMock = new Mock<IUserFactory>();
         _unitOfWorkMock = new Mock<IUnitOfWork>();
 
-        var factories = new List<IUserFactory> { _userFactoryMock.Object };
         _handler = new CreateUserCommandHandler(
             _userRepositoryMock.Object,
-            factories,
+            new UserFactory(),
             _unitOfWorkMock.Object);
     }
 
@@ -39,7 +36,7 @@ public class CreateUserCommandHandlerTests : TestBase
 
         var handler = new CreateUserCommandHandler(
             _userRepositoryMock.Object,
-            new List<IUserFactory> { userFactory },
+            userFactory,
             _unitOfWorkMock.Object);
 
         _userRepositoryMock

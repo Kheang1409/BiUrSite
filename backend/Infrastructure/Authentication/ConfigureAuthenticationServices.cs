@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using Backend.Infrastructure.Authentication.Providers;
@@ -49,12 +50,20 @@ public static class AuthenticationServiceConfiguration
                 },
                 OnAuthenticationFailed = ctx =>
                 {
-                    Console.WriteLine($"JWT Failed: {ctx.Exception.Message}");
+                    if (string.Equals(Environment.GetEnvironmentVariable("ENABLE_REQUEST_TRACING"), "1"))
+                    {
+                        var logger = ctx.HttpContext.RequestServices.GetService<ILoggerFactory>()?.CreateLogger("JwtAuthentication");
+                        logger?.LogWarning("JWT Failed: {Message}", ctx.Exception.Message);
+                    }
                     return Task.CompletedTask;
                 },
                 OnTokenValidated = ctx =>
                 {
-                    Console.WriteLine($"JWT Validated for {ctx.Principal?.Identity?.Name}");
+                    if (string.Equals(Environment.GetEnvironmentVariable("ENABLE_REQUEST_TRACING"), "1"))
+                    {
+                        var logger = ctx.HttpContext.RequestServices.GetService<ILoggerFactory>()?.CreateLogger("JwtAuthentication");
+                        logger?.LogDebug("JWT Validated for {Name}", ctx.Principal?.Identity?.Name);
+                    }
                     return Task.CompletedTask;
                 }
             };

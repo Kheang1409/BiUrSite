@@ -1,8 +1,10 @@
 using Backend.Application.Data;
+using Backend.Infrastructure.Outbox;
 using Backend.Infrastructure.Persistence;
-using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Extensions;
 
@@ -12,11 +14,15 @@ internal static class PersistenceExtensions
     {
         services.AddScoped<MongoDbContext>(sp => new MongoDbContext(
             sp.GetRequiredService<IConfiguration>(),
-            sp.GetRequiredService<IPublisher>()));
+            sp.GetService<ILogger<MongoDbContext>>()));
 
-        // Expose the MongoDbContext as the application abstractions.
-        services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<MongoDbContext>());
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<MongoDbContext>());
+        
+        services.AddScoped<IMongoDatabase>(sp => sp.GetRequiredService<MongoDbContext>().Database);
+        
+        services.AddScoped<MongoDbIndexInitializer>();
+        
+        services.AddHostedService<OutboxProcessor>();
 
         services.AddHttpContextAccessor();
 

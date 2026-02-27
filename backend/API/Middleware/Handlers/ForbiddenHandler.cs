@@ -1,4 +1,3 @@
-
 using Backend.SharedKernel.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,9 +8,7 @@ public class ForbiddenHandler  : ExceptionHandlerBase
     {
         if (exception is ForbiddenException forbidden)
         {
-            // Return 403 Forbidden
             context.Response.StatusCode = StatusCodes.Status403Forbidden;
-
             return new ProblemDetails
             {
                 Status = StatusCodes.Status403Forbidden,

@@ -1,6 +1,6 @@
 using Backend.Application.Data;
+using Backend.Domain.Enums;
 using Backend.Domain.Users;
-using Backend.SharedKernel.Exceptions;
 using MediatR;
 
 namespace Backend.Application.Users.ForgotPassword;
@@ -22,10 +22,8 @@ internal sealed class ForgotPasswordCommandHandler : IRequestHandler<ForgotPassw
     public async Task Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
     {
         var user = await _userRepository.GetUserByEmail(request.Email);
-        if (user is null)
-            throw new NotFoundException("User not found.");
-        if (user.Status != Domain.Enums.Status.Active)
-            throw new UnauthorizedAccessException($"User is {user.Status}.");
+        if (user is not {Status: Status.Active})
+            throw new UnauthorizedAccessException($"User is {user?.Status}.");
         user.ForgotPassword();
         await _userRepository.Update(user);
         await _unitOfWork.SaveChangesAsync(user, cancellationToken);

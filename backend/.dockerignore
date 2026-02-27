@@ -3,6 +3,9 @@
 **/obj/
 /app/
 
+# Test projects (not needed in production image)
+Tests/
+
 # User-specific
 *.swp
 *.user

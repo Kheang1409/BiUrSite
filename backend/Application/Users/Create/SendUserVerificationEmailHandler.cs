@@ -28,13 +28,10 @@ internal sealed class SendUserVerificationEmailHandler : IHandleMessages<UserCre
     public async Task Handle(UserCreatedEvent message)
     {
         var user = await _userRepository.GetUserById(new UserId(message.Id));
-        if (user is null)
-            throw new NotFoundException("User not found.");
-        if (user.Token is null)
+        if (user is { Token: null})
             return;
-        var encodedToken = Uri.EscapeDataString(user.Token.Value);
+        var encodedToken = Uri.EscapeDataString(user!.Token.Value);
         var verificationUrl = $"{_options.BaseUrl}/api/users/verify?token={encodedToken}";
-
         var email = VerificationEmail.Create(user.Email, SUBJECT, user.Username, verificationUrl);
         await _emailService.Send(email);
     }

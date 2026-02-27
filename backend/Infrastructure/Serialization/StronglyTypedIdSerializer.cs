@@ -1,7 +1,6 @@
 using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Bson;
-using System;
 
 namespace Backend.Infrastructure.Serialization;
 public class StronglyTypedIdSerializer<TStrongId> : SerializerBase<TStrongId>
@@ -21,14 +20,14 @@ public class StronglyTypedIdSerializer<TStrongId> : SerializerBase<TStrongId>
         if (value == null)
             throw new ArgumentNullException(nameof(value));
 
-        var guidSerializer = new GuidSerializer(GuidRepresentation.Standard);
-        guidSerializer.Serialize(context, args, _extractor(value));
+        var guid = _extractor(value);
+        context.Writer.WriteBinaryData(new BsonBinaryData(guid, GuidRepresentation.Standard));
     }
 
     public override TStrongId Deserialize(BsonDeserializationContext context, BsonDeserializationArgs args)
     {
-        var guidSerializer = new GuidSerializer(GuidRepresentation.Standard);
-        var guid = guidSerializer.Deserialize(context, args);
+        var binary = context.Reader.ReadBinaryData();
+        var guid = binary.ToGuid(GuidRepresentation.Standard);
         return _factory(guid);
     }
 }

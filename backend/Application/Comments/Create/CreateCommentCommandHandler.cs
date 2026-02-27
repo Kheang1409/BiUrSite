@@ -1,6 +1,6 @@
 using Backend.Application.Data;
 using Backend.Domain.Comments;
-using Backend.Domain.Notifications;
+using Backend.Domain.Enums;
 using Backend.Domain.Posts;
 using Backend.Domain.Users;
 using Backend.SharedKernel.Exceptions;
@@ -13,33 +13,42 @@ internal sealed class CreateCommentCommandHandler : IRequestHandler<CreateCommen
     private readonly IUserRepository _userRepository;
     private readonly IPostRepository _postRepository;
     private readonly ICommentRepository _commentRepository;
-    private readonly IUnitOfWork _unitOfWord;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CreateCommentCommandHandler(
         IUserRepository userRepository,
         IPostRepository postRepository,
         ICommentRepository commentRepository,
-        IUnitOfWork unitOfWord)
+        IUnitOfWork unitOfWork)
     {
         _userRepository = userRepository;
         _postRepository = postRepository;
         _commentRepository = commentRepository;
-        _unitOfWord = unitOfWord;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Comment> Handle(CreateCommentCommand request, CancellationToken cancellationToken)
     {
         var postId = new PostId(request.PostId);
+        var userId = new UserId(request.UserId);
         var post = await _postRepository.GetPostById(postId);
+        var user = await _userRepository.GetUserById(userId);
+
         if (post is null)
             throw new NotFoundException("Post not found.");
-        var userId = new UserId(request.UserId);
-        var user = await _userRepository.GetUserById(userId);
+
         if (user is null)
+            throw new NotFoundException("User not found.");
+
+        if (post is not { Status: Status.Active })
+            throw new UnauthorizedAccessException($"Post is {post.Status}.");
+
+        if (user is not { Status: Status.Active })
             throw new UnauthorizedAccessException($"User is {request.UserId}.");
+
         var comment = post.AddComment(user, request.Text);
         await _commentRepository.Create(postId, comment);
-        await _unitOfWord.SaveChangesAsync(post, cancellationToken);
+        await _unitOfWork.SaveChangesAsync(post, cancellationToken);
         return comment;
     }
 }

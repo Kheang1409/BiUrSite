@@ -1,7 +1,6 @@
 using Backend.Application.Storage;
+using Backend.Domain.Enums;
 using Backend.Domain.Users;
-using Backend.SharedKernel.Exceptions;
-using MongoDB.Bson;
 using Rebus.Handlers;
 
 namespace Backend.Application.Users.Update;
@@ -21,13 +20,13 @@ internal sealed class UploadProfileImageHandler : IHandleMessages<UpdatedProfile
     public async Task Handle(UpdatedProfileEvent message)
     {
         var user = await _userRepository.GetUserById(new UserId(message.Id));
-        if (user is null)
-            throw new NotFoundException("User is not found.");
-        if (message.Data is not null && message.Data.Length > 0)
+        if (user is not {Status: Status.Active})
+            throw new UnauthorizedAccessException($"User is {user!.Status}.");
+        if (message.Data is not { Length: 0})
             {
                 var id = user.Id.Value.ToString();
                 var fileName = $"profiles/{id}.jpg";
-                var url = await _imageStorageService.UploadImageAsync(fileName, message.Data);
+                var url = await _imageStorageService.UploadImageAsync(fileName, message.Data!);
             }
         await _userRepository.Update(user);
     }
