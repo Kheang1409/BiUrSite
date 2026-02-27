@@ -1,0 +1,33 @@
+using Backend.Application.Data;
+using Backend.Domain.Enums;
+using Backend.Domain.Users;
+using MediatR;
+
+namespace Backend.Application.Users.ResetPassword;
+
+internal sealed class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, User?>
+{
+    private readonly IUserRepository _userRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    public ResetPasswordCommandHandler(
+        IUserRepository userRepository,
+        IUnitOfWork unitOfWork)
+    {
+        _userRepository = userRepository;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<User?> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
+    {
+        var user = await _userRepository.GetUserByEmailWithOtp(request.Email, request.Otp);
+        if (user is null)
+            throw new UnauthorizedAccessException("Invalid email or OTP.");
+
+        if (user is not { Status: Status.Active })
+            throw new UnauthorizedAccessException($"User is {user.Status}.");
+        user.ResetPassword(request.Password);
+        await _userRepository.Update(user);
+        await _unitOfWork.SaveChangesAsync(user, cancellationToken);
+        return user;
+    }
+}

@@ -1,36 +1,28 @@
-# Stage 1: Build Angular application
-FROM node:latest AS build
-
+FROM node:20-alpine AS deps
 WORKDIR /app
-
-# Copy package.json and package-lock.json first for better caching
 COPY package*.json ./
+RUN npm ci --frozen-lockfile
 
-# Install dependencies
-RUN npm install
-
-# Copy the rest of the source code
+FROM node:20-alpine AS builder
+WORKDIR /app
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+RUN npm run build
 
-# Build Angular app (it will use environment.prod.ts automatically)
-RUN npm run build --configuration=production
-
-# Stage 2: Serve with Nginx
-FROM nginx:alpine
-
-WORKDIR /usr/share/nginx/html
-
-# Remove default Nginx HTML files
-RUN rm -rf ./*
-
-# Copy built Angular files from build stage
-COPY --from=build /app/dist/frontend/ ./
-
-# Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-
-# Expose port 80 for serving
-EXPOSE 80
-
-# Start Nginx server
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+USER nextjs
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+CMD ["node", "server.js"]

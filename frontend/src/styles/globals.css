@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply font-sans antialiased;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html,
+body {
+  @apply w-full h-full;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-1 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-2;
+}
+
+:focus-visible {
+  outline: 2px solid theme("colors.primary.1");
+  outline-offset: 2px;
+}
+
+.app-container {
+  @apply max-w-container mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.card-bg {
+  @apply bg-card backdrop-blur-sm rounded-[10px] border border-white/10;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-primary-1 to-primary-2 bg-clip-text text-transparent;
+}
+
+.btn-primary {
+  @apply px-6 py-2 bg-primary-1 text-white rounded-[10px] font-semibold hover:bg-primary-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply px-6 py-2 border border-primary-1 text-primary-1 rounded-[10px] font-semibold hover:bg-primary-1/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-danger {
+  @apply px-6 py-2 bg-danger-1 text-white rounded-[10px] font-semibold hover:bg-danger-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.input-field {
+  @apply w-full px-4 py-2 bg-white/10 border border-white/20 rounded-[10px] text-white placeholder-muted focus:outline-none focus:border-primary-1 focus:ring-2 focus:ring-primary-1/50 transition-colors;
+}
+
+.btn-primary {
+  @apply px-6 py-2 bg-primary-1 text-white rounded-[10px] font-semibold hover:bg-primary-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary {
+  @apply px-6 py-2 border border-primary-1 text-primary-1 rounded-[10px] font-semibold hover:bg-primary-1/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-danger {
+  @apply px-6 py-2 bg-danger-1 text-white rounded-[10px] font-semibold hover:bg-danger-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.input-field {
+  @apply w-full px-4 py-2 bg-white/10 border border-white/20 rounded-[10px] text-white placeholder-muted focus:outline-none focus:border-primary-1 focus:ring-2 focus:ring-primary-1/50 transition-colors;
+}
+
+.input-field {
+  @apply w-full px-4 py-2 bg-white/10 border border-white/20 rounded-[10px] text-white placeholder-muted focus:outline-none focus:border-primary-1 focus:ring-2 focus:ring-primary-1/50 transition-colors;
+}
+
+@layer utilities {
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  .animate-slideIn {
+    animation: slideIn 0.3s ease-out;
+  }
+
+  .animate-scaleIn {
+    animation: scaleIn 0.2s ease-out;
+  }
+
+  .animate-pulse-gentle {
+    animation: pulseGentle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes pulseGentle {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  .truncate-2 {
+    @apply line-clamp-2;
+  }
+
+  .truncate-3 {
+    @apply line-clamp-3;
+  }
+
+  .interactive-hover {
+    @apply transition-all duration-200 hover:scale-105 active:scale-95;
+  }
+
+  .glass-effect {
+    @apply bg-white/5 backdrop-blur-md border border-white/10;
+  }
+}

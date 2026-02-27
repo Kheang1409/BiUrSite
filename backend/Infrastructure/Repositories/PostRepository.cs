@@ -1,88 +1,156 @@
-using Backend.Domain.Posts.Entities;
-using Backend.Domain.Posts.Interfaces;
-using Backend.Infrastructure.Extensions;
+using Backend.Domain.Enums;
+using Backend.Domain.Posts;
+using Backend.Domain.Users;
 using Backend.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Backend.Infrastructure.Resilience;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Repositories;
+
 public class PostRepository : IPostRepository
 {
-    private readonly AppDbContext _context;
-    private readonly IConfiguration _configuration;
-    private readonly int _limitItem;
+    private readonly IMongoCollection<User> _users;
+    private readonly IMongoCollection<Post> _posts;
+    private readonly ILogger<PostRepository> _logger;
+    private const string SUB_DOCUMENT_NAME = "Comments";
+    private const int LIMIT = 10;
 
-    public PostRepository(AppDbContext context, IConfiguration configuration)
+    public PostRepository(MongoDbContext context, ILogger<PostRepository> logger)
     {
-        _context = context;
-        _configuration = configuration;
-        _limitItem = int.Parse(_configuration["LimitSettings:ItemLimit"] ?? "10");
+        _posts = context.Posts;
+        _users = context.Users;
+        _logger = logger;
+    }
+
+    public async Task<IEnumerable<Post>> GetPosts(UserId? userId, string? keywords, int pageNumber)
+    {
+        var filterBuilder = Builders<Post>.Filter;
+        var filters = new List<FilterDefinition<Post>>();
+
+        if (!string.IsNullOrWhiteSpace(keywords))
+        {
+            filters.Add(filterBuilder.Regex(p => p.Text, new BsonRegularExpression(keywords, "i")));
+        }
+        if (userId is not null)
+        {
+            filters.Add(filterBuilder.Eq(p => p.UserId, userId));
+        }
+        filters.Add(filterBuilder.Where(p => p.Status == Status.Active));
+
+        var finalFilter = filterBuilder.And(filters);
+        var skip = (pageNumber - 1) * LIMIT;
+
+        var posts = await RetryPolicy.ExecuteWithRetryAsync(
+            () => _posts.Find(finalFilter)
+                .Project<Post>(Builders<Post>.Projection.Exclude(SUB_DOCUMENT_NAME))
+                .SortByDescending(p => p.CreatedDate)
+                .Skip(skip)
+                .Limit(LIMIT)
+                .ToListAsync(),
+            logger: _logger,
+            operationName: "GetPosts");
+
+        if (posts.Count > 0)
+        {
+            var userIds = posts.Select(p => p.UserId).Distinct().ToList();
+            var users = await RetryPolicy.ExecuteWithRetryAsync(
+                () => _users.Find(Builders<User>.Filter.In(u => u.Id, userIds)).ToListAsync(),
+                logger: _logger,
+                operationName: "GetPosts_FetchUsers");
+            
+            var userById = users.ToDictionary(u => u.Id, u => u);
+            foreach (var post in posts)
+            {
+                if (userById.TryGetValue(post.UserId, out var user))
+                {
+                    post.SetUser(user);
+                }
+            }
+        }
+        
+        return posts;
+    }
+
+    public async Task<Post?> GetPostById(PostId id)
+    {
+        var filter = Builders<Post>.Filter.And(
+            Builders<Post>.Filter.Eq(p => p.Id, id),
+            Builders<Post>.Filter.Eq(p => p.Status, Status.Active));
+        
+        // Fetch all comments to get accurate count
+        var post = await RetryPolicy.ExecuteWithRetryAsync(
+            () => _posts.Find(filter).SingleOrDefaultAsync(),
+            logger: _logger,
+            operationName: "GetPostById");
+        
+        if (post == null)
+            return null;
+        
+        var user = await RetryPolicy.ExecuteWithRetryAsync(
+            () => _users.Find(Builders<User>.Filter.Eq(u => u.Id, post.UserId)).FirstOrDefaultAsync(),
+            logger: _logger,
+            operationName: "GetPostById_FetchUser");
+        post.SetUser(user);
+
+        var commentUserIds = post.Comments.Select(c => c.UserId).Distinct().ToList();
+
+        if (commentUserIds.Count > 0)
+        {
+            var commentUsers = await RetryPolicy.ExecuteWithRetryAsync(
+                () => _users.Find(Builders<User>.Filter.In(u => u.Id, commentUserIds)).ToListAsync(),
+                logger: _logger,
+                operationName: "GetPostById_FetchCommentUsers");
+
+            var userById = commentUsers.ToDictionary(u => u.Id, u => u);
+            foreach (var comment in post.Comments)
+            {
+                if (userById.TryGetValue(comment.UserId, out var commentUser))
+                {
+                    comment.SetUser(commentUser);
+                }
+            }
+        }
+
+        var sortedComments = post.Comments.Where(c => c.Status == Status.Active).OrderByDescending(c => c.CreatedDate).ToList();
+        var commentsField = typeof(Post).GetField("_comments", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        commentsField?.SetValue(post, sortedComments);
+        return post;
+    }
+
+    public async Task<Post> Create(Post post)
+    {
+        await RetryPolicy.ExecuteWithRetryAsync(
+            () => _posts.InsertOneAsync(post),
+            logger: _logger,
+            operationName: "CreatePost");
+        return post;
+    }
+
+    public Task Update(Post post)
+    {
+        var update = Builders<Post>.Update
+            .Set(p => p.Text, post.Text)
+            .Set(p => p.Image, post.Image)
+            .Set(p => p.ModifiedDate, post.ModifiedDate);
+        
+        return RetryPolicy.ExecuteWithRetryAsync(
+            () => _posts.UpdateOneAsync(p => p.Id == post.Id, update),
+            logger: _logger,
+            operationName: "UpdatePost");
     }
     
-    public async Task<List<Post>> SearchPostsAsync(string ? keyword, int pageNumber)
+    public Task Delete(Post post)
     {
-        IQueryable<Post> posts = _context.Posts
-            .AsNoTracking()
-            .Include(post => post.Author);
-        if(!string.IsNullOrEmpty(keyword)){
-            posts  = posts.Where(post => EF.Functions.Like(post.Description, $"%{keyword}%"));
-        }
-        posts = posts
-            .OrderByDescending(post => post.CreatedDate)
-            .Skip(_limitItem*(pageNumber-1))
-            .Take(_limitItem);
-        var postList =  await  posts.FilterAvailablePost().ToListAsync();
-        return postList;
-    }
-
-    public async Task<Post?> GetPostByIdAsync(int postId)
-        => await _context.Posts
-            .AsNoTracking()
-            .Include(post => post.Author)
-            .Where(post => post.PostId == postId)
-            .FilterAvailablePost()
-            .FirstOrDefaultAsync();
-
-    public async Task<int> GetUserPostCountAsync(int userId)
-        => await _context.Posts
-            .AsNoTracking()
-            .Where(post => post.Author != null && post.Author.Id == userId)
-            .FilterAvailablePost()
-            .CountAsync();
-
-    public async Task<Post> CreatePostAsync(Post post)
-    {
-        var createdPost = await _context.Posts.AddAsync(post);
-        await _context.SaveChangesAsync();
-        return createdPost.Entity;
-    }
-
-    public async Task<bool> UpdatePostDescriptionAsync(int postId, string description)
-    {
-        int affectRow = await _context.Posts
-            .Where(post => post.PostId == postId)
-            .FilterAvailablePost()
-            .ExecuteUpdateAsync(post => post
-                .SetProperty(post => post.Description, description)
-                .SetProperty(post => post.ModifiedDate, DateTime.UtcNow));
-        return affectRow == 1;
-    }
-    public async Task<bool> SoftDeletePostAsync(int postId)
-    {
-        int affectRow = await _context.Posts
-        .Where(post=> post.PostId == postId)
-        .FilterAvailablePost()
-        .ExecuteUpdateAsync(post => post
-            .SetProperty(post => post.IsDeleted, true)
-            .SetProperty(post => post.DeletedDate, DateTime.UtcNow));
-        return affectRow == 1;
-    }
-
-    public async Task<bool> DeletePostAsync(int postId)
-    {
-        int affectRow = await _context.Posts
-            .Where(post=> post.PostId == postId)
-            .ExecuteDeleteAsync();
-        return affectRow == 1;
+        var update = Builders<Post>.Update
+            .Set(p => p.Status, post.Status)
+            .Set(p => p.Image, null)
+            .Set(p => p.DeletedDate, post.DeletedDate);
+        
+        return RetryPolicy.ExecuteWithRetryAsync(
+            () => _posts.UpdateOneAsync(p => p.Id == post.Id, update),
+            logger: _logger,
+            operationName: "DeletePost");
     }
 }

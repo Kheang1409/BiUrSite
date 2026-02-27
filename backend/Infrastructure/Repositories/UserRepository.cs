@@ -1,119 +1,102 @@
-using Backend.Domain.Common.Enums;
-using Backend.Domain.Users.Entities;
-using Backend.Domain.Users.Interfaces;
-using Backend.Infrastructure.Extensions;
+using Backend.Domain.Enums;
+using Backend.Domain.Users;
 using Backend.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Backend.Infrastructure.Resilience;
+using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 
 namespace Backend.Infrastructure.Repositories;
+
 public class UserRepository : IUserRepository
 {
-    private readonly AppDbContext _context;
-    private readonly int _limitItem;
+    private readonly IMongoCollection<User> _users;
+    private readonly ILogger<UserRepository> _logger;
+    private const int LIMIT = 10;
 
-    public UserRepository(AppDbContext context, IConfiguration ? configuration){
-        _context = context;
-        if(configuration != null)
-            _limitItem = int.Parse(configuration["LimitSettings:ItemLimit"] ?? "5");
-        else{
-            _limitItem = 5;
-        }
-    }
-
-    public async Task<List<User>> GetUsersAsync(int pageNumber, string? username){
-
-        IQueryable<User> users = _context.Users.AsNoTracking()
-            .Skip(_limitItem*pageNumber)
-            .Take(_limitItem);
-        if(username != null)
-            users  = users.Where(user=> user.Username.ToLower().Contains(username.ToLower()));
-        var userList = await users.ToListAsync();
-        return userList;
-    }
-
-    public async Task<User?> GetUserByIdAsync(int userId) =>
-        await _context.Users.FindAsync(userId);
-
-    public async Task<User?> GetUserByEmailAsync(string email) =>
-        await _context.Users
-            .AsNoTracking()
-            .Where(user => user.Email == email)
-            .FilterUserByStatus(Status.Active)
-            .SingleOrDefaultAsync();
-    public async Task<User?> GetUserByOtpAsync(string otp) =>
-        await _context.Users
-            .AsNoTracking()
-            .Where(user => user.Otp == otp)
-            .FilterUserByStatus(Status.Active)
-            .SingleOrDefaultAsync();
-
-    public async Task<bool> VerifyUserAsync(string verificationToken){
-        int affectdRow = await _context.Users
-            .Where(user => user.VerificationToken != null && user.VerificationToken.Equals(verificationToken))
-            .Where(user => user.VerificationTokenExpiry >= DateTime.UtcNow)
-            .FilterUserByStatus(Status.Unverified)
-            .ExecuteUpdateAsync(user => user
-                .SetProperty(user => user.Status, Status.Active)
-                .SetProperty(user => user.VerificationToken, (String?)null)
-                .SetProperty(user => user.VerificationTokenExpiry, (DateTime?)null)
-                .SetProperty(user => user.ModifiedDate, DateTime.UtcNow));
-        return affectdRow == 1; 
-    }
-    public async Task<bool> RequestPasswordResetAsync(string email, string? otp){
-        int affectdRow = await _context.Users
-            .Where(user => user.Email.Equals(email))
-            .FilterUserByStatus(Status.Active)
-            .ExecuteUpdateAsync(user => user
-                .SetProperty(user => user.Otp, otp)
-                .SetProperty(user => user.OtpExpiry, DateTime.UtcNow.AddMinutes(3)));
-        return affectdRow == 1;
-    }
-    public async Task<bool>  ResetUserPasswordAsync(string otp, string hashPassword){
-        int affectdRow = await _context.Users
-            .Where(user => user.Otp != null && user.Otp.Equals(otp))
-            .FilterUserByStatus(Status.Active)
-            .ExecuteUpdateAsync(user => user
-                .SetProperty(user => user.Password, hashPassword)
-                .SetProperty(user => user.Otp, (String?)null)
-                .SetProperty(user => user.OtpExpiry, (DateTime?)null)
-                .SetProperty(user => user.ModifiedDate, DateTime.UtcNow));
-        return affectdRow == 1;
-    }
-    public async Task CreateUserAsync(User user) {
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task UpdateUserAsync(User user){
-        _context.Users.Update(user);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task<bool> BanUserAsync(int userId){
-        int affectdRow = await _context.Users
-        .Where(user => user.Id == userId)
-        .ExecuteUpdateAsync(user => user
-            .SetProperty(user => user.Status, Status.Banned)
-            .SetProperty(user => user.ModifiedDate, DateTime.UtcNow));
-        return affectdRow == 1;
-    }
-
-    public async Task<bool> SoftDeleteUserAsync(int userId)
+    public UserRepository(MongoDbContext context, ILogger<UserRepository> logger)
     {
-        int affectdRow = await _context.Users
-            .Where(user => user.Id == userId)
-            .ExecuteUpdateAsync(user => user
-                .SetProperty(user => user.Status, Status.Deleted)
-                .SetProperty(user => user.DeletedDate, DateTime.UtcNow));
-        return affectdRow == 1;
+        _users = context.Users;
+        _logger = logger;
     }
 
-    public async Task<bool> DeleteUserAsync(int userId)
+    public async Task<IEnumerable<User>> GetUsers(int pageNumber)
     {
-        int affectdRow = await _context.Users
-            .Where(user => user.Id == userId)
-            .ExecuteDeleteAsync();
-        return affectdRow == 1;
+        if (pageNumber <= 0)
+            return Enumerable.Empty<User>();
+
+        var filterBuilder = Builders<User>.Filter;
+        var filters = new List<FilterDefinition<User>>
+        {
+            filterBuilder.Where(u => u.Status == Status.Active)
+        };
+        var finalFilter = filterBuilder.And(filters);
+        var skip = (pageNumber - 1) * LIMIT;
+
+        return await RetryPolicy.ExecuteWithRetryAsync(
+            () => _users.Find(finalFilter).Skip(skip).Limit(LIMIT).ToListAsync(),
+            logger: _logger,
+            operationName: "GetUsers");
+    }
+
+    public Task<User?> GetUserById(UserId id)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Id, id);
+        return RetryPolicy.ExecuteWithRetryAsync(
+            () => _users.Find(filter).FirstOrDefaultAsync(),
+            logger: _logger,
+            operationName: "GetUserById")!;
+    }
+
+    public Task<User?> GetUserByEmail(string email)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Email, email);
+        return RetryPolicy.ExecuteWithRetryAsync(
+            () => _users.Find(filter).FirstOrDefaultAsync(),
+            logger: _logger,
+            operationName: "GetUserByEmail")!;
+    }
+
+    public Task<User?> GetUserByEmailWithOtp(string email, string otp)
+    {
+        var now = DateTime.UtcNow;
+        var filter = Builders<User>.Filter.And(
+            Builders<User>.Filter.Eq(u => u.Email, email),
+            Builders<User>.Filter.Eq(u => u.Otp!.Value, otp),
+            Builders<User>.Filter.Gte(u => u.Otp!.ExpireAt, now));
+
+        return RetryPolicy.ExecuteWithRetryAsync(
+            () => _users.Find(filter).FirstOrDefaultAsync(),
+            logger: _logger,
+            operationName: "GetUserByEmailWithOtp")!;
+    }
+
+    public Task<User?> GetUserByToken(string token)
+    {
+        var now = DateTime.UtcNow;
+        var filter = Builders<User>.Filter.And(
+            Builders<User>.Filter.Eq(u => u.Token!.Value, token),
+            Builders<User>.Filter.Gte(u => u.Token!.ExpireAt, now));
+
+        return RetryPolicy.ExecuteWithRetryAsync(
+            () => _users.Find(filter).FirstOrDefaultAsync(),
+            logger: _logger,
+            operationName: "GetUserByToken")!;
+    }
+
+    public Task Create(User user)
+    {
+        return RetryPolicy.ExecuteWithRetryAsync(
+            () => _users.InsertOneAsync(user),
+            logger: _logger,
+            operationName: "CreateUser");
+    }
+
+    public Task Update(User user)
+    {
+        var filter = Builders<User>.Filter.Eq(u => u.Id, user.Id);
+        return RetryPolicy.ExecuteWithRetryAsync(
+            () => _users.ReplaceOneAsync(filter, user),
+            logger: _logger,
+            operationName: "UpdateUser");
     }
 }
