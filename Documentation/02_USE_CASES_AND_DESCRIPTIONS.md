@@ -17,9 +17,7 @@
 **PlantUML Format:**
 
 ```plantuml
-@startuml BiUrSite_UseCases
-
-!theme ameba
+@startuml
 
 skinparam actorStyle awesome
 skinparam linetype ortho
@@ -33,33 +31,33 @@ actor "Email Service" as email_svc
 actor "OAuth Provider" as oauth
 actor "Image Storage" as storage
 
-rectangle BiUrSite {
-  usecase UC1 as "Register Account\n(Email/Password)"
-  usecase UC2 as "Register via OAuth\n(Google/Facebook)"
-  usecase UC3 as "Verify Email"
-  usecase UC4 as "Login"
-  usecase UC5 as "Logout"
-  usecase UC6 as "Reset Password"
-  usecase UC7 as "View Feed"
-  usecase UC8 as "Search Posts"
-  usecase UC9 as "Create Post"
-  usecase UC10 as "Edit Post"
-  usecase UC11 as "Delete Post"
-  usecase UC12 as "Comment on Post"
-  usecase UC13 as "Edit Comment"
-  usecase UC14 as "Delete Comment"
-  usecase UC15 as "View Comments"
-  usecase UC16 as "Receive Notifications"
-  usecase UC17 as "View Notifications"
-  usecase UC18 as "Update Profile"
-  usecase UC19 as "Update Notification Preferences"
-  usecase UC20 as "View User Profile"
-  usecase UC21 as "Ban User"
-  usecase UC22 as "Remove Content"
-  usecase UC23 as "View Moderation Dashboard"
+rectangle "BiUrSite" {
+
+  (Register Account - Email/Password) as UC1
+  (Register via OAuth - Google/Facebook) as UC2
+  (Verify Email) as UC3
+  (Login) as UC4
+  (Logout) as UC5
+  (Reset Password) as UC6
+  (View Feed) as UC7
+  (Search Posts) as UC8
+  (Create Post) as UC9
+  (Edit Post) as UC10
+  (Delete Post) as UC11
+  (Comment on Post) as UC12
+  (Edit Comment) as UC13
+  (Delete Comment) as UC14
+  (View Comments) as UC15
+  (Receive Notifications) as UC16
+  (View Notifications) as UC17
+  (Update Profile) as UC18
+  (Update Notification Preferences) as UC19
+  (View User Profile) as UC20
+  (Ban User) as UC21
+  (Remove Content) as UC22
+  (View Moderation Dashboard) as UC23
 }
 
-%% Anonymous User Relations
 anon --> UC1
 anon --> UC2
 anon --> UC4
@@ -67,7 +65,6 @@ anon --> UC7
 anon --> UC8
 anon --> UC20
 
-%% Verified User Relations
 verified --> UC3
 verified --> UC5
 verified --> UC6
@@ -84,25 +81,22 @@ verified --> UC18
 verified --> UC19
 verified --> UC20
 
-%% Admin Relations
 admin --> UC21
 admin --> UC22
 admin --> UC23
 
-%% System/External Relations
 UC1 --> email_svc : triggers
-UC2 --> oauth : redirects to
-UC3 --> email_svc : uses
-UC4 --> email_svc : optional\npassword reset
-UC6 --> email_svc : sends OTP
-UC9 --> storage : uploads image
-UC10 --> storage : updates image
-UC11 --> storage : deletes image
-UC16 --> email_svc : optional\nemail notification
+UC2 --> oauth : redirects
+UC3 --> email_svc : verify
+UC4 --> email_svc : reset optional
+UC6 --> email_svc : send OTP
+UC9 --> storage : upload
+UC10 --> storage : update
+UC11 --> storage : delete
+UC16 --> email_svc : notify optional
 
-%% Inheritance/Extension
-UC9 --|> UC7 : extends (adds to feed)
-UC12 --|> UC16 : triggers
+UC9 .> UC7 : <<extend>>
+UC12 .> UC16 : <<include>>
 
 @enduml
 ```
