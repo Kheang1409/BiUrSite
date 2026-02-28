@@ -1,0 +1,17 @@
+# ─────────────────────────────────────────────────────
+# Netlify build configuration for BiUrSite frontend
+# Branch: production-netlify  |  Team: Kheang1409's team
+# ─────────────────────────────────────────────────────
+# Netlify reads this file from the base directory (frontend/).
+# IMPORTANT: Clear the Publish directory, Build command, and
+# Functions directory fields in the Netlify UI so this file
+# takes effect (UI values override this file).
+
+[build]
+  command   = "npm run build"
+  # @netlify/plugin-nextjs reads .next/ for the build output
+  publish   = ".next"
+  functions = "netlify/functions"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
