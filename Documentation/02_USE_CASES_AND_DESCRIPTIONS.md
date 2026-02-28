@@ -1,14 +1,20 @@
 # BiUrSite – Use Case Model & Descriptions
 
-**Document Version:** 1.0  
-**Date:** February 22, 2026
+**Document Version:** 2.0  
+**Date:** February 28, 2026  
+**Project:** BiUrSite – Anonymous Idea & Advice Sharing Platform  
+**Status:** Updated – Architectural Analysis Complete
 
 ---
 
 ## Table of Contents
 
 1. [Use Case Diagram](#use-case-diagram)
-2. [Use Case Descriptions](#use-case-descriptions)
+2. [Use Case Packages](#use-case-packages)
+3. [Use Case Relationships](#use-case-relationships)
+4. [Use Case Descriptions](#use-case-descriptions)
+5. [Supplementary Specifications](#supplementary-specifications)
+6. [Glossary](#glossary)
 
 ---
 
@@ -24,40 +30,72 @@ skinparam linetype ortho
 
 left to right direction
 
+' ─── Actors ───
 actor "Anonymous User" as anon
 actor "Verified User" as verified
 actor "Admin" as admin
-actor "Email Service" as email_svc
-actor "OAuth Provider" as oauth
-actor "Image Storage" as storage
 
-rectangle "BiUrSite" {
+' ─── Secondary / External Actors ───
+actor "Email Service" as email_svc <<external>>
+actor "OAuth Provider" as oauth <<external>>
+actor "Image Storage" as storage <<external>>
 
-  (Register Account - Email/Password) as UC1
-  (Register via OAuth - Google/Facebook) as UC2
-  (Verify Email) as UC3
-  (Login) as UC4
-  (Logout) as UC5
-  (Reset Password) as UC6
-  (View Feed) as UC7
-  (Search Posts) as UC8
-  (Create Post) as UC9
-  (Edit Post) as UC10
-  (Delete Post) as UC11
-  (Comment on Post) as UC12
-  (Edit Comment) as UC13
-  (Delete Comment) as UC14
-  (View Comments) as UC15
-  (Receive Notifications) as UC16
-  (View Notifications) as UC17
-  (Update Profile) as UC18
-  (Update Notification Preferences) as UC19
-  (View User Profile) as UC20
-  (Ban User) as UC21
-  (Remove Content) as UC22
-  (View Moderation Dashboard) as UC23
+rectangle "BiUrSite Platform" {
+
+  ' ─── Package: Authentication & Account Management ───
+  package "Authentication & Account" {
+    (Register Account) as UC_REG <<abstract>>
+    (Register Account - Email/Password) as UC1
+    (Register via OAuth - Google/Facebook) as UC2
+    (Verify Email) as UC3
+    (Login) as UC4
+    (Logout) as UC5
+    (Reset Password) as UC6
+  }
+
+  ' ─── Package: Content Management ───
+  package "Content Management" {
+    (View Feed) as UC7
+    (Search Posts) as UC8
+    (Create Post) as UC9
+    (Edit Post) as UC10
+    (Delete Post) as UC11
+  }
+
+  ' ─── Package: Comments & Engagement ───
+  package "Comments & Engagement" {
+    (Comment on Post) as UC12
+    (Edit Comment) as UC13
+    (Delete Comment) as UC14
+    (View Comments) as UC15
+  }
+
+  ' ─── Package: Notifications ───
+  package "Notifications" {
+    (Receive Notifications) as UC16
+    (View Notifications) as UC17
+    (Update Notification Preferences) as UC19
+  }
+
+  ' ─── Package: User Profile ───
+  package "User Profile" {
+    (Update Profile) as UC18
+    (View User Profile) as UC20
+  }
+
+  ' ─── Package: Administration ───
+  package "Administration" {
+    (Ban User) as UC21
+    (Remove Content) as UC22
+    (View Moderation Dashboard) as UC23
+  }
+
+  ' ─── Common Sub-Flow ───
+  (Authenticate User) as UC_AUTH
+  (Upload Image) as UC_IMG
 }
 
+' ─── Actor Associations ───
 anon --> UC1
 anon --> UC2
 anon --> UC4
@@ -85,21 +123,82 @@ admin --> UC21
 admin --> UC22
 admin --> UC23
 
+' ─── External Actor Connections ───
 UC1 --> email_svc : triggers
 UC2 --> oauth : redirects
 UC3 --> email_svc : verify
-UC4 --> email_svc : reset optional
 UC6 --> email_svc : send OTP
-UC9 --> storage : upload
-UC10 --> storage : update
-UC11 --> storage : delete
 UC16 --> email_svc : notify optional
 
-UC9 .> UC7 : <<extend>>
-UC12 .> UC16 : <<include>>
+' ─── Generalization: Abstract Use Case "Register Account" ───
+UC_REG <|-- UC1 : <<generalize>>
+UC_REG <|-- UC2 : <<generalize>>
+
+' ─── Include Relationships (shared sub-flows) ───
+UC9 ..> UC_AUTH : <<include>>
+UC10 ..> UC_AUTH : <<include>>
+UC11 ..> UC_AUTH : <<include>>
+UC12 ..> UC_AUTH : <<include>>
+UC13 ..> UC_AUTH : <<include>>
+UC14 ..> UC_AUTH : <<include>>
+UC18 ..> UC_AUTH : <<include>>
+UC21 ..> UC_AUTH : <<include>>
+UC22 ..> UC_AUTH : <<include>>
+UC23 ..> UC_AUTH : <<include>>
+UC12 ..> UC16 : <<include>>
+
+' ─── Include: Upload Image sub-flow ───
+UC9 ..> UC_IMG : <<include>>
+UC10 ..> UC_IMG : <<include>>
+UC18 ..> UC_IMG : <<include>>
+UC_IMG --> storage : upload/delete
+
+' ─── Extend Relationships (variants/optional behavior) ───
+UC8 ..> UC7 : <<extend>>
+UC9 ..> UC7 : <<extend>>
 
 @enduml
 ```
+
+---
+
+## Use Case Packages
+
+Use cases are organized into six logical **packages** to manage complexity:
+
+| Package                      | Use Cases        | Description                                                  |
+| ---------------------------- | ---------------- | ------------------------------------------------------------ |
+| **Authentication & Account** | UC1–UC6          | Registration, login, verification, password recovery, logout |
+| **Content Management**       | UC7–UC11         | Feed browsing, search, post CRUD operations                  |
+| **Comments & Engagement**    | UC12–UC15        | Comment lifecycle (create, edit, delete, view)               |
+| **Notifications**            | UC16, UC17, UC19 | Real-time push, history, preferences                         |
+| **User Profile**             | UC18, UC20       | Profile management and viewing                               |
+| **Administration**           | UC21–UC23        | User banning, content removal, dashboard                     |
+
+---
+
+## Use Case Relationships
+
+### Include Relationships (Shared Sub-Flows)
+
+| Included Use Case                | Used By                                                    | Rationale                                                                                                                   |
+| -------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Authenticate User**            | UC9–UC14, UC18, UC21–UC23                                  | All write operations require JWT authentication; this common sub-flow validates the Bearer token and extracts user identity |
+| **Upload Image**                 | UC9 (Create Post), UC10 (Edit Post), UC18 (Update Profile) | Image validation, compression, and storage is a reusable sub-flow shared across post and profile operations                 |
+| **Receive Notifications (UC16)** | UC12 (Comment on Post)                                     | Creating a comment always triggers a notification to the post owner; this is mandatory behavior                             |
+
+### Extend Relationships (Optional/Variant Behavior)
+
+| Base Use Case       | Extended By        | Condition                                                                                                      |
+| ------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------- |
+| **View Feed (UC7)** | UC8 (Search Posts) | When the user enters search keywords, the feed is filtered (optional behavior extending the base feed view)    |
+| **View Feed (UC7)** | UC9 (Create Post)  | When a verified user creates a new post, it extends the feed by adding real-time content via SignalR broadcast |
+
+### Generalization (Abstract Use Case)
+
+| Abstract Use Case    | Concrete Realizations             | Description                                                                                                                                                                    |
+| -------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Register Account** | UC1 (Email/Password), UC2 (OAuth) | Registration has two distinct implementations sharing the common goal of creating a user account; UC1 uses email verification while UC2 auto-verifies via OAuth provider trust |
 
 ---
 
@@ -2015,4 +2114,153 @@ UC12 .> UC16 : <<include>>
 
 ---
 
-**End of Use Case Descriptions**
+## **End of Use Case Descriptions**
+
+## Supplementary Specifications
+
+> This section captures non-functional requirements and functional requirements that are common across multiple use cases and are not specific to any single use case. Together with the Use-Case Model and Glossary, this forms the complete Software Requirements Specification (SRS) for BiUrSite.
+
+### SS-1. Reliability
+
+| ID    | Requirement                      | Target                                                                                                                 |
+| ----- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| SS-R1 | **Uptime SLA**                   | 99.5% monthly availability                                                                                             |
+| SS-R2 | **Mean Time to Recovery (MTTR)** | < 15 minutes                                                                                                           |
+| SS-R3 | **Data Loss Prevention**         | Soft-delete pattern for all entities; daily database backups                                                           |
+| SS-R4 | **Graceful Degradation**         | Core API remains available even if email or image storage services are down                                            |
+| SS-R5 | **Error Handling**               | Global exception middleware returns standardized RFC 7807 `ProblemDetails` JSON; never exposes stack traces to clients |
+| SS-R6 | **Retry Policy**                 | All MongoDB operations wrapped with configurable retry logic for transient failures                                    |
+
+### SS-2. Performance
+
+| ID    | Requirement                        | Target                         |
+| ----- | ---------------------------------- | ------------------------------ |
+| SS-P1 | **API Response Time (p95)**        | < 500 ms                       |
+| SS-P2 | **Feed Pagination**                | < 200 ms for 10 posts          |
+| SS-P3 | **Real-Time Notification Latency** | < 100 ms (SignalR WebSocket)   |
+| SS-P4 | **Page Load Time**                 | < 3 seconds                    |
+| SS-P5 | **Concurrent Users**               | 1,000+ (horizontally scalable) |
+| SS-P6 | **Database Query Time (p95)**      | < 50 ms (indexed queries)      |
+| SS-P7 | **Cache Hit Rate**                 | > 80% (Redis for hot data)     |
+
+### SS-3. Security
+
+| ID     | Requirement              | Description                                                                                             |
+| ------ | ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| SS-S1  | **Authentication**       | JWT (HS256, 24-hour expiry) with claims: userId, email, role                                            |
+| SS-S2  | **Password Policy**      | bcrypt hashing with salt (cost factor 10+); minimum 8 characters                                        |
+| SS-S3  | **Transport Security**   | HTTPS/TLS 1.2+ mandatory in production; WSS for SignalR                                                 |
+| SS-S4  | **CORS**                 | Whitelist-based; no wildcard origins in production                                                      |
+| SS-S5  | **Rate Limiting**        | 100 requests/minute per user/IP via Redis sliding window (applicable to all APIs)                       |
+| SS-S6  | **Input Validation**     | Server-side FluentValidation on all GraphQL mutations; client-side React form validation                |
+| SS-S7  | **XSS Prevention**       | React auto-escapes JSX; server-side input sanitization via GraphQL validators                           |
+| SS-S8  | **RBAC**                 | Two roles (User, Admin) enforced at GraphQL resolver level via `[Authorize]` attribute                  |
+| SS-S9  | **Security Headers**     | `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy` set on all responses |
+| SS-S10 | **Correlation Tracking** | `X-Correlation-Id` header generated/propagated on every request for traceability                        |
+
+### SS-4. Usability
+
+| ID    | Requirement            | Description                                                                       |
+| ----- | ---------------------- | --------------------------------------------------------------------------------- |
+| SS-U1 | **Responsive Design**  | Mobile-first; breakpoints at 320px, 768px, 1024px, 1440px                         |
+| SS-U2 | **Accessibility**      | WCAG 2.1 Level AA compliance (semantic HTML, keyboard navigation, color contrast) |
+| SS-U3 | **Dark/Light Theme**   | User-selectable theme stored in localStorage; Tailwind CSS class-based switching  |
+| SS-U4 | **Real-Time Feedback** | Optimistic UI for post/comment creation; instant image preview during upload      |
+| SS-U5 | **Infinite Scroll**    | IntersectionObserver-based pagination for feed and comments                       |
+
+### SS-5. Scalability
+
+| ID     | Requirement            | Strategy                                                                   |
+| ------ | ---------------------- | -------------------------------------------------------------------------- |
+| SS-SC1 | **Horizontal Scaling** | Stateless API (JWT-based); multiple backend instances behind load balancer |
+| SS-SC2 | **Database Scaling**   | MongoDB replication; eventual sharding by user segment                     |
+| SS-SC3 | **Cache Scaling**      | Redis cluster for distributed caching                                      |
+| SS-SC4 | **Real-Time Scaling**  | SignalR Redis backplane to sync across multiple backend instances          |
+| SS-SC5 | **Frontend Scaling**   | Static site hosting via CDN (Vercel/Netlify)                               |
+
+### SS-6. Design Constraints
+
+| ID     | Constraint                   | Rationale                                                                                                       |
+| ------ | ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| SS-DC1 | **Clean Architecture**       | Domain → Application → Infrastructure layering enforced; no reverse dependencies                                |
+| SS-DC2 | **CQRS Pattern**             | All commands and queries routed through MediatR pipeline with logging, validation, and idempotency behaviors    |
+| SS-DC3 | **GraphQL API Only**         | No REST endpoints; single `/graphql` endpoint for all data operations                                           |
+| SS-DC4 | **Event-Driven Messaging**   | Domain events published via Rebus (MongoDB transport) for async processing (email, image upload, notifications) |
+| SS-DC5 | **Containerized Deployment** | Docker + Docker Compose for local development; container-ready for cloud deployment (Render, Azure, AWS)        |
+| SS-DC6 | **MongoDB Document Store**   | NoSQL document database; comments embedded in posts, notifications embedded in users                            |
+
+### SS-7. Supportability & Maintainability
+
+| ID    | Requirement              | Description                                                                 |
+| ----- | ------------------------ | --------------------------------------------------------------------------- |
+| SS-M1 | **Structured Logging**   | All middleware and handlers produce structured log output                   |
+| SS-M2 | **Request Diagnostics**  | `RequestDiagnosticMiddleware` logs request/response details for debugging   |
+| SS-M3 | **Unit Test Coverage**   | Target 70%+ for business logic (xUnit framework)                            |
+| SS-M4 | **API Documentation**    | GraphQL schema auto-generated; Swagger available for health endpoints       |
+| SS-M5 | **Domain-Driven Design** | Entities, value objects, strongly-typed IDs, domain events, aggregate roots |
+
+---
+
+## Glossary
+
+> This glossary defines problem-domain terminology used throughout the use-case descriptions and supplementary specifications. It ensures a common understanding among all stakeholders, developers, and QA team members.
+
+| Term                                                | Definition                                                                                                                                                                                                               |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Actor**                                           | Any person or external system that interacts with BiUrSite from outside the system boundary (e.g., Anonymous User, Verified User, Admin, Email Service, OAuth Provider)                                                  |
+| **Anonymous User**                                  | A visitor who has not registered or logged in; can only view public content (feed, posts, user profiles) but cannot create, edit, or delete content                                                                      |
+| **Verified User**                                   | A registered user whose email has been confirmed (status = "Active"); can create posts, comment, manage profile, and receive notifications                                                                               |
+| **Admin**                                           | A system administrator with elevated privileges; can ban users, remove content, and view moderation dashboards                                                                                                           |
+| **Post**                                            | A user-generated content item consisting of text (required, 3–5,000 characters) and an optional image; the primary unit of content on the platform                                                                       |
+| **Comment**                                         | A text response (1–2,000 characters) attached to a specific post by a verified user; stored as an embedded subdocument within the post                                                                                   |
+| **Notification**                                    | A system-generated alert informing a user of activity relevant to them (e.g., "User X commented on your post"); delivered in real-time via SignalR and stored as an embedded subdocument within the user                 |
+| **Feed**                                            | The main content stream showing active posts sorted by newest first, with pagination (10 posts per page); accessible to all users including anonymous visitors                                                           |
+| **JWT (JSON Web Token)**                            | A stateless authentication token containing user claims (userId, email, role), signed with HS256 algorithm, valid for 24 hours                                                                                           |
+| **OAuth Provider**                                  | An external authentication service (Google, Facebook) that BiUrSite trusts to verify user identity; users registered via OAuth are auto-verified                                                                         |
+| **OTP (One-Time Password)**                         | A 6-digit temporary code sent via email for password reset; valid for 3 minutes, single-use                                                                                                                              |
+| **Verification Token**                              | A GUID-based token sent via email after registration; valid for 24 hours; confirms ownership of the email address                                                                                                        |
+| **Soft Delete**                                     | A logical deletion pattern where the entity's status is set to "Deleted" and a `DeletedDate` timestamp is recorded, but the record is not physically removed from the database; preserves audit trail                    |
+| **Status**                                          | An enum representing the lifecycle state of a user or content entity: `Unverified`, `Active`, `Deactivated`, `Banned`, `Deleted`                                                                                         |
+| **Role**                                            | An authorization level assigned to each user: `User` (standard access) or `Admin` (elevated moderation privileges)                                                                                                       |
+| **Image**                                           | A media file (JPG, PNG, WebP, max 10 MB) uploaded alongside posts or profile updates; stored externally via GitHub image storage service and referenced by URL                                                           |
+| **SignalR Hub**                                     | A real-time bidirectional communication channel; BiUrSite uses two hubs: `/notificationHub` (per-user notifications) and `/feedHub` (global feed updates)                                                                |
+| **GraphQL**                                         | The query language used for all API communication; BiUrSite exposes a single `/graphql` endpoint powered by HotChocolate                                                                                                 |
+| **MediatR**                                         | A .NET library implementing the Mediator pattern; used for CQRS (Command Query Responsibility Segregation) to separate read and write operations                                                                         |
+| **Domain Event**                                    | An immutable record of something that happened in the domain (e.g., `PostCreatedDomainEvent`, `CommentAddedDomainEvent`); used to trigger side effects like notifications and image uploads                              |
+| **Rebus**                                           | An asynchronous message bus (with MongoDB transport) used to process domain events in background handlers (e.g., sending emails, uploading images)                                                                       |
+| **Outbox Pattern**                                  | A reliability pattern where domain events are first persisted to a MongoDB outbox collection within the same transaction as the business data, then processed asynchronously by the `OutboxProcessor` background service |
+| **Idempotency**                                     | The property ensuring that a command can be safely retried without producing duplicate side effects; enforced via Redis-backed idempotency keys                                                                          |
+| **Rate Limiting**                                   | A security mechanism that restricts the number of API requests a user or IP can make within a time window (default: 100 requests/minute); implemented via Redis sliding window                                           |
+| **Clean Architecture**                              | The architectural style separating Domain (entities, rules), Application (use cases, CQRS), Infrastructure (persistence, external services), and API (HTTP pipeline) layers with strict dependency direction             |
+| **CQRS (Command Query Responsibility Segregation)** | A pattern separating read operations (queries) from write operations (commands), each handled by dedicated MediatR handlers                                                                                              |
+| **Aggregate Root**                                  | A domain entity that controls access to a cluster of related objects (e.g., `Post` is the aggregate root for its embedded `Comment` objects)                                                                             |
+| **Strongly-Typed ID**                               | A value object wrapping a `Guid` to represent entity identifiers (e.g., `PostId`, `UserId`, `CommentId`), preventing accidental mixing of different ID types                                                             |
+| **Author Snapshot**                                 | A denormalized copy of user information (ID, username, avatar URL) embedded within posts and comments for efficient querying without joins                                                                               |
+
+---
+
+## Design Issues
+
+> Per Lesson 06 best practices, design and implementation questions discovered during requirements analysis are recorded here, separate from the use-case descriptions.
+
+| ID   | Issue                                   | Status              | Notes                                                                                                                                                                    |
+| ---- | --------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| DI-1 | **Embedded vs. Referenced Comments**    | Open                | Comments are currently embedded subdocuments in posts. At scale (100+ comments per post), this may require migrating to a separate `comments` collection with references |
+| DI-2 | **Refresh Token Mechanism**             | Deferred to Phase 3 | Current 24-hour JWT has no refresh mechanism; long sessions require re-login                                                                                             |
+| DI-3 | **Two-Factor Authentication (2FA)**     | Deferred to Phase 2 | Admin accounts should require 2FA for elevated security                                                                                                                  |
+| DI-4 | **Content Reporting System**            | Deferred to Phase 2 | Users cannot currently report inappropriate content; admin moderation is reactive                                                                                        |
+| DI-5 | **Account Lockout After Failed Logins** | Deferred to Phase 2 | Brute-force protection via login attempt counting not yet implemented                                                                                                    |
+| DI-6 | **Email Template System**               | Open                | Email content is currently inline; should be moved to configurable templates                                                                                             |
+| DI-7 | **Image Storage Migration**             | Open                | Currently using GitHub API for image storage; should migrate to Cloudinary or S3 for production                                                                          |
+| DI-8 | **Notification Embedded Scaling**       | Open                | Notifications embedded in user documents; may need separate collection at scale                                                                                          |
+
+---
+
+**Document End**
+
+**Version History:**
+
+| Version | Date       | Changes                                                                                                                                   |
+| ------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.0     | 2026-02-22 | Initial use case model with 23 use cases                                                                                                  |
+| 2.0     | 2026-02-28 | Added use case packages, include/extend/generalize relationships, Supplementary Specifications, Glossary, and Design Issues per Lesson 06 |
