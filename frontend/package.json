@@ -11,32 +11,32 @@
     "codegen": "graphql-codegen"
   },
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "next": "^15.0.0",
     "@apollo/client": "^3.10.0",
+    "@microsoft/signalr": "^8.0.7",
+    "axios": "^1.6.0",
+    "dayjs": "^1.11.0",
     "graphql": "^16.8.0",
     "graphql-request": "^6.0.0",
-    "axios": "^1.6.0",
-    "zustand": "^4.4.0",
     "jwt-decode": "^4.0.0",
-    "dayjs": "^1.11.0",
-    "@microsoft/signalr": "^8.0.7"
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zustand": "^4.4.0"
   },
   "devDependencies": {
-    "typescript": "^5.3.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "@types/node": "^20.0.0",
-    "tailwindcss": "^3.4.0",
-    "postcss": "^8.4.0",
-    "autoprefixer": "^10.4.0",
-    "eslint": "^8.55.0",
-    "eslint-config-next": "^15.0.0",
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/client-preset": "^4.1.0",
     "@graphql-codegen/typescript": "^4.0.0",
     "@graphql-codegen/typescript-operations": "^4.1.0",
-    "@graphql-codegen/typescript-react-apollo": "^4.1.0"
+    "@graphql-codegen/typescript-react-apollo": "^4.1.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.55.0",
+    "eslint-config-next": "^15.0.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.3.0"
   }
 }

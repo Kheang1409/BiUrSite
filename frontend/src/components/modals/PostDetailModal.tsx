@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   COMMENTS_QUERY,
@@ -664,12 +665,23 @@ export function PostDetailModal({
                 ) : (
                   <>
                     <div className="flex items-start gap-3">
-                      <Avatar initials={post.username} src={post.userProfile} />
+                      <Link
+                        href={`/profile/user/${post.userId}`}
+                        className="shrink-0"
+                      >
+                        <Avatar
+                          initials={post.username}
+                          src={post.userProfile}
+                        />
+                      </Link>
                       <div className="flex-1 min-w-0 flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <div className="font-semibold text-white leading-snug">
+                          <Link
+                            href={`/profile/user/${post.userId}`}
+                            className="font-semibold text-white leading-snug hover:text-primary-1 transition-colors"
+                          >
                             {post.username}
-                          </div>
+                          </Link>
                           {postDate && (
                             <div
                               className="text-xs text-muted mt-0.5"
@@ -876,12 +888,17 @@ export function PostDetailModal({
                           id={`comment-${c.id}`}
                           className="flex items-start gap-2 group"
                         >
-                          <Avatar
-                            initials={c.username}
-                            src={c.userProfile}
-                            size="sm"
-                            className="mt-0.5"
-                          />
+                          <Link
+                            href={`/profile/user/${c.userId}`}
+                            className="shrink-0"
+                          >
+                            <Avatar
+                              initials={c.username}
+                              src={c.userProfile}
+                              size="sm"
+                              className="mt-0.5"
+                            />
+                          </Link>
 
                           <div className="flex-1 min-w-0">
                             {isEditing ? (
@@ -926,9 +943,12 @@ export function PostDetailModal({
                               <>
                                 <div className="flex items-start gap-1">
                                   <div className="inline-block max-w-full rounded-2xl bg-white/10 border border-white/10 px-3 py-2">
-                                    <div className="text-sm font-semibold text-white truncate leading-snug">
+                                    <Link
+                                      href={`/profile/user/${c.userId}`}
+                                      className="text-sm font-semibold text-white truncate leading-snug hover:text-primary-1 transition-colors"
+                                    >
                                       {c.username}
-                                    </div>
+                                    </Link>
                                     <p className="text-sm text-white/90 whitespace-pre-wrap mt-1 leading-snug">
                                       {c.text}
                                     </p>
