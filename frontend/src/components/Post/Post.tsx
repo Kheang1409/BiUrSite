@@ -219,6 +219,7 @@ export function Post({
         <div className="pb-2 border-b border-white/10">
           <UserHeader
             username={post.username}
+            userId={post.userId}
             timestamp={timeDisplay}
             timestampTitle={timeFullDate}
             avatarInitials={post.username}

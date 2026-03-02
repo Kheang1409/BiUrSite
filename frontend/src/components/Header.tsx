@@ -14,6 +14,7 @@ import {
 } from "@/lib/graphql/queries";
 import { useNotificationHub } from "@/hooks/useNotificationHub";
 import NotificationList from "@/components/ui/molecules/NotificationList";
+import { PostDetailModal } from "@/components/modals/PostDetailModal";
 
 export function Header() {
   const router = useRouter();
@@ -35,6 +36,7 @@ export function Header() {
   const [isLoadingMoreNotifications, setIsLoadingMoreNotifications] =
     useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
   const { data: notifData, refetch: refetchNotifications } = useQuery(
     NOTIFICATIONS_QUERY,
@@ -196,7 +198,7 @@ export function Header() {
             href="/"
             className="flex items-center gap-1 sm:gap-2 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-primary-1/50 rounded-lg px-1 sm:px-2 py-1 flex-shrink-0 group"
           >
-            <div className="p-1 sm:p-1.5 rounded-lg bg-gradient-to-br from-primary-1 to-primary-2 group-hover:shadow-lg group-hover:shadow-primary-1/30 transition-shadow">
+            <div className="p-1 sm:p-1.5 rounded-lg transition-shadow">
               <LogoIcon className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-white" />
             </div>
             <span className="hidden xs:block sm:block text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-primary-1 to-primary-2 bg-clip-text text-transparent">
@@ -477,12 +479,7 @@ export function Header() {
                           onView={(n) => {
                             setShowNotifications(false);
                             if (!n?.postId) return;
-                            const commentId =
-                              n.relatedEntityId ?? n.relatedEntityId ?? n.id;
-                            const target = `/post/${n.postId}${commentId ? `#comment-${commentId}` : ""}`;
-                            try {
-                              router.push(target);
-                            } catch {}
+                            setSelectedPostId(n.postId);
                           }}
                         />
                       </>
@@ -701,6 +698,14 @@ export function Header() {
           </nav>
         )}
       </div>
+
+      {selectedPostId && (
+        <PostDetailModal
+          postId={selectedPostId}
+          isOpen={!!selectedPostId}
+          onClose={() => setSelectedPostId(null)}
+        />
+      )}
     </header>
   );
 }

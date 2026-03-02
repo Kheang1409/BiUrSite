@@ -1,8 +1,8 @@
 # BiUrSite – Executive Summary & Documentation Index
 
-**Prepared:** February 22, 2026  
+**Prepared:** February 28, 2026  
 **For:** Project Stakeholders, Development Team, Product Management  
-**Status:** Analysis Complete – Ready for Review & Execution
+**Status:** Architectural Analysis Complete – Ready for Review & Execution
 
 ---
 
@@ -23,7 +23,7 @@
 
 ## Documentation Deliverables
 
-This analysis includes 4 comprehensive markdown documents:
+This analysis includes 5 comprehensive markdown documents:
 
 ### 1. **System Requirements Specification (SRS)** ← START HERE
 
@@ -54,13 +54,18 @@ This analysis includes 4 comprehensive markdown documents:
 
 **Contents:**
 
-- PlantUML use case diagram (23 use cases, 3 actors)
+- PlantUML use case diagram (23 use cases, 3 actors, 3 external actors)
+- Use case packages (6 logical groupings)
+- Use case relationships (Include, Extend, Generalize per Lesson 06)
 - Detailed description for each use case (UC1-UC23):
   - Primary/secondary actors
   - Preconditions & postconditions
   - Main flow (step-by-step)
   - Alternate flows & exceptions
   - Business rules
+- **Supplementary Specifications** (Reliability, Performance, Security, Usability, Scalability, Design Constraints, Maintainability)
+- **Glossary** (30+ problem-domain terms)
+- **Design Issues** (8 tracked architectural/implementation questions)
 
 **Use Cases Covered:**
 
@@ -152,6 +157,32 @@ This analysis includes 4 comprehensive markdown documents:
 **For:** Presentation to stakeholders, investors, team meetings, all-hands updates
 
 **Read Time:** 20-30 minutes (includes delivery tips)
+
+---
+
+### 5. **High-Level System Architecture (Lab 3)** ← ARCHITECTURAL ANALYSIS
+
+**File:** [`05_HIGH_LEVEL_SYSTEM_ARCHITECTURE.md`](05_HIGH_LEVEL_SYSTEM_ARCHITECTURE.md)
+
+**Purpose:** Initial system architecture produced from first iteration of architectural analysis, translating requirements into a concrete solution design.
+
+**Contents:**
+
+- Architectural goals, constraints, and guiding principles
+- High-level system architecture diagram (3-tier + Clean Architecture)
+- Architectural views: Logical, Process, Deployment, Data
+- Layer descriptions (Presentation, Application, Data tiers)
+- Component interaction flows (Registration, Create Post, Comment + Notification)
+- Technology stack justification
+- Deployment architecture (Docker Compose + Production)
+- Cross-cutting concerns (Security, Error Handling, Event-Driven, Observability)
+- Architectural Decision Records (ADR-1 through ADR-6)
+- Complete use case-to-architecture mapping (all 23 use cases)
+- Risk assessment
+
+**For:** Architects, senior developers, technical stakeholders, course submission (Lab 3)
+
+**Read Time:** 45-60 minutes (comprehensive architectural reference)
 
 ---
 
@@ -374,9 +405,10 @@ This analysis includes 4 comprehensive markdown documents:
 
 ## Document Version History
 
-| Version | Date       | Author   | Changes                        |
-| ------- | ---------- | -------- | ------------------------------ |
-| 1.0     | 2026-02-22 | Analysis | Initial comprehensive analysis |
+| Version | Date       | Author   | Changes                                                                                                           |
+| ------- | ---------- | -------- | ----------------------------------------------------------------------------------------------------------------- |
+| 1.0     | 2026-02-22 | Analysis | Initial comprehensive analysis                                                                                    |
+| 2.0     | 2026-02-28 | Analysis | Added Lab 3 architecture doc; improved Use Case Model with packages, relationships, supplementary specs, glossary |
 
 ---
 
@@ -423,6 +455,7 @@ This analysis is a living document. As you build and learn:
 | **02_UseCases**     | Business requirements     | Product, QA, Business  | 90-120 min | Test case writing, feature scope |
 | **03_GitHub**       | Operational setup         | DevOps, Team leads     | 60-90 min  | Project setup, CI/CD config      |
 | **04_Presentation** | Stakeholder communication | Executives, Investors  | 20-30 min  | Demos, pitches, all-hands        |
+| **05_Architecture** | System architecture       | Architects, Developers | 45-60 min  | Architecture decisions, Lab 3    |
 
 ---
 
@@ -444,5 +477,5 @@ Good luck! 🚀
 
 **For feedback or questions:** [Contact project lead]
 
-**Last Updated:** February 22, 2026  
-**Status:** Ready for handoff to development team
+**Last Updated:** February 28, 2026  
+**Status:** Architectural Analysis complete – Lab 3 deliverables included
