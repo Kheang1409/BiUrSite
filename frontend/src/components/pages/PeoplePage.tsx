@@ -37,15 +37,17 @@ export function PeoplePage() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-white mb-8">Discover People</h1>
+      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+        Discover People
+      </h1>
 
       {loading && !users.length ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
             <div key={i} className="card-bg p-4 animate-pulse">
-              <div className="w-20 h-20 bg-white/10 rounded-full mx-auto mb-4"></div>
-              <div className="h-4 bg-white/10 rounded w-3/4 mx-auto mb-2"></div>
-              <div className="h-3 bg-white/10 rounded w-1/2 mx-auto"></div>
+              <div className="w-20 h-20 bg-gray-200 dark:bg-white/10 rounded-full mx-auto mb-4"></div>
+              <div className="h-4 bg-gray-200 dark:bg-white/10 rounded w-3/4 mx-auto mb-2"></div>
+              <div className="h-3 bg-gray-200 dark:bg-white/10 rounded w-1/2 mx-auto"></div>
             </div>
           ))}
         </div>
@@ -65,7 +67,9 @@ export function PeoplePage() {
             >
               Previous
             </button>
-            <span className="px-4 py-2 text-white">Page {pageNumber}</span>
+            <span className="px-4 py-2 text-gray-900 dark:text-white">
+              Page {pageNumber}
+            </span>
             <button
               onClick={() => setPageNumber((p) => p + 1)}
               disabled={filteredUsers.length < 10}

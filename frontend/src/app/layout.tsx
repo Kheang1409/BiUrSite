@@ -39,7 +39,10 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/favicon-32.png" />
         <meta name="theme-color" content="#0A1628" />
       </head>
-      <body className="bg-gradient-dark text-white" suppressHydrationWarning>
+      <body
+        className="bg-gray-50 text-gray-900 dark:bg-gradient-dark dark:text-white transition-colors duration-200"
+        suppressHydrationWarning
+      >
         <ClientProviders>{children}</ClientProviders>
       </body>
     </html>

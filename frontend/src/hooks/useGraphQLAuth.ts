@@ -12,13 +12,7 @@ import { User } from "@/types";
 export function useGraphQLAuth() {
   const { login, logout, token } = useAuth();
 
-  const [loginMutation] = useMutation(LOGIN_MUTATION, {
-    onCompleted: (data) => {
-      if (data?.login?.token) {
-        login(data.login.token);
-      }
-    },
-  });
+  const [loginMutation] = useMutation(LOGIN_MUTATION);
 
   const [registerMutation] = useMutation(REGISTER_MUTATION);
 
@@ -35,6 +29,11 @@ export function useGraphQLAuth() {
     const result = await loginMutation({
       variables: { email, password },
     });
+
+    // If login succeeded, handle token locally instead of using onCompleted
+    const tokenValue = result?.data?.login?.token;
+    if (tokenValue) login(tokenValue);
+
     return result;
   };
 

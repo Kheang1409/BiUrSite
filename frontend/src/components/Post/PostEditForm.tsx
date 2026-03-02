@@ -43,7 +43,7 @@ export const PostEditForm = memo(function PostEditForm({
 
       <div className="space-y-2">
         {imageUrl && !removeImage && (
-          <div className="relative rounded-lg overflow-hidden border border-white/10">
+          <div className="relative rounded-lg overflow-hidden border border-gray-200 dark:border-white/10">
             <img
               src={imageUrl}
               alt="Post image"
@@ -75,8 +75,8 @@ export const PostEditForm = memo(function PostEditForm({
         )}
 
         {removeImage && (
-          <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-            <p className="text-xs text-white/80">
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-white/5 px-3 py-2">
+            <p className="text-xs text-gray-600 dark:text-white/80">
               Image will be removed when you save.
             </p>
             <button
@@ -92,7 +92,7 @@ export const PostEditForm = memo(function PostEditForm({
         <div className="flex items-center justify-between gap-3">
           <button
             type="button"
-            className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+            className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-white bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-colors"
             onClick={onAddPhotoClick}
           >
             <svg

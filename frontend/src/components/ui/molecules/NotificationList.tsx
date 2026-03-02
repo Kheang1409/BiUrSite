@@ -69,14 +69,16 @@ export default function NotificationList({
   }, [handleScroll]);
 
   return (
-    <div className="absolute right-0 mt-2 w-80 bg-primary-2 rounded-lg border border-white/10 shadow-xl z-50 overflow-hidden">
-      <div className="flex items-center justify-between p-3 border-b border-white/5">
-        <div className="text-sm font-semibold text-white">Notifications</div>
+    <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-primary-2 rounded-lg border border-gray-200 dark:border-white/10 shadow-xl z-50 overflow-hidden">
+      <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-white/5">
+        <div className="text-sm font-semibold text-gray-900 dark:text-white">
+          Notifications
+        </div>
         <div className="flex items-center gap-2">
           {onMarkAllRead && (
             <button
               onClick={() => void onMarkAllRead()}
-              className="text-xs text-white/70 hover:text-white transition-colors"
+              className="text-xs text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white transition-colors"
             >
               Mark all read
             </button>
@@ -86,7 +88,7 @@ export default function NotificationList({
 
       <div
         ref={scrollContainerRef}
-        className="max-h-[400px] overflow-y-auto bg-gradient-to-b from-primary-2/95 to-primary-2/90 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+        className="max-h-[400px] overflow-y-auto bg-gradient-to-b from-white/95 dark:from-primary-2/95 to-white/90 dark:to-primary-2/90 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-white/10 scrollbar-track-transparent"
       >
         {visibleNotifications.length > 0 ? (
           <>
@@ -94,10 +96,10 @@ export default function NotificationList({
               <button
                 key={n.id}
                 onClick={() => onView?.(n)}
-                className="w-full text-left p-3 hover:bg-white/5 transition-colors flex gap-3 items-start border-b border-white/5"
+                className="w-full text-left p-3 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors flex gap-3 items-start border-b border-gray-100 dark:border-white/5"
               >
                 <div className="flex-shrink-0">
-                  <div className="w-9 h-9 rounded-full bg-white/5 overflow-hidden flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-full bg-gray-100 dark:bg-white/5 overflow-hidden flex items-center justify-center">
                     {n.userProfile ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -106,7 +108,7 @@ export default function NotificationList({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <span className="text-xs text-white/60">
+                      <span className="text-xs text-gray-500 dark:text-white/60">
                         {n.username?.[0] || "U"}
                       </span>
                     )}
@@ -115,15 +117,17 @@ export default function NotificationList({
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="text-sm font-medium text-white truncate">
+                    <div className="text-sm font-medium text-gray-900 dark:text-white truncate">
                       <span className="font-semibold mr-1">{n.username}</span>
-                      <span className="text-white/75">{n.title}</span>
+                      <span className="text-gray-600 dark:text-white/75">
+                        {n.title}
+                      </span>
                     </div>
-                    <div className="text-xs text-white/50 whitespace-nowrap">
+                    <div className="text-xs text-gray-500 dark:text-white/50 whitespace-nowrap">
                       {dayjs(n.createdDate).fromNow()}
                     </div>
                   </div>
-                  <div className="text-sm text-white/70 mt-1 line-clamp-2">
+                  <div className="text-sm text-gray-600 dark:text-white/70 mt-1 line-clamp-2">
                     {n.message}
                   </div>
                 </div>
@@ -134,7 +138,7 @@ export default function NotificationList({
             {showSeeMore && (
               <button
                 onClick={handleSeeMore}
-                className="w-full py-3 text-center text-sm text-primary-1 hover:bg-white/5 transition-colors font-medium"
+                className="w-full py-3 text-center text-sm text-primary-1 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors font-medium"
               >
                 See previous notifications
               </button>
@@ -144,7 +148,7 @@ export default function NotificationList({
             {(isLoadingMore || (hasLocalMore && !showSeeMore)) && (
               <div
                 ref={loadMoreTriggerRef}
-                className="py-3 text-center text-xs text-white/50"
+                className="py-3 text-center text-xs text-gray-500 dark:text-white/50"
               >
                 {isLoadingMore ? (
                   <span className="inline-flex items-center gap-2">
@@ -177,13 +181,15 @@ export default function NotificationList({
 
             {/* End of notifications */}
             {!hasMore && !hasLocalMore && visibleCount > INITIAL_COUNT && (
-              <div className="py-2 text-center text-xs text-white/40">
+              <div className="py-2 text-center text-xs text-gray-400 dark:text-white/40">
                 You&apos;re all caught up
               </div>
             )}
           </>
         ) : (
-          <div className="p-4 text-sm text-white/60">No notifications</div>
+          <div className="p-4 text-sm text-gray-500 dark:text-white/60">
+            No notifications
+          </div>
         )}
       </div>
     </div>

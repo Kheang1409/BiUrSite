@@ -51,12 +51,12 @@ export function UserHeader({
             {userId ? (
               <Link
                 href={`/profile/user/${userId}`}
-                className="font-semibold text-white hover:text-primary-1 transition-colors cursor-pointer text-sm"
+                className="font-semibold text-gray-900 dark:text-white hover:text-primary-1 transition-colors cursor-pointer text-sm"
               >
                 {username}
               </Link>
             ) : (
-              <p className="font-semibold text-white hover:text-primary-1 transition-colors cursor-pointer text-sm">
+              <p className="font-semibold text-gray-900 dark:text-white hover:text-primary-1 transition-colors cursor-pointer text-sm">
                 {username}
               </p>
             )}

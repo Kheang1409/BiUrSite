@@ -66,16 +66,20 @@ export function ConfirmDialog({
       />
 
       <div className="relative w-full max-w-md">
-        <Card className="p-0 overflow-hidden border border-white/10 bg-primary-3">
-          <div className="px-4 py-3 border-b border-white/10">
-            <h3 className="text-white font-bold text-lg">{title}</h3>
+        <Card className="p-0 overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-primary-3">
+          <div className="px-4 py-3 border-b border-gray-200 dark:border-white/10">
+            <h3 className="text-gray-900 dark:text-white font-bold text-lg">
+              {title}
+            </h3>
           </div>
 
           {description ? (
-            <div className="px-4 py-3 text-sm text-white/80">{description}</div>
+            <div className="px-4 py-3 text-sm text-gray-700 dark:text-white/80">
+              {description}
+            </div>
           ) : null}
 
-          <div className="px-4 py-3 flex justify-end gap-2 border-t border-white/10">
+          <div className="px-4 py-3 flex justify-end gap-2 border-t border-gray-200 dark:border-white/10">
             <Button
               ref={cancelButtonRef}
               variant="secondary"
