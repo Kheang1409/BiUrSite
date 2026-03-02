@@ -7,7 +7,7 @@ interface DividerProps {
 export function Divider({ className = "" }: DividerProps) {
   return (
     <div
-      className={["border-t border-white/10", className]
+      className={["border-t border-gray-200 dark:border-white/10", className]
         .filter(Boolean)
         .join(" ")}
     />

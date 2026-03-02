@@ -29,7 +29,7 @@ export function Avatar({
         alt={alt || initials}
         className={[
           sizeStyles[size],
-          "rounded-full object-cover bg-white/10 border border-white/10 shadow-sm",
+          "rounded-full object-cover bg-gray-200 dark:bg-white/10 border border-gray-200 dark:border-white/10 shadow-sm",
           className,
         ]
           .filter(Boolean)
@@ -42,7 +42,7 @@ export function Avatar({
     <div
       className={[
         sizeStyles[size],
-        "rounded-full bg-gradient-to-br from-primary-1 to-primary-2 border border-white/10 shadow-sm flex items-center justify-center font-bold text-white",
+        "rounded-full bg-gradient-to-br from-primary-1 to-primary-2 border border-gray-200 dark:border-white/10 shadow-sm flex items-center justify-center font-bold text-white",
         className,
       ]
         .filter(Boolean)

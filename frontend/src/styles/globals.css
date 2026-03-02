@@ -23,13 +23,14 @@ body {
   @apply w-full h-full;
 }
 
+/* Light mode scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-slate-900;
+  @apply bg-gray-200 dark:bg-slate-900;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -50,7 +51,7 @@ body {
 }
 
 .card-bg {
-  @apply bg-card backdrop-blur-sm rounded-[10px] border border-white/10;
+  @apply bg-white dark:bg-card backdrop-blur-sm rounded-[10px] border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none;
 }
 
 .text-gradient {
@@ -70,27 +71,11 @@ body {
 }
 
 .input-field {
-  @apply w-full px-4 py-2 bg-white/10 border border-white/20 rounded-[10px] text-white placeholder-muted focus:outline-none focus:border-primary-1 focus:ring-2 focus:ring-primary-1/50 transition-colors;
+  @apply w-full px-4 py-2 bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-[10px] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-muted focus:outline-none focus:border-primary-1 focus:ring-2 focus:ring-primary-1/50 transition-colors;
 }
 
-.btn-primary {
-  @apply px-6 py-2 bg-primary-1 text-white rounded-[10px] font-semibold hover:bg-primary-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.btn-secondary {
-  @apply px-6 py-2 border border-primary-1 text-primary-1 rounded-[10px] font-semibold hover:bg-primary-1/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.btn-danger {
-  @apply px-6 py-2 bg-danger-1 text-white rounded-[10px] font-semibold hover:bg-danger-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.input-field {
-  @apply w-full px-4 py-2 bg-white/10 border border-white/20 rounded-[10px] text-white placeholder-muted focus:outline-none focus:border-primary-1 focus:ring-2 focus:ring-primary-1/50 transition-colors;
-}
-
-.input-field {
-  @apply w-full px-4 py-2 bg-white/10 border border-white/20 rounded-[10px] text-white placeholder-muted focus:outline-none focus:border-primary-1 focus:ring-2 focus:ring-primary-1/50 transition-colors;
+.glass-effect {
+  @apply bg-white/80 dark:bg-white/5 backdrop-blur-md border border-gray-200 dark:border-white/10;
 }
 
 @layer utilities {
@@ -163,9 +148,5 @@ body {
 
   .interactive-hover {
     @apply transition-all duration-200 hover:scale-105 active:scale-95;
-  }
-
-  .glass-effect {
-    @apply bg-white/5 backdrop-blur-md border border-white/10;
   }
 }

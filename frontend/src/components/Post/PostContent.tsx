@@ -23,7 +23,7 @@ export const PostContent = memo(function PostContent({
   return (
     <div className="py-3">
       {isTextLong && !isExpanded ? (
-        <p className="text-white/90 leading-relaxed whitespace-pre-wrap text-sm">
+        <p className="text-gray-800 dark:text-white/90 leading-relaxed whitespace-pre-wrap text-sm">
           {displayText}{" "}
           <button
             onClick={onExpand}
@@ -34,7 +34,7 @@ export const PostContent = memo(function PostContent({
           </button>
         </p>
       ) : (
-        <p className="text-white/90 leading-relaxed whitespace-pre-wrap text-sm">
+        <p className="text-gray-800 dark:text-white/90 leading-relaxed whitespace-pre-wrap text-sm">
           {displayText}
         </p>
       )}
@@ -45,11 +45,13 @@ export const PostContent = memo(function PostContent({
 interface PostImageProps {
   imageUrl: string;
   onClick: () => void;
+  priority?: boolean;
 }
 
 export const PostImage = memo(function PostImage({
   imageUrl,
   onClick,
+  priority = false,
 }: PostImageProps) {
   return (
     <button
@@ -58,11 +60,18 @@ export const PostImage = memo(function PostImage({
       className="w-full text-left"
       aria-label="View post details"
     >
-      <img
-        src={imageUrl}
-        alt="Post content"
-        className="w-full rounded-[10px] mb-3 max-h-96 object-cover hover:opacity-90 transition-opacity"
-      />
+      <div
+        className="w-full rounded-[10px] mb-3 overflow-hidden relative"
+        style={{ paddingTop: "56.25%", maxHeight: 384 }}
+      >
+        <img
+          src={imageUrl}
+          alt="Post content"
+          className="absolute inset-0 w-full h-full object-cover hover:opacity-90 transition-opacity"
+          loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+        />
+      </div>
     </button>
   );
 });
@@ -80,7 +89,7 @@ export const PostActions = memo(function PostActions({
     <>
       {commentCount > 0 && (
         <>
-          <div className="border-t border-white/10 py-1.5 text-center">
+          <div className="border-t border-gray-200 dark:border-white/10 py-1.5 text-center">
             <button
               className="text-xs text-muted hover:text-primary-1 transition-colors"
               onClick={onCommentClick}
@@ -88,7 +97,7 @@ export const PostActions = memo(function PostActions({
               💬 {commentCount} {commentCount === 1 ? "comment" : "comments"}
             </button>
           </div>
-          <div className="border-t border-white/10" />
+          <div className="border-t border-gray-200 dark:border-white/10" />
         </>
       )}
 
@@ -98,7 +107,7 @@ export const PostActions = memo(function PostActions({
           variant="ghost"
           size="sm"
           onClick={onCommentClick}
-          className="flex items-center justify-center gap-2 text-muted hover:text-primary-1 hover:bg-white/5 transition-colors text-sm py-1.5"
+          className="flex items-center justify-center gap-2 text-muted hover:text-primary-1 hover:bg-gray-100 dark:hover:bg-white/5 transition-colors text-sm py-1.5"
         >
           💬 Comment
         </Button>

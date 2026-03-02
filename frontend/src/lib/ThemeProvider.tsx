@@ -1,24 +1,33 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import {
+  ReactNode,
+  useEffect,
+  useState,
+  useContext,
+  createContext,
+} from "react";
 
 export interface ThemeContextType {
   theme: "light" | "dark";
   toggleTheme: () => void;
+  mounted: boolean;
 }
 
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Check localStorage and system preference
+    // Check localStorage first, then system preference, default to light
     const storedTheme = localStorage.getItem("theme") as
       | "light"
       | "dark"
       | null;
     const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
+      "(prefers-color-scheme: dark)",
     ).matches;
 
     const initialTheme = storedTheme || (prefersDark ? "dark" : "light");
@@ -43,9 +52,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     applyTheme(newTheme);
   };
 
-  if (!mounted) {
-    return <>{children}</>;
-  }
+  // Always provide context - even before mounting
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme, mounted }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
 
-  return <>{children}</>;
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return context;
 }
