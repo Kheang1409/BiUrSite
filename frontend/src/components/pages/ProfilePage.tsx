@@ -41,6 +41,7 @@ export function ProfilePage() {
   );
   const [removeProfileImage, setRemoveProfileImage] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const profileFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const {
     data: userData,
@@ -216,10 +217,10 @@ export function ProfilePage() {
       {user && (
         <div className="card-bg p-8 mb-6">
           <div className="flex items-start gap-6">
-            <div className="w-24 h-24 rounded-full overflow-hidden bg-white/10 flex items-center justify-center flex-shrink-0">
-              {user.profile ? (
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-200 dark:bg-white/10 flex items-center justify-center flex-shrink-0 group relative">
+              {profilePreviewUrl || user.profile ? (
                 <img
-                  src={user.profile}
+                  src={profilePreviewUrl ?? user.profile}
                   alt={`${user.username} profile`}
                   className="w-full h-full object-cover"
                 />
@@ -228,14 +229,100 @@ export function ProfilePage() {
                   {user.username[0].toUpperCase()}
                 </span>
               )}
+
+              {isEditingProfile && (
+                <>
+                  <input
+                    ref={profileFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const bytes = await FileUtils.fileToByteArray(file);
+                      if (profilePreviewUrl)
+                        URL.revokeObjectURL(profilePreviewUrl);
+                      setProfilePreviewUrl(URL.createObjectURL(file));
+                      setProfileBytes(bytes);
+                      setRemoveProfileImage(false);
+                    }}
+                  />
+
+                  <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-2">
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => profileFileInputRef.current?.click()}
+                        className="w-9 h-9 rounded-full bg-black/30 hover:bg-black/50 dark:bg-white/10 dark:hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                        aria-label="Change photo"
+                        title="Change photo"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-4 h-4"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M3 7h4l2-3h6l2 3h4v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"
+                          />
+                          <circle cx="12" cy="13" r="3" />
+                        </svg>
+                      </button>
+
+                      <button
+                        type="button"
+                        className="w-7 h-7 rounded-full bg-danger-1/20 hover:bg-danger-1/30 flex items-center justify-center text-danger-1 transition-colors"
+                        aria-label="Remove photo"
+                        title="Remove photo"
+                        onClick={() => {
+                          if (profilePreviewUrl)
+                            URL.revokeObjectURL(profilePreviewUrl);
+                          setProfilePreviewUrl(null);
+                          setProfileBytes(null);
+                          setRemoveProfileImage(true);
+                        }}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="w-3.5 h-3.5"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="flex-1">
-              <h1 className="text-3xl font-bold text-white">{user.username}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                {user.username}
+              </h1>
               <p className="text-muted mt-2">{user.email}</p>
-              {user.bio && <p className="text-white/70 mt-3">{user.bio}</p>}
+              {user.bio && (
+                <p className="text-gray-600 dark:text-white/70 mt-3">
+                  {user.bio}
+                </p>
+              )}
               {user.phone ? (
-                <p className="text-white/70 mt-1">{user.phone}</p>
+                <p className="text-gray-600 dark:text-white/70 mt-1">
+                  {user.phone}
+                </p>
               ) : (
                 <p className="text-sm text-muted mt-1">No phone number yet</p>
               )}
@@ -258,7 +345,7 @@ export function ProfilePage() {
                 <label className="text-sm text-muted">
                   Username
                   <input
-                    className="mt-1 w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-white"
+                    className="mt-1 w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-gray-900 dark:text-white"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                   />
@@ -267,7 +354,7 @@ export function ProfilePage() {
                 <label className="text-sm text-muted">
                   Phone {(!user.phone || user.phone.trim() === "") && "(add)"}
                   <input
-                    className="mt-1 w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-white"
+                    className="mt-1 w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-gray-900 dark:text-white"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="e.g. +1 555 123 4567"
@@ -278,7 +365,7 @@ export function ProfilePage() {
               <label className="text-sm text-muted">
                 Bio
                 <textarea
-                  className="mt-1 w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-white"
+                  className="mt-1 w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-gray-900 dark:text-white"
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   rows={3}
@@ -286,54 +373,9 @@ export function ProfilePage() {
               </label>
 
               <div className="space-y-2">
-                {(profilePreviewUrl || user.profile) && !removeProfileImage && (
-                  <div className="rounded-lg overflow-hidden border border-white/10 max-w-xs">
-                    <img
-                      src={profilePreviewUrl ?? user.profile}
-                      alt="Profile preview"
-                      className="w-full h-48 object-cover"
-                    />
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between gap-3 flex-wrap">
-                  <label className="text-xs text-muted">
-                    Upload/replace photo
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="mt-1 block w-full text-xs text-muted"
-                      onChange={async (e) => {
-                        const file = e.target.files?.[0];
-                        if (!file) return;
-                        const bytes = await FileUtils.fileToByteArray(file);
-                        if (profilePreviewUrl)
-                          URL.revokeObjectURL(profilePreviewUrl);
-                        setProfilePreviewUrl(URL.createObjectURL(file));
-                        setProfileBytes(bytes);
-                        setRemoveProfileImage(false);
-                      }}
-                    />
-                  </label>
-
-                  <button
-                    type="button"
-                    className="text-xs text-danger-1 hover:underline"
-                    onClick={() => {
-                      if (profilePreviewUrl)
-                        URL.revokeObjectURL(profilePreviewUrl);
-                      setProfilePreviewUrl(null);
-                      setProfileBytes(null);
-                      setRemoveProfileImage(true);
-                    }}
-                  >
-                    Remove photo
-                  </button>
-                </div>
-
                 {removeProfileImage && (
-                  <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2">
-                    <p className="text-xs text-white/80">
+                  <div className="flex items-center justify-between rounded-lg border border-gray-200 dark:border-white/10 bg-gray-100 dark:bg-white/5 px-3 py-2">
+                    <p className="text-xs text-gray-600 dark:text-white/80">
                       Photo will be reset to default.
                     </p>
                     <button
@@ -402,12 +444,14 @@ export function ProfilePage() {
         </div>
       )}
 
-      <h2 className="text-2xl font-bold text-white mb-6">My Posts</h2>
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+        My Posts
+      </h2>
 
       {postsLoading ? (
         <div className="card-bg p-8 text-center">
           <div className="animate-pulse">
-            <div className="h-4 bg-white/10 rounded w-3/4 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-200 dark:bg-white/10 rounded w-3/4 mx-auto mb-4"></div>
           </div>
         </div>
       ) : posts.length > 0 ? (

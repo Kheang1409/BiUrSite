@@ -16,7 +16,8 @@ const variantStyles: Record<ButtonVariant, string> = {
   secondary:
     "border border-primary-1 text-primary-1 hover:bg-primary-1/10 focus:ring-primary-1/50",
   danger: "bg-danger-1 hover:bg-danger-2 text-white focus:ring-danger-1/50",
-  ghost: "text-primary-1 hover:bg-white/5 focus:ring-primary-1/50",
+  ghost:
+    "text-primary-1 hover:bg-gray-100 dark:hover:bg-white/5 focus:ring-primary-1/50",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -37,7 +38,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const baseStyles =
       "font-semibold rounded-[10px] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-offset-0 active:scale-95";
@@ -69,7 +70,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </button>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

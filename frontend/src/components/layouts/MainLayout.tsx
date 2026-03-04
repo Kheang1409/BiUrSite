@@ -11,12 +11,12 @@ interface MainLayoutProps {
 
 export function MainLayout({ children, sidebar, rightPanel }: MainLayoutProps) {
   return (
-    <div className="min-h-screen bg-gradient-dark flex flex-col">
+    <div className="min-h-screen bg-gray-50 dark:bg-gradient-dark flex flex-col transition-colors duration-200">
       <Header />
 
       <main className="flex-1 flex">
         {sidebar && (
-          <aside className="hidden lg:flex lg:w-64 lg:border-r lg:border-white/10 lg:flex-col lg:bg-white/5 lg:backdrop-blur-sm">
+          <aside className="hidden lg:flex lg:w-64 lg:border-r lg:border-gray-200 dark:lg:border-white/10 lg:flex-col lg:bg-white dark:lg:bg-white/5 lg:backdrop-blur-sm">
             {sidebar}
           </aside>
         )}
@@ -26,7 +26,7 @@ export function MainLayout({ children, sidebar, rightPanel }: MainLayoutProps) {
         </div>
 
         {rightPanel && (
-          <aside className="hidden xl:flex xl:w-80 xl:border-l xl:border-white/10 xl:flex-col xl:bg-white/5 xl:backdrop-blur-sm">
+          <aside className="hidden xl:flex xl:w-80 xl:border-l xl:border-gray-200 dark:xl:border-white/10 xl:flex-col xl:bg-white dark:xl:bg-white/5 xl:backdrop-blur-sm">
             {rightPanel}
           </aside>
         )}

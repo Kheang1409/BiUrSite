@@ -8,9 +8,11 @@ interface CardProps {
 }
 
 const variantStyles = {
-  default: "bg-card backdrop-blur-sm border border-white/10",
-  elevated: "bg-white/5 backdrop-blur-md border border-white/20 shadow-lg",
-  flat: "bg-white/5 backdrop-blur-sm",
+  default:
+    "bg-white dark:bg-card backdrop-blur-sm border border-gray-200 dark:border-white/10 shadow-sm dark:shadow-none",
+  elevated:
+    "bg-white dark:bg-white/5 backdrop-blur-md border border-gray-200 dark:border-white/20 shadow-lg",
+  flat: "bg-gray-50 dark:bg-white/5 backdrop-blur-sm",
 };
 
 export function Card({

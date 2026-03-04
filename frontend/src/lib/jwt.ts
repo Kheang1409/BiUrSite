@@ -8,7 +8,7 @@ function base64UrlDecode(input: string): string {
   const base64 = input.replace(/-/g, "+").replace(/_/g, "/");
   const padded = base64.padEnd(
     base64.length + ((4 - (base64.length % 4)) % 4),
-    "="
+    "=",
   );
 
   // atob is available in browsers; fall back for SSR/node environments.
@@ -36,6 +36,7 @@ export function decodeJwtPayload(token: string): JwtPayload | null {
 export type AuthTokenInfo = {
   userId?: string;
   username?: string;
+  role?: string;
   expiresAt?: Date;
   isExpired: boolean;
   raw: JwtPayload | null;
@@ -43,7 +44,7 @@ export type AuthTokenInfo = {
 
 function looksLikeGuid(value: string): boolean {
   return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
-    value
+    value,
   );
 }
 
@@ -73,9 +74,22 @@ export function getAuthTokenInfo(token: string | null): AuthTokenInfo {
   const userId = id || nameId || (sub && looksLikeGuid(sub) ? sub : undefined);
   const username = (sub && !looksLikeGuid(sub) ? sub : undefined) || uniqueName;
 
+  // Extract role claim (.NET maps ClaimTypes.Role to "role" in JWT)
+  const roleClaim =
+    typeof (raw as any)?.role === "string"
+      ? ((raw as any).role as string)
+      : typeof (raw as any)?.[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ] === "string"
+        ? ((raw as any)[
+            "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+          ] as string)
+        : undefined;
+
   return {
     userId,
     username,
+    role: roleClaim,
     expiresAt,
     isExpired,
     raw,

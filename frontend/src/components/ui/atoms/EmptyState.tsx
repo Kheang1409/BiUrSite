@@ -28,7 +28,9 @@ export function EmptyState({
         .join(" ")}
     >
       {icon && <div className="text-6xl mb-4">{icon}</div>}
-      <h3 className="text-lg font-semibold text-white mb-2">{title}</h3>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+        {title}
+      </h3>
       {description && <p className="text-muted mb-6 max-w-sm">{description}</p>}
       {action && (
         <button

@@ -149,24 +149,28 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
               <img
                 src={user.profile}
                 alt={user.username}
-                className="w-24 h-24 rounded-full object-cover border-4 border-white/20"
+                className="w-24 h-24 rounded-full object-cover border-4 border-gray-200 dark:border-white/20"
               />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-primary-1 flex items-center justify-center text-white text-3xl font-bold border-4 border-white/20">
+              <div className="w-24 h-24 rounded-full bg-primary-1 flex items-center justify-center text-white text-3xl font-bold border-4 border-gray-200 dark:border-white/20">
                 {user.username?.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
 
-          <h1 className="text-3xl font-bold text-white">{user.username}</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            {user.username}
+          </h1>
           <p className="text-muted mt-2">{user.email}</p>
 
           {user.phone && (
-            <p className="text-sm text-white/70 mt-2">{user.phone}</p>
+            <p className="text-sm text-gray-600 dark:text-white/70 mt-2">
+              {user.phone}
+            </p>
           )}
 
           {user.bio && (
-            <p className="text-white/80 mt-4 leading-relaxed max-w-lg mx-auto">
+            <p className="text-gray-700 dark:text-white/80 mt-4 leading-relaxed max-w-lg mx-auto">
               {user.bio}
             </p>
           )}
@@ -174,7 +178,9 @@ export function UserProfilePage({ userId }: UserProfilePageProps) {
       </Card>
 
       <div>
-        <h2 className="text-2xl font-bold text-white mb-6">Posts</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          Posts
+        </h2>
 
         {postsLoading && !posts.length ? (
           <div className="space-y-4">

@@ -19,6 +19,7 @@ import { PostContent, PostImage, PostActions } from "./PostContent";
 
 interface PostProps {
   post: PostType;
+  isFirst?: boolean;
   onEdit?: (
     postId: string,
     content: string,
@@ -36,6 +37,7 @@ interface PostProps {
 
 export function Post({
   post,
+  isFirst = false,
   onEdit,
   onDelete,
   onComment,
@@ -214,11 +216,12 @@ export function Post({
     <article className="mb-4 animate-fadeIn">
       <Card
         hoverable
-        className="bg-white/5 backdrop-blur-sm border border-white/10"
+        className="bg-white dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10"
       >
-        <div className="pb-2 border-b border-white/10">
+        <div className="pb-2 border-b border-gray-200 dark:border-white/10">
           <UserHeader
             username={post.username}
+            userId={post.userId}
             timestamp={timeDisplay}
             timestampTitle={timeFullDate}
             avatarInitials={post.username}
@@ -272,6 +275,7 @@ export function Post({
               <PostImage
                 imageUrl={effectiveImageUrl}
                 onClick={handleCommentClick}
+                priority={isFirst}
               />
             )}
 

@@ -72,6 +72,48 @@ public sealed class GraphQLUserContext
         throw new UnauthorizedAccessException("Invalid user id claim. Please log out and log in again.");
     }
 
+    public Guid? GetUserIdOrNull()
+    {
+        try
+        {
+            var candidateClaimTypes = new[]
+            {
+                ClaimTypes.NameIdentifier,
+                "id",
+                System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub,
+                ClaimTypes.Name,
+                ClaimTypes.Email
+            };
+
+            foreach (var claimType in candidateClaimTypes)
+            {
+                var values = User.Claims.Where(c => string.Equals(c.Type, claimType, StringComparison.OrdinalIgnoreCase)).Select(c => c.Value);
+                foreach (var v in values)
+                {
+                    if (!string.IsNullOrWhiteSpace(v) && Guid.TryParse(v, out var parsed))
+                        return parsed;
+                }
+            }
+
+            foreach (var v in User.Claims.Select(c => c.Value))
+            {
+                if (!string.IsNullOrWhiteSpace(v) && Guid.TryParse(v, out var parsed))
+                    return parsed;
+            }
+        }
+        catch { }
+
+        return null;
+    }
+
+    public bool HasRole(string role)
+    {
+        if (string.IsNullOrWhiteSpace(role)) return false;
+        // Check role claim (ClaimTypes.Role) or let framework role check
+        if (User.IsInRole(role)) return true;
+        return User.Claims.Any(c => string.Equals(c.Type, ClaimTypes.Role, StringComparison.OrdinalIgnoreCase) && string.Equals(c.Value, role, StringComparison.OrdinalIgnoreCase));
+    }
+
     public string GetRequiredUsername()
     {
         var raw = User.FindFirstValue(ClaimTypes.Name);
