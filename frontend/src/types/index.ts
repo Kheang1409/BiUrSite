@@ -8,6 +8,9 @@ export interface User {
   phone?: string;
   hasNewNotification?: boolean;
   role?: string;
+  status?: string;
+  banReason?: string;
+  banEndDate?: string;
   createdAt?: string;
 }
 
