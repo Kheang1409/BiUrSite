@@ -17,6 +17,9 @@ using Backend.Application.Users.Update;
 using Backend.Application.Users.UpdateProfileNotificationStatus;
 using Backend.Application.Users.VerifyUser;
 using HotChocolate.Authorization;
+using Backend.Application.Users.Admin;
+using Backend.Application.Posts.Admin;
+using Backend.Application.Comments.Admin;
 using MediatR;
 
 namespace Backend.API.GraphQL;
@@ -183,6 +186,51 @@ public sealed class Mutation
         CancellationToken cancellationToken)
     {
         await mediator.Send(new DeleteUserCommand(userContext.GetRequiredUserId()), cancellationToken);
+        return true;
+    }
+
+    [Authorize(Roles = new[] { "Admin" })]
+    public async Task<bool> BanUser(
+        Guid userId,
+        string? reason,
+        int? durationMinutes,
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(new BanUserCommand(userId, reason, durationMinutes), cancellationToken);
+        return true;
+    }
+
+    [Authorize(Roles = new[] { "Admin" })]
+    public async Task<bool> UnbanUser(
+        Guid userId,
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(new UnbanUserCommand(userId), cancellationToken);
+        return true;
+    }
+
+    [Authorize(Roles = new[] { "Admin" })]
+    public async Task<bool> AdminDeletePost(
+        Guid postId,
+        string? reason,
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(new AdminDeletePostCommand(postId, reason), cancellationToken);
+        return true;
+    }
+
+    [Authorize(Roles = new[] { "Admin" })]
+    public async Task<bool> AdminDeleteComment(
+        Guid postId,
+        Guid commentId,
+        string? reason,
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        await mediator.Send(new AdminDeleteCommentCommand(postId, commentId, reason), cancellationToken);
         return true;
     }
 }

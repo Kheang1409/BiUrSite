@@ -17,14 +17,16 @@ export function AuthFormContainer({
   footer,
 }: AuthFormContainerProps) {
   return (
-    <div className="min-h-screen bg-gradient-dark flex items-center justify-center px-4 py-6">
+    <div className="min-h-screen bg-gray-50 dark:bg-gradient-dark flex items-center justify-center px-4 py-6">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">{title}</h1>
-          <p className="text-white/70 text-sm">{subtitle}</p>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            {title}
+          </h1>
+          <p className="text-gray-600 dark:text-white/70 text-sm">{subtitle}</p>
         </div>
 
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+        <div className="bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl p-8">
           {error && (
             <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
               <p className="text-red-400 text-sm">{error}</p>
@@ -48,11 +50,11 @@ interface AuthLinkProps {
 
 export function AuthLink({ prompt, href, linkText }: AuthLinkProps) {
   return (
-    <p className="text-white/70 text-sm">
+    <p className="text-gray-600 dark:text-white/70 text-sm">
       {prompt}{" "}
       <Link
         href={href}
-        className="text-blue-400 hover:text-blue-300 font-semibold"
+        className="text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 font-semibold"
       >
         {linkText}
       </Link>

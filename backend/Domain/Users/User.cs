@@ -30,6 +30,9 @@ public class User : Entity
     public DateTime CreatedDate { get; private set; }
     public DateTime? ModifiedDate { get; private set; }
     public DateTime? DeletedDate { get; private set; }
+    public string? BanReason { get; private set; }
+    public DateTime? BanEndDate { get; private set; }
+    private Status? _previousStatus;
     private User(){}
     private User(Builder builder)
     {
@@ -206,6 +209,26 @@ public class User : Entity
             
         Status = Status.Deleted;
         DeletedDate = DateTime.UtcNow;
+    }
+
+    public void Ban(string? reason = null, TimeSpan? duration = null)
+    {
+        if (Status == Status.Banned)
+            return; // idempotent
+        _previousStatus = Status;
+        Status = Status.Banned;
+        BanReason = reason;
+        BanEndDate = duration.HasValue ? DateTime.UtcNow.Add(duration.Value) : null;
+    }
+
+    public void Unban()
+    {
+        if (Status != Status.Banned)
+            return;
+        Status = _previousStatus ?? Status.Active;
+        _previousStatus = null;
+        BanReason = null;
+        BanEndDate = null;
     }
 
     public void AddNotification(Notification notification)

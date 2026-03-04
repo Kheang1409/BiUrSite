@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   COMMENTS_QUERY,
@@ -89,13 +90,16 @@ export function PostDetailModal({
     variables: { postId, pageNumber: 1 },
     skip: !isOpen,
     fetchPolicy: "cache-and-network",
-    onCompleted: (data) => {
-      const fetchedComments = data?.comments || [];
+  });
+
+  useEffect(() => {
+    const fetchedComments = commentsData?.comments || [];
+    if (fetchedComments) {
       setComments(fetchedComments);
       setHasMoreComments(fetchedComments.length >= COMMENTS_PAGE_SIZE);
       setCommentsPage(1);
-    },
-  });
+    }
+  }, [commentsData]);
 
   const { data: meData } = useQuery(ME_QUERY, {
     skip: !isOpen || !isAuthenticated,
@@ -624,9 +628,11 @@ export function PostDetailModal({
       <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" />
 
       <div className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden">
-        <Card className="bg-primary-3/95 border border-white/10 shadow-2xl">
-          <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/10">
-            <div className="text-lg font-semibold text-white">Post</div>
+        <Card className="bg-white/95 dark:bg-primary-3/95 border border-gray-200 dark:border-white/10 shadow-2xl">
+          <div className="flex items-center justify-between gap-3 pb-3 border-b border-gray-200 dark:border-white/10">
+            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+              Post
+            </div>
             <Button variant="ghost" size="sm" onClick={onClose}>
               ✕
             </Button>
@@ -664,12 +670,23 @@ export function PostDetailModal({
                 ) : (
                   <>
                     <div className="flex items-start gap-3">
-                      <Avatar initials={post.username} src={post.userProfile} />
+                      <Link
+                        href={`/profile/user/${post.userId}`}
+                        className="shrink-0"
+                      >
+                        <Avatar
+                          initials={post.username}
+                          src={post.userProfile}
+                        />
+                      </Link>
                       <div className="flex-1 min-w-0 flex items-start justify-between gap-2">
                         <div className="min-w-0">
-                          <div className="font-semibold text-white leading-snug">
+                          <Link
+                            href={`/profile/user/${post.userId}`}
+                            className="font-semibold text-gray-900 dark:text-white leading-snug hover:text-primary-1 transition-colors"
+                          >
                             {post.username}
-                          </div>
+                          </Link>
                           {postDate && (
                             <div
                               className="text-xs text-muted mt-0.5"
@@ -688,7 +705,7 @@ export function PostDetailModal({
                             <button
                               type="button"
                               onClick={() => setIsPostMenuOpen((open) => !open)}
-                              className="w-9 h-9 rounded-full grid place-items-center bg-transparent hover:bg-white/10 transition-colors text-muted hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
+                              className="w-9 h-9 rounded-full grid place-items-center bg-transparent hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-muted hover:text-gray-900 dark:hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-200 dark:focus-visible:ring-white/20"
                               aria-label="Post options"
                               title="Options"
                               disabled={isPostSaving || isPostDeleting}
@@ -707,10 +724,10 @@ export function PostDetailModal({
                             </button>
 
                             {isPostMenuOpen && (
-                              <div className="absolute right-0 mt-2 w-48 rounded-xl border border-white/10 bg-primary-3 shadow-2xl overflow-hidden">
+                              <div className="absolute right-0 mt-2 w-48 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-primary-3 shadow-2xl overflow-hidden">
                                 <button
                                   type="button"
-                                  className="w-full text-left px-3 py-2.5 text-sm text-white hover:bg-white/10 transition-colors"
+                                  className="w-full text-left px-3 py-2.5 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                                   onClick={() => {
                                     setIsPostMenuOpen(false);
                                     setPostActionError(null);
@@ -720,10 +737,10 @@ export function PostDetailModal({
                                 >
                                   Edit post
                                 </button>
-                                <div className="h-px bg-white/10" />
+                                <div className="h-px bg-gray-200 dark:bg-white/10" />
                                 <button
                                   type="button"
-                                  className="w-full text-left px-3 py-2.5 text-sm text-danger-1 hover:bg-white/10 transition-colors"
+                                  className="w-full text-left px-3 py-2.5 text-sm text-danger-1 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                                   onClick={() => {
                                     setIsPostMenuOpen(false);
                                     void submitDeletePost();
@@ -781,7 +798,7 @@ export function PostDetailModal({
                           </div>
                         </div>
                       ) : isPostTextLong && !isPostExpanded ? (
-                        <p className="text-white/90 leading-relaxed whitespace-pre-wrap text-sm">
+                        <p className="text-gray-700 dark:text-white/90 leading-relaxed whitespace-pre-wrap text-sm">
                           {postDisplayText}{" "}
                           <button
                             type="button"
@@ -793,7 +810,7 @@ export function PostDetailModal({
                           </button>
                         </p>
                       ) : (
-                        <p className="text-white/90 leading-relaxed whitespace-pre-wrap text-sm">
+                        <p className="text-gray-700 dark:text-white/90 leading-relaxed whitespace-pre-wrap text-sm">
                           {postDisplayText}
                           {isPostTextLong && isPostExpanded && (
                             <>
@@ -827,7 +844,7 @@ export function PostDetailModal({
               </div>
 
               <div className="pt-6 pb-2">
-                <div className="text-sm font-semibold text-white mb-3">
+                <div className="text-sm font-semibold text-gray-900 dark:text-white mb-3">
                   Comments ({totalCommentCount})
                 </div>
 
@@ -876,12 +893,17 @@ export function PostDetailModal({
                           id={`comment-${c.id}`}
                           className="flex items-start gap-2 group"
                         >
-                          <Avatar
-                            initials={c.username}
-                            src={c.userProfile}
-                            size="sm"
-                            className="mt-0.5"
-                          />
+                          <Link
+                            href={`/profile/user/${c.userId}`}
+                            className="shrink-0"
+                          >
+                            <Avatar
+                              initials={c.username}
+                              src={c.userProfile}
+                              size="sm"
+                              className="mt-0.5"
+                            />
+                          </Link>
 
                           <div className="flex-1 min-w-0">
                             {isEditing ? (
@@ -925,11 +947,14 @@ export function PostDetailModal({
                             ) : (
                               <>
                                 <div className="flex items-start gap-1">
-                                  <div className="inline-block max-w-full rounded-2xl bg-white/10 border border-white/10 px-3 py-2">
-                                    <div className="text-sm font-semibold text-white truncate leading-snug">
+                                  <div className="inline-block max-w-full rounded-2xl bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 px-3 py-2">
+                                    <Link
+                                      href={`/profile/user/${c.userId}`}
+                                      className="text-sm font-semibold text-gray-900 dark:text-white truncate leading-snug hover:text-primary-1 transition-colors"
+                                    >
                                       {c.username}
-                                    </div>
-                                    <p className="text-sm text-white/90 whitespace-pre-wrap mt-1 leading-snug">
+                                    </Link>
+                                    <p className="text-sm text-gray-700 dark:text-white/90 whitespace-pre-wrap mt-1 leading-snug">
                                       {c.text}
                                     </p>
                                   </div>
@@ -952,7 +977,7 @@ export function PostDetailModal({
                                               : c.id,
                                           )
                                         }
-                                        className="w-7 h-7 rounded-full grid place-items-center bg-transparent hover:bg-white/10 transition-colors text-muted hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/20"
+                                        className="w-7 h-7 rounded-full grid place-items-center bg-transparent hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-muted hover:text-gray-900 dark:hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-200 dark:focus-visible:ring-white/20"
                                         aria-label="Comment options"
                                         title="Options"
                                         disabled={
@@ -973,11 +998,11 @@ export function PostDetailModal({
                                       </button>
 
                                       {commentMenuOpenId === c.id && (
-                                        <div className="absolute left-0 mt-1 w-36 rounded-xl border border-white/10 bg-primary-3 shadow-2xl overflow-hidden z-10">
+                                        <div className="absolute left-0 mt-1 w-36 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-primary-3 shadow-2xl overflow-hidden z-10">
                                           {canEditComment(c.userId) && (
                                             <button
                                               type="button"
-                                              className="w-full text-left px-3 py-2 text-sm text-white hover:bg-white/10 transition-colors"
+                                              className="w-full text-left px-3 py-2 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                                               onClick={() => {
                                                 setCommentMenuOpenId(null);
                                                 setCommentActionError(null);
@@ -990,12 +1015,12 @@ export function PostDetailModal({
                                           )}
                                           {canEditComment(c.userId) &&
                                             canDeleteComment(c.userId) && (
-                                              <div className="h-px bg-white/10" />
+                                              <div className="h-px bg-gray-200 dark:bg-white/10" />
                                             )}
                                           {canDeleteComment(c.userId) && (
                                             <button
                                               type="button"
-                                              className="w-full text-left px-3 py-2 text-sm text-danger-1 hover:bg-white/10 transition-colors"
+                                              className="w-full text-left px-3 py-2 text-sm text-danger-1 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                                               onClick={() => {
                                                 setCommentMenuOpenId(null);
                                                 setDeleteCommentId(c.id);
@@ -1042,7 +1067,7 @@ export function PostDetailModal({
               </div>
             </div>
 
-            <div className="sticky bottom-0 border-t border-white/10 bg-primary-3/95 backdrop-blur supports-[backdrop-filter]:bg-primary-3/80">
+            <div className="sticky bottom-0 border-t border-gray-200 dark:border-white/10 bg-white/95 dark:bg-primary-3/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-primary-3/80">
               {commentError && (
                 <div className="mb-3 bg-danger-1/10 border border-danger-1/30 rounded-lg p-3 text-sm text-danger-1">
                   {commentError}
@@ -1095,7 +1120,7 @@ export function PostDetailModal({
                       <button
                         type="button"
                         onClick={() => setIsEmojiOpen((open) => !open)}
-                        className="w-8 h-8 rounded-full hover:bg-white/10 transition-colors text-muted hover:text-white"
+                        className="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-muted hover:text-gray-900 dark:hover:text-white"
                         aria-label="Add emoji"
                         title="Emoji"
                         disabled={!isAuthenticated || isCommentSubmitting}
@@ -1105,7 +1130,7 @@ export function PostDetailModal({
 
                       <button
                         type="submit"
-                        className="w-8 h-8 rounded-full hover:bg-white/10 transition-colors text-muted hover:text-white disabled:opacity-50"
+                        className="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-muted hover:text-gray-900 dark:hover:text-white disabled:opacity-50"
                         aria-label="Send comment"
                         title="Send"
                         disabled={
@@ -1120,14 +1145,14 @@ export function PostDetailModal({
                       {isEmojiOpen && (
                         <div
                           ref={emojiPopoverRef}
-                          className="absolute bottom-10 right-0 w-60 p-2 rounded-xl border border-white/10 bg-primary-3 shadow-2xl"
+                          className="absolute bottom-10 right-0 w-60 p-2 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-primary-3 shadow-2xl"
                         >
                           <div className="grid grid-cols-6 gap-1">
                             {emojiList.map((emoji) => (
                               <button
                                 key={emoji}
                                 type="button"
-                                className="w-8 h-8 rounded-lg hover:bg-white/10 transition-colors"
+                                className="w-8 h-8 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                                 onClick={() => {
                                   insertEmoji(emoji);
                                   setIsEmojiOpen(false);

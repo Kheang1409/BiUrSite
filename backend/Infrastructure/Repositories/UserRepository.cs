@@ -38,6 +38,29 @@ public class UserRepository : IUserRepository
             operationName: "GetUsers");
     }
 
+    public async Task<IEnumerable<User>> GetAllUsers(int pageNumber)
+    {
+        if (pageNumber <= 0)
+            return Enumerable.Empty<User>();
+
+        var filterBuilder = Builders<User>.Filter;
+        var filters = new List<FilterDefinition<User>>
+        {
+            filterBuilder.Where(u => u.Status != Status.Deleted)
+        };
+        var finalFilter = filterBuilder.And(filters);
+        var skip = (pageNumber - 1) * LIMIT;
+
+        return await RetryPolicy.ExecuteWithRetryAsync(
+            () => _users.Find(finalFilter)
+                .SortByDescending(u => u.CreatedDate)
+                .Skip(skip)
+                .Limit(LIMIT)
+                .ToListAsync(),
+            logger: _logger,
+            operationName: "GetAllUsers");
+    }
+
     public Task<User?> GetUserById(UserId id)
     {
         var filter = Builders<User>.Filter.Eq(u => u.Id, id);

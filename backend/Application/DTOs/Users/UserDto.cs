@@ -11,6 +11,10 @@ public class UserDto
     public string? Phone { get; private set; }
     public string Bio { get; private set; } = string.Empty;
     public bool HasNewNotification { get; private set; }
+    public string Role { get; private set; } = string.Empty;
+    public string Status { get; private set; } = string.Empty;
+    public string? BanReason { get; private set; }
+    public DateTime? BanEndDate { get; private set; }
     public DateTime CreatedDate { get; private set; }
     public DateTime? ModifiedDate { get; private set; }
 
@@ -26,6 +30,32 @@ public class UserDto
             Phone = user.Phone,
             Bio = user.Bio,
             HasNewNotification = user.HasNewNotification,
+            Role = user.Role.ToString(),
+            Status = user.Status.ToString(),
+            BanReason = user.BanReason,
+            BanEndDate = user.BanEndDate,
+            CreatedDate = user.CreatedDate,
+            ModifiedDate = user.ModifiedDate,
+        };
+    }
+
+    // Create a DTO for a requester: only include email/phone when requester is the same user or an admin
+    public static UserDto Create(User user, Guid? requesterId, bool requesterIsAdmin)
+    {
+        var includePrivate = requesterIsAdmin || (requesterId.HasValue && user.Id.Value.Equals(requesterId.Value));
+        return new UserDto
+        {
+            Id = user.Id.Value,
+            Username = user.Username,
+            Email = includePrivate ? user.Email : string.Empty,
+            Profile = user.Profile.Url,
+            Phone = includePrivate ? user.Phone : null,
+            Bio = user.Bio,
+            HasNewNotification = user.HasNewNotification,
+            Role = user.Role.ToString(),
+            Status = user.Status.ToString(),
+            BanReason = requesterIsAdmin ? user.BanReason : null,
+            BanEndDate = requesterIsAdmin ? user.BanEndDate : null,
             CreatedDate = user.CreatedDate,
             ModifiedDate = user.ModifiedDate,
         };

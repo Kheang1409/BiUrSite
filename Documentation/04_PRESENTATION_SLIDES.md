@@ -8,11 +8,11 @@
 
 **Subtitle:** Building a moderated, real‑time community for trustworthy feedback
 
-![branding](./presentation/images/branding.png)
-
 <!-- Speaker Notes: Quick greeting, personal intro, one‑line project pitch. -->
 
 ---
+
+<div style="page-break-after: always;"></div>
 
 ## Problem Statement
 
@@ -20,11 +20,11 @@
 - Anonymous posting often means poor moderation and low signal‑to‑noise.
 - Communities are fragmented across many platforms (forums, Reddit, Discord).
 
-![problem](./presentation/images/problem_gap.png)
-
 <!-- Speaker Notes: Describe user pain; give 1–2 short examples of typical scenarios. -->
 
 ---
+
+<div style="page-break-after: always;"></div>
 
 ## Our Solution
 
@@ -32,11 +32,11 @@
 - Real‑time engagement: instant notifications when someone comments.
 - Simple, mobile‑friendly UI and scalable backend (ASP.NET Core, MongoDB, Redis).
 
-![solution](./presentation/images/solution_flow.png)
-
 <!-- Speaker Notes: Emphasize safety + immediacy; value proposition for users and moderators. -->
 
 ---
+
+<div style="page-break-after: always;"></div>
 
 ## System Architecture (Three‑Tier)
 
@@ -44,22 +44,22 @@
 - API: ASP.NET Core 8 · GraphQL (HotChocolate) · SignalR hubs
 - Data: MongoDB (documents) + Redis (cache, rate limiting)
 
-![architecture](./presentation/images/architecture_diagram.png)
-
 <!-- Speaker Notes: Walk through a request lifecycle: client → GraphQL → DB/Redis → SignalR push. -->
 
 ---
+
+<div style="page-break-after: always;"></div>
 
 ## Use‑Case Model (Summary)
 
 - 23 major interactions covering users and admins (register, post, comment, notify, moderate).
 - Primary actors: Anonymous user, Verified user, Admin.
 
-![usecase](./presentation/images/usecase_diagram.png)
-
 <!-- Speaker Notes: Highlight the most important use cases you implemented and why they matter. -->
 
 ---
+
+<div style="page-break-after: always;"></div>
 
 ## Key Use Case: Registration → First Post
 
@@ -71,6 +71,8 @@
 
 ---
 
+<div style="page-break-after: always;"></div>
+
 ## Key Use Case: Engagement Loop (Real‑Time)
 
 1. User A comments on User B's post
@@ -80,6 +82,8 @@
 <!-- Speaker Notes: Mention performance targets (notification latency <100ms) and fallback behavior when offline. -->
 
 ---
+
+<div style="page-break-after: always;"></div>
 
 ## Technology Stack & Rationale
 
@@ -91,6 +95,8 @@
 
 ---
 
+<div style="page-break-after: always;"></div>
+
 ## Non‑Functional Requirements (Selected)
 
 - Performance: API p95 < 500ms; feed pagination < 200ms; notifications < 100ms
@@ -101,17 +107,19 @@
 
 ---
 
+<div style="page-break-after: always;"></div>
+
 ## Demo Flow (Screenshots / Short Recording)
 
 1. Login → view feed (show feed screenshot)
 2. Create post → optimistic update (screenshot)
 3. Another browser comments → author receives toast notification (screenshot)
 
-![demo](./presentation/images/demo_flow.png)
-
 <!-- Speaker Notes: Explain what to show in the live/demo recording and the expected outcomes. -->
 
 ---
+
+<div style="page-break-after: always;"></div>
 
 ## Roadmap & Next Steps
 
@@ -122,6 +130,8 @@
 <!-- Speaker Notes: Close with ask: beta testers, feedback, and where to find the repo. -->
 
 ---
+
+<div style="page-break-after: always;"></div>
 
 ## Appendix & Links
 

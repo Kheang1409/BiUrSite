@@ -51,17 +51,32 @@ export function CreatePostCard({ onPostCreated }: CreatePostCardProps) {
   const avatarInitials =
     me?.username || meFallback?.username || username || "ME";
 
-  const [createPost] = useMutation(CREATE_POST_MUTATION, {
-    onCompleted: (data) => {
-      const created = data?.createPost as PostType | undefined;
+  const [createPost] = useMutation(CREATE_POST_MUTATION);
 
-      // Backend image upload can be eventually-consistent; pass a local preview
-      // URL to the feed so users see the photo instantly.
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!content.trim() && !imageBytes) {
+      setError("Post must contain text or image");
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    try {
+      const res: any = await createPost({
+        variables: {
+          text: content,
+          data: imageBytes,
+        },
+      });
+
+      const created = res?.data?.createPost as PostType | undefined;
+
       const localPreviewUrl = imageBytes
         ? URL.createObjectURL(
             new Blob([Uint8Array.from(imageBytes)], {
               type: imageMime || "image/jpeg",
-            })
+            }),
           )
         : null;
 
@@ -75,33 +90,9 @@ export function CreatePostCard({ onPostCreated }: CreatePostCardProps) {
         localPreviewUrl
           ? ({ ...created, imageUrl: localPreviewUrl } as PostType)
           : created,
-        localPreviewUrl
+        localPreviewUrl,
       );
       setIsLoading(false);
-    },
-    onError: (error) => {
-      console.error("Error creating post:", error);
-      setError("Failed to create post. Please try again.");
-      setIsLoading(false);
-    },
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!content.trim() && !imageBytes) {
-      setError("Post must contain text or image");
-      return;
-    }
-
-    setIsLoading(true);
-    setError(null);
-    try {
-      await createPost({
-        variables: {
-          text: content,
-          data: imageBytes,
-        },
-      });
     } catch (error) {
       console.error("Failed to create post:", error);
       setError("Failed to create post. Please try again.");
@@ -143,7 +134,7 @@ export function CreatePostCard({ onPostCreated }: CreatePostCardProps) {
       <div className="flex gap-4 mb-4">
         <Avatar initials={avatarInitials} src={avatarSrc} size="md" />
         <div className="flex-1">
-          <h2 className="text-lg font-semibold text-white mb-2">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             What's on your mind?
           </h2>
           <p className="text-xs text-muted">
@@ -169,7 +160,7 @@ export function CreatePostCard({ onPostCreated }: CreatePostCardProps) {
             <img
               src={imagePreviewUrl}
               alt="Selected post"
-              className="w-full max-h-80 object-cover rounded-[10px] border border-white/10"
+              className="w-full max-h-80 object-cover rounded-[10px] border border-gray-200 dark:border-white/10"
             />
             <button
               type="button"
@@ -210,7 +201,7 @@ export function CreatePostCard({ onPostCreated }: CreatePostCardProps) {
               title={imagePreviewUrl ? "Change photo" : "Add photo"}
             >
               <span className="inline-flex items-center gap-2">
-                <span className="inline-grid place-items-center w-7 h-7 rounded-full bg-white/5 border border-white/10">
+                <span className="inline-grid place-items-center w-7 h-7 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10">
                   📷
                 </span>
                 {imagePreviewUrl ? "Change" : "Photo"}

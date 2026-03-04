@@ -417,10 +417,11 @@ export function Feed() {
       ) : displayedPosts.length > 0 ? (
         // Posts List
         <div className="space-y-4">
-          {displayedPosts.map((post) => (
+          {displayedPosts.map((post, index) => (
             <div key={post.id} id={`post-${post.id}`}>
               <Post
                 post={post}
+                isFirst={index === 0}
                 onComment={(postId) => setActivePostId(postId)}
                 onDelete={async (postId) => {
                   setDeletePostId(postId);

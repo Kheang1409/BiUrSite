@@ -20,14 +20,14 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
       value = "",
       ...props
     },
-    ref
+    ref,
   ) => {
     const charCount = String(value).length;
 
     return (
       <div className={fullWidth ? "w-full" : ""}>
         {label && (
-          <label className="block text-sm font-medium text-white mb-2">
+          <label className="block text-sm font-medium text-gray-900 dark:text-white mb-2">
             {label}
           </label>
         )}
@@ -36,7 +36,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           maxLength={maxLength}
           value={value}
           className={[
-            "px-4 py-2.5 bg-white/10 border border-white/20 rounded-[10px] text-white placeholder-muted",
+            "px-4 py-2.5 bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-[10px] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-muted",
             "focus:outline-none focus:border-primary-1 focus:ring-2 focus:ring-primary-1/50",
             "transition-colors duration-200 resize-vertical",
             error && "border-danger-1 focus:ring-danger-1/50",
@@ -61,7 +61,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 Textarea.displayName = "Textarea";

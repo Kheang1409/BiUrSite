@@ -1,6 +1,7 @@
 "use client";
 
 import React, { memo } from "react";
+import Link from "next/link";
 import { Comment as CommentType } from "@/types";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -22,21 +23,26 @@ export const Comment = memo(function Comment({
   isOwner = false,
 }: CommentProps) {
   return (
-    <div className="flex gap-3 pb-4 border-b border-white/5 last:border-b-0 transition-colors hover:bg-white/5 rounded-lg p-2 -mx-2">
-      <Avatar initials={comment.username} size="sm" />
+    <div className="flex gap-3 pb-4 border-b border-gray-100 dark:border-white/5 last:border-b-0 transition-colors hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg p-2 -mx-2">
+      <Link href={`/profile/user/${comment.userId}`} className="shrink-0">
+        <Avatar initials={comment.username} size="sm" />
+      </Link>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-white">
+              <Link
+                href={`/profile/user/${comment.userId}`}
+                className="text-sm font-semibold text-gray-900 dark:text-white hover:text-primary-1 transition-colors"
+              >
                 {comment.username}
-              </p>
+              </Link>
               <time className="text-xs text-muted">
                 {dayjs(comment.createdDate).fromNow()}
               </time>
             </div>
-            <p className="text-sm text-white/80 mt-1 whitespace-pre-wrap">
+            <p className="text-sm text-gray-700 dark:text-white/80 mt-1 whitespace-pre-wrap">
               {comment.text}
             </p>
           </div>
