@@ -25,8 +25,7 @@ internal sealed class AdminDeletePostCommandHandler : IRequestHandler<AdminDelet
 
     public async Task Handle(AdminDeletePostCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Admin deleting post {PostId} with reason: {Reason}",
-            request.PostId, request.Reason);
+        
 
         var post = await _postRepository.GetPostById(new PostId(request.PostId));
 
@@ -40,7 +39,6 @@ internal sealed class AdminDeletePostCommandHandler : IRequestHandler<AdminDelet
         await _postRepository.Delete(post);
         await _unitOfWork.SaveChangesAsync(post, cancellationToken);
 
-        _logger.LogInformation("Post {PostId} has been deleted by admin. Reason: {Reason}",
-            request.PostId, request.Reason);
+        
     }
 }
