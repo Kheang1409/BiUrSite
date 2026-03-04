@@ -22,7 +22,7 @@ public sealed class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRe
         var requestName = typeof(TRequest).Name;
         var requestId = Guid.NewGuid();
 
-        _logger.LogInformation(
+        _logger.LogDebug(
             "Handling {RequestName} ({RequestId})",
             requestName,
             requestId);
@@ -34,7 +34,7 @@ public sealed class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRe
             var response = await next();
             stopwatch.Stop();
 
-            _logger.LogInformation(
+            _logger.LogDebug(
                 "Handled {RequestName} ({RequestId}) in {ElapsedMilliseconds}ms",
                 requestName,
                 requestId,

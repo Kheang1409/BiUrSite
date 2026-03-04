@@ -39,7 +39,6 @@ public class UserDto
         };
     }
 
-    // Create a DTO for a requester: only include email/phone when requester is the same user or an admin
     public static UserDto Create(User user, Guid? requesterId, bool requesterIsAdmin)
     {
         var includePrivate = requesterIsAdmin || (requesterId.HasValue && user.Id.Value.Equals(requesterId.Value));

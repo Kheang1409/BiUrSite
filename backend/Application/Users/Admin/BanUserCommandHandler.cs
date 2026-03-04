@@ -21,8 +21,7 @@ internal sealed class BanUserCommandHandler : IRequestHandler<BanUserCommand>
 
     public async Task Handle(BanUserCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Admin banning user {UserId} with reason: {Reason}, duration: {Duration} minutes",
-            request.UserId, request.Reason, request.DurationMinutes);
+        
 
         var user = await _userRepository.GetUserById(new UserId(request.UserId));
 
@@ -45,6 +44,6 @@ internal sealed class BanUserCommandHandler : IRequestHandler<BanUserCommand>
         user.Ban(request.Reason, duration);
         await _userRepository.Update(user);
 
-        _logger.LogInformation("User {UserId} has been banned successfully.", request.UserId);
+        
     }
 }
