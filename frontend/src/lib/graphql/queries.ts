@@ -144,6 +144,18 @@ export const LOGIN_MUTATION = gql`
   }
 `;
 
+export const FORGOT_PASSWORD_MUTATION = gql`
+  mutation ForgotPassword($email: String!) {
+    forgotPassword(email: $email)
+  }
+`;
+
+export const RESET_PASSWORD_MUTATION = gql`
+  mutation ResetPassword($email: String!, $password: String!, $otp: String!) {
+    resetPassword(input: { email: $email, password: $password, otp: $otp })
+  }
+`;
+
 export const REGISTER_MUTATION = gql`
   mutation Register($username: String!, $email: String!, $password: String!) {
     register(

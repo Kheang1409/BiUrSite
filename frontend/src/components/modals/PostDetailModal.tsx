@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useMutation, useQuery } from "@apollo/client";
 import {
@@ -59,6 +60,12 @@ export function PostDetailModal({
   const postMenuPopoverRef = useRef<HTMLDivElement | null>(null);
   const commentMenuPopoverRef = useRef<HTMLDivElement | null>(null);
   const commentsContainerRef = useRef<HTMLDivElement | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Handle SSR - only render portal after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Comments pagination state
   const [comments, setComments] = useState<CommentType[]>([]);
@@ -601,7 +608,10 @@ export function PostDetailModal({
     });
   };
 
-  return (
+  // Don't render on server or before mount
+  if (!mounted) return null;
+
+  const modalContent = (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6"
       role="dialog"
@@ -1180,4 +1190,7 @@ export function PostDetailModal({
       </div>
     </div>
   );
+
+  // Render modal in a portal to document.body for proper centering
+  return createPortal(modalContent, document.body);
 }

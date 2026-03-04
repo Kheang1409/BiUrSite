@@ -5,6 +5,8 @@ import {
   LOGIN_MUTATION,
   REGISTER_MUTATION,
   ME_QUERY,
+  FORGOT_PASSWORD_MUTATION,
+  RESET_PASSWORD_MUTATION,
 } from "@/lib/graphql/queries";
 import { useAuth } from "./useAuth";
 import { User } from "@/types";
@@ -15,6 +17,8 @@ export function useGraphQLAuth() {
   const [loginMutation] = useMutation(LOGIN_MUTATION);
 
   const [registerMutation] = useMutation(REGISTER_MUTATION);
+  const [forgotPasswordMutation] = useMutation(FORGOT_PASSWORD_MUTATION);
+  const [resetPasswordMutation] = useMutation(RESET_PASSWORD_MUTATION);
 
   const {
     data: meData,
@@ -48,9 +52,27 @@ export function useGraphQLAuth() {
     return result;
   };
 
+  const handleForgotPassword = async (email: string) => {
+    const result = await forgotPasswordMutation({ variables: { email } });
+    return result;
+  };
+
+  const handleResetPassword = async (
+    email: string,
+    password: string,
+    otp: string,
+  ) => {
+    const result = await resetPasswordMutation({
+      variables: { email, password, otp },
+    });
+    return result;
+  };
+
   return {
     handleLogin,
     handleRegister,
+    handleForgotPassword,
+    handleResetPassword,
     logout,
     currentUser: meData?.me as User | undefined,
     isLoading: meLoading,
