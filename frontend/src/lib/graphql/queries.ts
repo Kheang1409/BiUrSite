@@ -91,6 +91,8 @@ export const ME_QUERY = gql`
       bio
       phone
       hasNewNotification
+      role
+      status
     }
   }
 `;
@@ -207,5 +209,64 @@ export const EDIT_COMMENT_MUTATION = gql`
 export const DELETE_COMMENT_MUTATION = gql`
   mutation DeleteComment($postId: UUID!, $id: UUID!) {
     deleteComment(postId: $postId, id: $id)
+  }
+`;
+
+export const BAN_USER_MUTATION = gql`
+  mutation BanUser($userId: UUID!, $reason: String, $durationMinutes: Int) {
+    banUser(userId: $userId, reason: $reason, durationMinutes: $durationMinutes)
+  }
+`;
+
+export const UNBAN_USER_MUTATION = gql`
+  mutation UnbanUser($userId: UUID!) {
+    unbanUser(userId: $userId)
+  }
+`;
+
+export const ADMIN_DELETE_POST_MUTATION = gql`
+  mutation AdminDeletePost($postId: UUID!, $reason: String) {
+    adminDeletePost(postId: $postId, reason: $reason)
+  }
+`;
+
+export const ADMIN_DELETE_COMMENT_MUTATION = gql`
+  mutation AdminDeleteComment(
+    $postId: UUID!
+    $commentId: UUID!
+    $reason: String
+  ) {
+    adminDeleteComment(postId: $postId, commentId: $commentId, reason: $reason)
+  }
+`;
+
+export const ADMIN_USERS_QUERY = gql`
+  query AdminUsers($pageNumber: Int!) {
+    adminUsers(pageNumber: $pageNumber) {
+      id
+      username
+      email
+      profile
+      bio
+      role
+      status
+      banReason
+      banEndDate
+      createdDate
+    }
+  }
+`;
+
+export const ADMIN_POSTS_QUERY = gql`
+  query AdminPosts($keywords: String, $pageNumber: Int!) {
+    posts(keywords: $keywords, pageNumber: $pageNumber) {
+      id
+      text
+      username
+      userId
+      userProfile
+      imageUrl
+      createdDate
+    }
   }
 `;

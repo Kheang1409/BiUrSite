@@ -68,7 +68,8 @@ export const apolloClient = new ApolloClient({
       Query: {
         fields: {
           posts: {
-            keyArgs: ["keywords"],
+            // include pageNumber in the cache key so each page is stored separately
+            keyArgs: ["keywords", "pageNumber"],
             merge(
               existing: any[] = [],
               incoming: any[] = [],

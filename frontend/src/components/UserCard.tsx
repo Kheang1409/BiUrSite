@@ -3,6 +3,7 @@
 import { User } from "@/types";
 import { useRouter } from "next/navigation";
 import { Card, Avatar } from "@/components/ui/atoms";
+import { useAuth } from "@/hooks/useAuth";
 
 interface UserCardProps {
   user: User;
@@ -10,6 +11,7 @@ interface UserCardProps {
 
 export function UserCard({ user }: UserCardProps) {
   const router = useRouter();
+  const { userId: currentUserId } = useAuth();
 
   return (
     <button
@@ -35,7 +37,9 @@ export function UserCard({ user }: UserCardProps) {
         <h3 className="font-semibold text-gray-900 dark:text-white text-lg">
           {user.username}
         </h3>
-        <p className="text-xs text-muted mt-1 truncate">{user.email}</p>
+        {currentUserId && currentUserId === user.id ? (
+          <p className="text-xs text-muted mt-1 truncate">{user.email}</p>
+        ) : null}
 
         {user.bio && (
           <p className="text-sm text-gray-600 dark:text-white/70 mt-3 leading-relaxed line-clamp-3">
