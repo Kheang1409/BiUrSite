@@ -21,7 +21,7 @@ internal sealed class UnbanUserCommandHandler : IRequestHandler<UnbanUserCommand
 
     public async Task Handle(UnbanUserCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Admin unbanning user {UserId}", request.UserId);
+        
 
         var user = await _userRepository.GetUserById(new UserId(request.UserId));
 
@@ -34,6 +34,6 @@ internal sealed class UnbanUserCommandHandler : IRequestHandler<UnbanUserCommand
         user.Unban();
         await _userRepository.Update(user);
 
-        _logger.LogInformation("User {UserId} has been unbanned successfully.", request.UserId);
+        
     }
 }

@@ -25,8 +25,7 @@ internal sealed class AdminDeleteCommentCommandHandler : IRequestHandler<AdminDe
 
     public async Task Handle(AdminDeleteCommentCommand request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Admin deleting comment {CommentId} on post {PostId} with reason: {Reason}",
-            request.CommentId, request.PostId, request.Reason);
+        
 
         var postId = new PostId(request.PostId);
         var commentId = new CommentId(request.CommentId);
@@ -48,7 +47,6 @@ internal sealed class AdminDeleteCommentCommandHandler : IRequestHandler<AdminDe
         comment.Delete();
         await _commentRepository.Delete(postId, comment);
 
-        _logger.LogInformation("Comment {CommentId} on post {PostId} has been deleted by admin. Reason: {Reason}",
-            request.CommentId, request.PostId, request.Reason);
+        
     }
 }

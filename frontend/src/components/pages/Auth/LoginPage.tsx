@@ -72,6 +72,14 @@ export function LoginPage() {
           disabled={isLoading}
         />
 
+        <div className="text-right">
+          <AuthLink
+            prompt=""
+            href="/forgot-password"
+            linkText="Forgot password?"
+          />
+        </div>
+
         <SubmitButton
           isLoading={isLoading}
           loadingText="Signing in..."
