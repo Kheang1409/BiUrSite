@@ -19,7 +19,6 @@ internal sealed class GetAllUsersQueryHandler : IRequestHandler<GetAllUsersQuery
 
     public async Task<IEnumerable<User>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken)
     {
-        _logger.LogInformation("Admin fetching all users, page {PageNumber}", request.PageNumber);
         return await _userRepository.GetAllUsers(request.PageNumber);
     }
 }

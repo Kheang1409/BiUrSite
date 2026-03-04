@@ -105,7 +105,7 @@ public class EmailService : IEmailService
                         throw new EmailSendException($"SMTP command failed after {maxAttempts} attempts (rate-limited): {ex.Message}", ex);
 
                     var jitter = TimeSpan.FromMilliseconds(rng.Next(1000, 5000));
-                    var extended = TimeSpan.FromSeconds(Math.Min(Math.Pow(2, attempt) * 5, 900)); // up to 15 minutes
+                    var extended = TimeSpan.FromSeconds(Math.Min(Math.Pow(2, attempt) * 5, 900));
                     await Task.Delay(extended + jitter);
                     continue;
                 }
