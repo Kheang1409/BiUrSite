@@ -1,6 +1,7 @@
 using Bogus;
 using Backend.Domain.Users;
 using Backend.Domain.Posts;
+using Backend.Domain.Comments;
 using Backend.Domain.Enums;
 
 namespace Tests.TestFixtures;
@@ -51,4 +52,22 @@ public static class MockData
     public static string CreateFakePassword() => _faker.Internet.Password();
     public static string CreateFakeBio() => _faker.Lorem.Sentence();
     public static Guid CreateFakeGuid() => Guid.NewGuid();
+
+    public static Comment CreateFakeComment(User? user = null)
+    {
+        var commentUser = user ?? CreateFakeUser();
+        return Comment.Create(commentUser, _faker.Lorem.Sentence());
+    }
+
+    public static User CreateFakeAdminUser()
+    {
+        return new User.Builder()
+            .SetUserName(_faker.Internet.UserName())
+            .SetEmail(_faker.Internet.Email())
+            .SetPassword(_faker.Internet.Password())
+            .SetAuthProvider("local")
+            .SetStatus(Status.Active)
+            .SetRole(Role.Admin)
+            .Build();
+    }
 }

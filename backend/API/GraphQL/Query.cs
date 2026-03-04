@@ -7,6 +7,7 @@ using Backend.Application.Notifications.GetNotifications;
 using Backend.Application.Posts.GetMyPosts;
 using Backend.Application.Posts.GetPost;
 using Backend.Application.Posts.GetPosts;
+using Backend.Application.Users.Admin;
 using Backend.Application.Users.GetUser;
 using Backend.Application.Users.GetUsers;
 using Backend.Domain.Posts;
@@ -55,21 +56,27 @@ public sealed class Query
     public async Task<IReadOnlyList<UserDto>> Users(
         int pageNumber,
         [Service] IMediator mediator,
+        [Service] GraphQLUserContext? userContext,
         CancellationToken cancellationToken)
     {
         var users = await mediator.Send(new GetUsersQuery(pageNumber), cancellationToken);
-        return users.Select(u => (UserDto)u).ToList();
+        Guid? requesterId = userContext?.GetUserIdOrNull();
+        var isAdmin = userContext?.HasRole("Admin") ?? false;
+        return users.Select(u => UserDto.Create(u, requesterId, isAdmin)).ToList();
     }
 
     public async Task<UserDto> User(
         Guid id,
         [Service] IMediator mediator,
+        [Service] GraphQLUserContext? userContext,
         CancellationToken cancellationToken)
     {
         var user = await mediator.Send(new GetUserByIdQuery(id), cancellationToken);
         if (user is null)
             throw new NotFoundException("User is not found.");
-        return (UserDto)user;
+        Guid? requesterId = userContext?.GetUserIdOrNull();
+        var isAdmin = userContext?.HasRole("Admin") ?? false;
+        return UserDto.Create(user, requesterId, isAdmin);
     }
 
     [Authorize]
@@ -81,7 +88,8 @@ public sealed class Query
         var user = await mediator.Send(new GetUserByIdQuery(userContext.GetRequiredUserId()), cancellationToken);
         if (user is null)
             throw new NotFoundException("User is not found.");
-        return (UserDto)user;
+        // requester is the same user
+        return UserDto.Create(user, userContext.GetRequiredUserId(), userContext.HasRole("Admin"));
     }
 
     [Authorize]
@@ -103,5 +111,15 @@ public sealed class Query
     {
         var comments = await mediator.Send(new GetCommentsQuery(postId, pageNumber), cancellationToken);
         return comments.Select(c => (CommentDto)c).ToList();
+    }
+
+    [Authorize(Roles = new[] { "Admin" })]
+    public async Task<IReadOnlyList<UserDto>> AdminUsers(
+        int pageNumber,
+        [Service] IMediator mediator,
+        CancellationToken cancellationToken)
+    {
+        var users = await mediator.Send(new GetAllUsersQuery(pageNumber), cancellationToken);
+        return users.Select(u => (UserDto)u).ToList();
     }
 }
