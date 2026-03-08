@@ -21,7 +21,7 @@
 
 ```
 ┌─────────────────────────────────────────────────┐
-│ Frontend: Next.js + React + TypeScript           │
+│ Frontend: Next.js + React + TypeScript          │
 │ (http://localhost:3000)                         │
 └─────────────────┬───────────────────────────────┘
                   │ GraphQL / WebSocket (SignalR)
@@ -559,21 +559,21 @@ NODE_ENV=development npm run dev
 
 ## Key Files & Folders
 
-| Path                              | Purpose                                       |
-| --------------------------------- | --------------------------------------------- |
+| Path                              | Purpose                                                                                                                                                 |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `backend/API/Program.cs`          | Thin startup configuration (delegates DB init and middleware mapping to extension methods: `InitializeDatabaseAsync`, `UseDiagnostics`, `MapEndpoints`) |
-| `backend/API/GraphQL/Query.cs`    | GraphQL queries                               |
-| `backend/API/GraphQL/Mutation.cs` | GraphQL mutations                             |
-| `backend/Application/`            | Business logic (handlers, validators)         |
-| `backend/Domain/`                 | Entities, value objects, rules                |
-| `backend/Infrastructure/`         | Repositories, services, external integrations |
-| `frontend/src/app/`               | Next.js pages & layouts                       |
-| `frontend/src/components/`        | React components                              |
-| `frontend/src/lib/`               | API clients, utilities                        |
-| `frontend/src/store/`             | Zustand state                                 |
-| `docker-compose.yml`              | Multi-container setup                         |
-| `.env.example`                    | Environment template                          |
-| `docs/`                           | Documentation (SRS, use cases, etc.)          |
+| `backend/API/GraphQL/Query.cs`    | GraphQL queries                                                                                                                                         |
+| `backend/API/GraphQL/Mutation.cs` | GraphQL mutations                                                                                                                                       |
+| `backend/Application/`            | Business logic (handlers, validators)                                                                                                                   |
+| `backend/Domain/`                 | Entities, value objects, rules                                                                                                                          |
+| `backend/Infrastructure/`         | Repositories, services, external integrations                                                                                                           |
+| `frontend/src/app/`               | Next.js pages & layouts                                                                                                                                 |
+| `frontend/src/components/`        | React components                                                                                                                                        |
+| `frontend/src/lib/`               | API clients, utilities                                                                                                                                  |
+| `frontend/src/store/`             | Zustand state                                                                                                                                           |
+| `docker-compose.yml`              | Multi-container setup                                                                                                                                   |
+| `.env.example`                    | Environment template                                                                                                                                    |
+| `docs/`                           | Documentation (SRS, use cases, etc.)                                                                                                                    |
 
 ---
 
